@@ -26,6 +26,7 @@ class AlertStore {
   }
   
   init = async () => {
+    await riskStore.initPromise
     this.getValueRisk()
     this.getLiquidationsRisk()
     this.getVarLarJsonTime()
@@ -36,6 +37,9 @@ class AlertStore {
       this.getWhaleAlert(),
       this.getUtilizationAlert(),
     ])
+    .catch(err=> {
+      console.error(err)
+    })
     runInAction(() => {
       this.alerts = alerts
       this.loading = false

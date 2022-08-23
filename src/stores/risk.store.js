@@ -1,6 +1,15 @@
 import { makeAutoObservable, runInAction } from "mobx"
-import Solver from "../risk/solver"
 import mainStore from '../stores/main.store'
+
+let Solver
+const loadSolver = async () => {
+  try{
+    const module = await import("../risk/" + window.APP_CONFIG.SOLVER)
+    Solver = module.default
+  } catch(err){
+    console.error(err)
+  }
+}
 
 const tweakCurrentCap = cap => {
   if (cap === '0' || cap === 0) {
@@ -33,6 +42,7 @@ class RiskStore {
 
   init = async ()=> {
     if(true) {
+      await loadSolver()
       const data = await mainStore['risk_params_request']
       this.utilization = await mainStore['accounts_request']
       .then(u=> {
@@ -200,7 +210,15 @@ class RiskStore {
 
   findCap = (asset, value) => {
     const caps = this.solver.caps[asset]
-    if(value === Infinity){
+    if(!caps) {
+      console.warn("findCap fn: No caps found for asset " + asset)
+      return 0
+    }
+    if(value === undefined) {
+      console.warn("findCap fn: No value provided for asset " + asset)
+      return caps[0]
+    }
+    if(value === Infinity) {
       return caps[caps.length - 1]
     }
     for(let cap of caps){
@@ -272,6 +290,10 @@ class RiskStore {
   }
 
   getCurrentCollateralFactor = (asset) => {
+    debugger
+    if(asset === window.APP_CONFIG.STABLE){
+      return 0
+    }
     const [{current_collateral_factor }] = this.currentData.filter(r => r.asset === asset)
     return current_collateral_factor
   }

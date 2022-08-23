@@ -13,17 +13,17 @@ import mainStore from '../stores/main.store'
 
 class SinglePage extends Component {
   render (){
-    const {proViewShow} = mainStore
+    const {sectionShow: proViewShow} = mainStore
     return (
       <ScrollSpy offsetBottom={400} scrollThrottle={100} parentScrollContainerRef={this.props.scrollContainer}>
         <section id="system-status">
-          {mainStore.proViewShow("system-status") && <div>
+          {mainStore.sectionShow("system-status") && <div>
             <h2>System Status</h2>
             <Alerts/>
           </div>}
         </section>
         <section id="overview">
-          {mainStore.proViewShow("overview") && <div>
+          {mainStore.sectionShow("overview") && <div>
             <hgroup>
               <h2>Overview</h2>
               <p className="description">State of the platform overview</p>
@@ -32,13 +32,13 @@ class SinglePage extends Component {
           </div>}
         </section>
         <section id="collateral-factors">
-          {mainStore.proViewShow("collateral-factors") && <div>
+          {mainStore.sectionShow("collateral-factors") && <div>
             <h2>Collateral Factor Recommendations</h2>
             <RiskParameters />
           </div>}
         </section>
        <section id="sandbox">
-        {mainStore.proViewShow("sandbox") && <div>
+        {mainStore.sectionShow("sandbox") && <div>
             <hgroup>
               <h2> Risk Parameters Sandbox</h2>
               <p className="description">The sandbox lets you set different Supply and Borrow caps to get Collateral Factor recommendations according to different caps. The tool also provides optimization setting recommendations. </p>
@@ -47,7 +47,7 @@ class SinglePage extends Component {
           </div>}
         </section>
         <section id="asset-distribution">
-          {mainStore.proViewShow("asset-distribution") && <div>
+          {mainStore.sectionShow("asset-distribution") && <div>
             <hgroup>
               <h2>Asset Distribution</h2>
               <p className="description">
@@ -59,7 +59,7 @@ class SinglePage extends Component {
           </div>}
         </section>
         <section id="open-liquidations">
-          {mainStore.proViewShow("open-liquidations") && <div>
+          {mainStore.sectionShow("open-liquidations") && <div>
             <hgroup>
               <h2>Open Liquidations</h2>
               <p></p>
@@ -68,7 +68,7 @@ class SinglePage extends Component {
           </div>}
         </section>
         <section  id="oracle-deviation">
-          {mainStore.proViewShow("oracle-deviation") && <div>
+          {mainStore.sectionShow("oracle-deviation") && <div>
             <hgroup>
               <h2>Oracle Deviation</h2>
               <p className="description">The table tracks the deviation from the oracle price feed used by the platform compared to the assets’ prices taken from Centralized Exchanges (CEX) and Decentralized Exchanges (DEX). This helps monitor any critical deviations that might indicate an oracle manipulation, de-pegging, downtime, etc.</p>
@@ -77,7 +77,7 @@ class SinglePage extends Component {
           </div>}
         </section>
         <section id="liquidity">
-          {mainStore.proViewShow("liquidity") && <div>
+          {mainStore.sectionShow("liquidity") && <div>
             <hgroup>
               <h2>DEX Liquidity</h2>
               <p className="description">Monitoring available on-chain DEX liquidity per asset. 

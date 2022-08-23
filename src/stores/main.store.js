@@ -2,14 +2,9 @@ import { makeAutoObservable, runInAction } from "mobx"
 import axios from "axios"
 
 const platformId = window.APP_CONFIG.PLATFORM_ID
+const {SECTIONS} = window.APP_CONFIG
 const apiEndpoints = ['overview', 'accounts', 'dex_liquidity', 'oracles', 'usd_volume_for_slippage', 'current_simulation_risk',
                       'risk_params', 'lending_platform_current', 'whale_accounts', 'open_liquidations']
-const defaultSections = {
-  'system-status': true,
-  'overview': true,
-  'asset-distribution': true,
-  
-} 
 
 
 class MainStore {
@@ -34,7 +29,16 @@ class MainStore {
 
   toggleProView = () => this.proView = !this.proView
 
-  proViewShow = (section) => this.proView || defaultSections[section]
+  sectionShow = (sectionName) => {
+    if(this.proView){
+      return true
+    }
+    for(let section of SECTIONS){
+      if (section.name === sectionName){
+        return section.defaultVisible
+      }
+    }
+  }
 
   setBlackMode = (mode) => {
     this.blackMode = mode

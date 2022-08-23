@@ -2,24 +2,7 @@ import React from "react"
 import {observer} from "mobx-react"
 import mainStore from "../stores/main.store"
 
-const pages = [
-  'system-status',
-  'overview',
-  'collateral-factors',
-  'sandbox',
-  'asset-distribution',
-  'open-liquidations',
-  'oracle-deviation',
-  'liquidity',
-  // 'backstop',
-  // 'assumptions',
-  //'qualitative-anlysis',
-]
- 
-
-const humanPagesMap = {
-  liquidity: "DEX Liquidity"
-}
+const {SECTIONS} = window.APP_CONFIG 
 
 const Sidenav = (props) => {
   return (
@@ -34,14 +17,14 @@ const Sidenav = (props) => {
       <aside>
         <nav>
           <ul>
-            {pages.map(page=> <li key={page}>
+            {SECTIONS.map(section=> <li key={section.name}>
               <a
-                href={'#'+page}
-                data-to-scrollspy-id={page}
+                href={'#'+section.name}
+                data-to-scrollspy-id={section.name}
                 className='nav-link'
               >
-                {mainStore.proViewShow(page) && <span>
-                  {humanPagesMap[page] || page.split('-').join(' ')}
+                {mainStore.sectionShow(section.name) && <span>
+                  {section.displayName || section.name.split('-').join(' ')}
                 </span>}
               </a>
             </li>)}

@@ -1,10 +1,46 @@
 window.APP_CONFIG = {
-  PLATFORM_ID: '0',
-  TOKEN_PREFIX: 'au',
-  BLOCK_EXPLORER: 'https://aurorascan.dev',
-  WHITE_LOGO: 'aurigami.svg',
-  BLACK_LOGO: 'aurigami.svg',  
+  PLATFORM_ID: '2',
+  TOKEN_PREFIX: '',
+  BLOCK_EXPLORER: 'https://arbiscan.io',
+  WHITE_LOGO: 'vesta.svg',  
+  BLACK_LOGO: 'vesta.svg',
+  SOLVER: 'solver_demo',
+  STABLE: 'VST',
   feature_flags: {
-    alerts: false
+    alerts: true
   },
+  SECTIONS: [
+    {
+      name: 'system-status',
+      defaultVisible: true,
+    },    
+    {
+      name: 'overview',
+      defaultVisible: true,
+    },   
+    // {
+    //   name: 'collateral-factors',
+    //   displayName: 'collateral-ratios',
+    // },    
+    // {
+    //   name: 'sandbox',
+    // },    
+    {
+      name: 'asset-distribution',
+      defaultVisible: true,
+    },    
+    {
+      name: 'open-liquidations',
+    },
+    {
+      name: 'oracle-deviation',
+    },
+    // {
+    //   name: 'liquidity',
+    //   displayName: '"DEX Liquidity"'
+    // }
+    // 'backstop',
+    // 'assumptions',
+    //'qualitative-anlysis',
+  ]
 }
