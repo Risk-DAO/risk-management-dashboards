@@ -146,7 +146,7 @@ text {
   color: var(--color);
 }
 
-.box-row:last-child{
+.box-row:last-of-type{
   border-bottom: none;
   margin-bottom: 0;
   padding-bottom: 0;
