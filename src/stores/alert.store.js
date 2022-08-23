@@ -6,6 +6,7 @@ import { whaleFriendlyFormater } from '../components/WhaleFriendly'
 import BlockExplorerLink from "../components/BlockExplorerLink"
 import Ramzor from "../components/Ramzor"
 import Token from "../components/Token"
+import { TEXTS } from "../constants"
 
 const priceOracleDiffThreshold = 5
 
@@ -328,7 +329,7 @@ class AlertStore {
     })
     const type = alerts.length ? 'review' : 'success'
     return {
-      title: 'collateral factors',
+      title: TEXTS.COLLATERAL_FACTOR + 's',
       data: alerts,
       type,
       link: '#collateral-factors'

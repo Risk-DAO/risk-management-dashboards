@@ -8,6 +8,7 @@ import CapInput from '../components/CapInput'
 import CfDiff from '../components/CfDiff'
 import riskStore from '../stores/risk.store'
 import Token from "../components/Token"
+import {TEXTS} from "../constants"
 
 const columns = [
   {
@@ -28,12 +29,12 @@ const columns = [
       grow: 2
   }, 
   {
-      name: 'Current Collateral Factor',
+      name: `Current ${TEXTS.COLLATERAL_FACTOR}`,
       selector: row => riskStore.getCurrentCollateralFactor(row.asset),
       width: '260px'
   },    
   {
-      name: 'Recommended Collateral Factor',
+      name: `Recommended ${TEXTS.COLLATERAL_FACTOR}`,
       selector: row => row.collateral_factor,
       format: row => <CfDiff row={row}/>,
       grow: 2

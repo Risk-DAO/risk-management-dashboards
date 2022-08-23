@@ -10,6 +10,7 @@ import Alerts from './Alerts';
 import OpenLiquidations from "./OpenLiquidations";
 import ScrollSpy from "react-ui-scrollspy";
 import mainStore from '../stores/main.store'
+import {TEXTS} from "../constants"
 
 class SinglePage extends Component {
   render (){
@@ -33,7 +34,7 @@ class SinglePage extends Component {
         </section>
         <section id="collateral-factors">
           {mainStore.sectionShow("collateral-factors") && <div>
-            <h2>Collateral Factor Recommendations</h2>
+            <h2>{TEXTS.COLLATERAL_FACTOR} Recommendations</h2>
             <RiskParameters />
           </div>}
         </section>
@@ -41,7 +42,7 @@ class SinglePage extends Component {
         {mainStore.sectionShow("sandbox") && <div>
             <hgroup>
               <h2> Risk Parameters Sandbox</h2>
-              <p className="description">The sandbox lets you set different Supply and Borrow caps to get Collateral Factor recommendations according to different caps. The tool also provides optimization setting recommendations. </p>
+              <p className="description">The sandbox lets you set different Supply and Borrow caps to get {TEXTS.COLLATERAL_FACTORS} recommendations according to different caps. The tool also provides optimization setting recommendations. </p>
             </hgroup>
             <Simulation />
           </div>}
@@ -51,8 +52,7 @@ class SinglePage extends Component {
             <hgroup>
               <h2>Asset Distribution</h2>
               <p className="description">
-                The table tracks the main statistics per asset in the platform. 
-                Clicking on each row will open a graph describing the expected liquidations according to price changes of the base asset. Liquidations can be executed also if an asset price increases when the asset is the debt asset. 
+                {TEXTS.ASSET_DISTRIBUTION_DESCRIPTION}
               </p>
             </hgroup>
             <Accounts/>
