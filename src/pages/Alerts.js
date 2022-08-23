@@ -42,15 +42,13 @@ const Alert = props => {
         {alert.type === 'danger' && <a href={alert.link} ><kbd className="status-tag" style={{backgroundColor: 'var(--red-text)'}}>Action Required</kbd></a>}
         {alert.type === 'review' && <a href={alert.link} ><kbd className="status-tag" style={{backgroundColor: 'var(--yellow-text)'}}>Review</kbd></a>}
       </BoxRow>
-      <div>
-        {alert.showTable && !!alert.data.length && <Box>
-          <DataTable
-            data={alert.data}
-            columns={alert.columns}
-            defaultSortFieldId={1}
-          />
-        </Box>}
-      </div>
+      {alert.showTable && !!alert.data.length && <Box>
+            <DataTable
+              data={alert.data}
+              columns={alert.columns}
+              defaultSortFieldId={1}
+            />
+      </Box>}
     </>
   )
 }
