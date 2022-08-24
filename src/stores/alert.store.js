@@ -197,10 +197,10 @@ class AlertStore {
       if(k === 'borrow_caps'){
         Object.entries(v).forEach(([asset, cap]) => {
           cap = Number(cap)
-          if(cap === '0'){
+          if(cap === 0){
             cap = Infinity
           }
-          else if(cap === '1'){
+          else if(cap === 1){
             cap = 0
           }
           else {

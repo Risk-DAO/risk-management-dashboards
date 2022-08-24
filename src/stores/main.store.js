@@ -14,7 +14,7 @@ const defaultSections = {
 
 class MainStore {
 
-  apiUrl = process.env.REACT_APP_API_URL || 'https://analytics.riskdao.org'
+  apiUrl = process.env.REACT_APP_API_URL || 'https://api-staging.riskdao.org'//'https://analytics.riskdao.org'
   blackMode =  true
   loading = {}
   apiData = {}
