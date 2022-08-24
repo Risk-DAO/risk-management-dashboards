@@ -7,4 +7,17 @@ window.APP_CONFIG = {
   feature_flags: {
     alerts: false
   },
+  sections: [
+    'system-status',
+    'overview',
+    'collateral-factors',
+    'sandbox',
+    'asset-distribution',
+    'open-liquidations',
+    'oracle-deviation',
+    'liquidity',
+    // 'backstop',
+    // 'assumptions',
+    //'qualitative-anlysis',
+  ]
 }

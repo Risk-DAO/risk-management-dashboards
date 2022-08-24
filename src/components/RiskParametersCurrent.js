@@ -8,6 +8,7 @@ import {removeTokenPrefix} from '../utils'
 import riskStore from '../stores/risk.store'
 import Token from './Token'
 import Asterisk, {hasAtLeastOneAsterisk} from './Asterisk'
+import { TEXTS } from '../constants' 
 
 const currentCapFormater = num => {
   if (num === Infinity) {
@@ -34,11 +35,11 @@ const currentColumns = [
       format: row => currentCapFormater(row.borrow_cap),
   },
   {
-      name: 'Current Collateral Factor',
+      name: `Current ${TEXTS.COLLATERAL_FACTOR}`,
       selector: row => riskStore.getCurrentCollateralFactor(row.asset),
   },  
   {
-      name: 'Recommended Collateral Factor',
+      name: `Recommended ${TEXTS.COLLATERAL_FACTOR}`,
       selector: row => row.collateral_factor,
       format: row => <Asterisk row={row} field={"collateral_factor"}/>,
   },
@@ -54,7 +55,7 @@ class RiskParametersCurrent extends Component {
         <Box loading={loading} time={currentJsonTime} text={text}>
           <hgroup>
             <h6>According to Existing Caps</h6>
-            <p className="description">Recommended collateral factors according to existing supply and borrow caps set by the platform.</p>
+            <p className="description">Recommended {TEXTS.COLLATERAL_FACTOR.toLowerCase()}`s according to existing supply and borrow caps set by the platform.</p>
           </hgroup>
           {!loading && <DataTable
               columns={currentColumns}

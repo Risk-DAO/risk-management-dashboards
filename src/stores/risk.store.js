@@ -290,7 +290,6 @@ class RiskStore {
   }
 
   getCurrentCollateralFactor = (asset) => {
-    debugger
     if(asset === window.APP_CONFIG.STABLE){
       return 0
     }

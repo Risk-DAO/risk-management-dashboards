@@ -58,11 +58,27 @@ class LiquidationsGraph extends Component {
     })
     const dataKeys = Object.keys(graphKeys)
     const dataSet = Object.values(graphData).sort((a, b) => a.x - b.x)
+    const dataSetItemProps = Object.keys(dataSet[0]).filter(p => p != 'x')
     const rawData = Object.assign({}, mainStore['oracles_data'] || {})
     const asset = this.props.data.key
     const currentPrice = (rawData[asset] || {}).oracle
+    const biggestValue = dataSet
+      .map(o => o.x)
+      .sort((a, b) => b - a)[0]
+    if (biggestValue < currentPrice) {
+      const item = {x: currentPrice,}
+      dataSetItemProps.forEach(p => item[p] = 0)
+      dataSet.push(item)
+    }
+    const DoubleCurrentPrice = currentPrice * 2
+    if (biggestValue < DoubleCurrentPrice) {
+      const item = {x: DoubleCurrentPrice,}
+      dataSetItemProps.forEach(p => item[p] = 0)
+      dataSet.push(item)
+    }
+    const dataMax = Math.max(biggestValue, DoubleCurrentPrice)
     return (
-      <div style={{ width: '100%', height: '30vh' }}>
+      <div style={{ width: '70vw', height: '30vh' }}>
       <ResponsiveContainer>
         <AreaChart
           data={dataSet}
@@ -76,7 +92,7 @@ class LiquidationsGraph extends Component {
             strokeWidth="1"
           />}
           {/* <ReferenceLine y={650000} label="Max" stroke="red" /> */}
-          <XAxis tickCount={55} domain={[0, 'dataMax']} type="number" dataKey="x" />
+          <XAxis tickCount={55} domain={[0, dataMax]} type="number" dataKey="x" />
           <YAxis tick={<WhaleFriendlyAxisTick />}/>
           <Tooltip content={CustomTooltip}/>
           {dataKeys.map((k, i)=> <Area key={i} type="monotone" dataKey={k} stackId="1" stroke={COLORS[i]} fill={COLORS[i]} />)}

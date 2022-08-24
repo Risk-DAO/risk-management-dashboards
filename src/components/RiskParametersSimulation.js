@@ -6,6 +6,7 @@ import mainStore from '../stores/main.store'
 import {whaleFriendlyFormater} from './WhaleFriendly'
 import Token from './Token'
 import Asterisk, {hasAtLeastOneAsterisk} from './Asterisk'
+import { TEXTS } from '../constants' 
 
 const columns = [
   {
@@ -51,7 +52,7 @@ class RiskParametersSimulation extends Component {
         <Box loading={loading}  time={json_time} text={text}>
           <hgroup>
             <h6>According to Worst Day Scenario</h6>
-            <p className="description">Worst day simulation is done according to the worst day price-drop in ETH history. Other assets are being normalized according to their volatility compared to ETH. The simulation takes into consideration the current collateral factors and current users’ usage to present total liquidations and bad debt that would have accrued in the platform. The Max CF is the highest collateral factor that won’t create bad debt for the platform in case the same scenario repeats today</p>
+            <p className="description">{TEXTS.WORST_DAY_SIMULATION_DESCRIPTION}</p>
           </hgroup>
           {!loading && <DataTable
               columns={columns}

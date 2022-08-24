@@ -7,6 +7,7 @@ import {whaleFriendlyFormater} from './WhaleFriendly'
 import riskStore from '../stores/risk.store'
 import Token from './Token'
 import Asterisk, {hasAtLeastOneAsterisk} from './Asterisk'
+import { TEXTS } from '../constants' 
 
 const currentColumns = [
   {
@@ -37,12 +38,12 @@ const currentColumns = [
   //     grow: 2,
   // },
   {
-      name: 'Current Collateral Factor',
+      name: `Current ${TEXTS.COLLATERAL_FACTOR}`,
       selector: row => riskStore.getCurrentCollateralFactor(row.asset),
       width: '260px'
   },    
   {
-      name: 'Recommended Collateral Factor',
+      name: `Recommended ${TEXTS.COLLATERAL_FACTOR}`,
       selector: row => row.collateral_factor,
       format: row => <Asterisk row={row} field={"collateral_factor"}/>,
       grow: 2,
@@ -54,19 +55,15 @@ class RiskParametersUtilization extends Component {
     const {loading, utilization} = riskStore
     const {json_time: currentJsonTime} = mainStore['lending_platform_current_data'] || {}
     const text = hasAtLeastOneAsterisk(utilization, "collateral_factor") ? "* if user composition will change, reduction of CF might be required to avoid bad debt." : ""
+    debugger
     return (
       <div>
         <Box loading={loading} time={currentJsonTime} text={text}>
           <hgroup>
             <h6>According to Current Usage</h6>
-            <p >Recommended collateral factors according to current supply and borrow usage</p>
+            <p>{TEXTS.UTILIZATION_DESCRIPTION}</p>
           </hgroup>
-          {/* <fieldset>
-            <label htmlFor="switch">
-              <input onChange={riskStore.toggleLooping} value={riskStore.looping} type="checkbox" id="switch" name="switch" role="switch"/>
-              <span className="nudge" data-tooltip="same asset used as debt and collateral">looping</span>
-            </label>
-          </fieldset> */}
+
           {!loading && <DataTable
               columns={currentColumns}
               data={utilization}
