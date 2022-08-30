@@ -24,7 +24,13 @@ const defaultTexts = {
     CURRENT_BORROW: "Current Borrow",
     CURRENT_COLLATERAL_FACTOR: "Current Collateral Factor",
     RECOMMENDED_COLLATERAL_FACTOR: "Recommended Collateral Factor",
-  }
+  },
+  ACCORDING_TO_EXISTING_CAPS: "According to Existing Caps",
+  ACCORDING_TO_EXISTING_CAPS_DESCRIPTION: "Recommended collateral factors according to existing supply and borrow caps set by the platform.",
+  ASSET: "Asset",
+  SUPPLY_CAP: "Supply Cap",
+  BORROW_CAP: "Borrow Cap",
+  SANDBOX_DESCRIPTION: "The sandbox lets you set different Supply and Borrow caps to get Collateral Factor recommendations according to different caps. The tool also provides optimization setting recommendations."
 }
 
 export const TEXTS = Object.assign(defaultTexts, window.APP_CONFIG.TEXTS)

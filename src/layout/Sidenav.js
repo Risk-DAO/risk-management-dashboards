@@ -4,6 +4,16 @@ import mainStore from "../stores/main.store"
 
 const {SECTIONS} = window.APP_CONFIG 
 
+const StagingBtn = observer(() => {
+  return (<div
+    className="staging-btn">
+      <div onClick={mainStore.setStaging}>
+        { !!mainStore.stagingLoader && <progress value={mainStore.stagingLoader} max="100"></progress>}
+        <span style={{color: 'var(--contrast-inverse)'}}>Staging</span>
+      </div>
+  </div>)
+})
+
 const Sidenav = (props) => {
   return (
     <div className="side-bar box-space">
@@ -31,6 +41,7 @@ const Sidenav = (props) => {
           </ul>
         </nav>
       </aside>
+      <StagingBtn/>
     </div>
   )
 }

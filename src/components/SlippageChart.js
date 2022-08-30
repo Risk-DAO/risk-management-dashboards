@@ -34,6 +34,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 class SlippageChart extends Component {
 
   render () {
+    debugger
     let market = this.props.data.toUpperCase()
     if (market === 'WETH'){
       market = 'ETH'
@@ -49,7 +50,10 @@ class SlippageChart extends Component {
     if(!dataSet.length){
       return null
     }
-    const [biggest, secondBiggest] = dataSet.sort((a, b)=> b.value - a.value)
+    let [biggest, secondBiggest] = dataSet.sort((a, b)=> b.value - a.value)
+    if(!secondBiggest){
+      secondBiggest = biggest
+    }
     const dataMax = Math.min(secondBiggest.value * 2, biggest.value)
     const color = mainStore.blackMode ? 'white' : 'black';
 

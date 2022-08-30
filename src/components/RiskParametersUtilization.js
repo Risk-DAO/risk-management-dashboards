@@ -55,7 +55,6 @@ class RiskParametersUtilization extends Component {
     const {loading, utilization} = riskStore
     const {json_time: currentJsonTime} = mainStore['lending_platform_current_data'] || {}
     const text = hasAtLeastOneAsterisk(utilization, "collateral_factor") ? "* if user composition will change, reduction of CF might be required to avoid bad debt." : ""
-    debugger
     return (
       <div>
         <Box loading={loading} time={currentJsonTime} text={text}>

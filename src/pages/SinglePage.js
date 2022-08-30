@@ -7,6 +7,7 @@ import Oracles from "./Oracles";
 import RiskParameters from "./RiskParameters";
 import Simulation from "./Simulation";
 import Alerts from './Alerts';
+import StabilityPool from "./StabilityPool";
 import OpenLiquidations from "./OpenLiquidations";
 import ScrollSpy from "react-ui-scrollspy";
 import mainStore from '../stores/main.store'
@@ -42,7 +43,7 @@ class SinglePage extends Component {
         {mainStore.sectionShow("sandbox") && <div>
             <hgroup>
               <h2> Risk Parameters Sandbox</h2>
-              <p className="description">The sandbox lets you set different Supply and Borrow caps to get {TEXTS.COLLATERAL_FACTORS} recommendations according to different caps. The tool also provides optimization setting recommendations. </p>
+              <p className="description">{TEXTS.SANDBOX_DESCRIPTION}</p>
             </hgroup>
             <Simulation />
           </div>}
@@ -56,6 +57,15 @@ class SinglePage extends Component {
               </p>
             </hgroup>
             <Accounts/>
+          </div>}
+        </section>
+        <section id="stability-pool">
+          {mainStore.sectionShow("stability-pool") && <div>
+            <hgroup>
+              <h2>Stability Pool</h2>
+              <p>VST in the Stability Pool is used to execute liquidations of Vaults which crossed the MCR. The B.AMM (Backstop AMM) operates an automatic rebalance process for the seized collateral, selling it back to VST for users who have deposited VST through B.Protocol.</p>
+            </hgroup>
+            <StabilityPool/>
           </div>}
         </section>
         <section id="open-liquidations">

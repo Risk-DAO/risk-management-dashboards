@@ -19,18 +19,18 @@ const currentCapFormater = num => {
 
 const currentColumns = [
   {
-      name: 'Asset',
+      name: TEXTS.ASSET,
       selector: row => row.asset,
       format: row => <Token value={row.asset}/>,
   },
   {
-      name: 'Supply Cap',
+      name: TEXTS.SUPPLY_CAP,
       selector: row => row.mint_cap,
       format: row => currentCapFormater(row.mint_cap),
   },    
 
   {
-      name: 'Borrow Cap',
+      name: TEXTS.BORROW_CAP,
       selector: row => row.borrow_cap,
       format: row => currentCapFormater(row.borrow_cap),
   },
@@ -54,8 +54,8 @@ class RiskParametersCurrent extends Component {
       <div>
         <Box loading={loading} time={currentJsonTime} text={text}>
           <hgroup>
-            <h6>According to Existing Caps</h6>
-            <p className="description">Recommended {TEXTS.COLLATERAL_FACTOR.toLowerCase()}`s according to existing supply and borrow caps set by the platform.</p>
+            <h6>{TEXTS.ACCORDING_TO_EXISTING_CAPS}</h6>
+            <p className="description">{TEXTS.ACCORDING_TO_EXISTING_CAPS_DESCRIPTION}</p>
           </hgroup>
           {!loading && <DataTable
               columns={currentColumns}

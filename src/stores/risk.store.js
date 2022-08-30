@@ -179,7 +179,7 @@ class RiskStore {
     this.recommendations = this.solver.recommendations(newRiskParameters)
     // then rebuild data object from new configurations
     const newTableData = {}
-    Object.entries(newRiskParameters.mintCaps).forEach(([k, v])=> {
+    Object.entries(newRiskParameters.mintCaps || []).forEach(([k, v])=> {
       newTableData[k] = newTableData[k] || {asset: k}
       newTableData[k].mint_cap = v
     })
@@ -245,7 +245,7 @@ class RiskStore {
     //this.recommendations = this.solver.recommendations(newRiskParameters)
     // then rebuild data object from new configurations
     const newTableData = {}
-    Object.entries(newRiskParameters.mintCaps).forEach(([k, v])=> {
+    Object.entries(newRiskParameters.mintCaps || []).forEach(([k, v])=> {
       newTableData[k] = newTableData[k] || {asset: k}
       newTableData[k].mint_cap = v
     })
@@ -290,11 +290,16 @@ class RiskStore {
   }
 
   getCurrentCollateralFactor = (asset) => {
-    if(asset === window.APP_CONFIG.STABLE){
-      return 0
+    try{
+      if(asset === window.APP_CONFIG.STABLE){
+        return 0
+      }
+      const [{current_collateral_factor }] = this.currentData.filter(r => r.asset === asset)
+      return current_collateral_factor
+    } catch (err){
+      debugger
+      console.error(err)
     }
-    const [{current_collateral_factor }] = this.currentData.filter(r => r.asset === asset)
-    return current_collateral_factor
   }
 
   preformRecommendation = (recommendation) => {

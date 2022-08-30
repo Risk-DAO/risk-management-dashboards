@@ -1,19 +1,21 @@
 import { makeAutoObservable, runInAction } from "mobx"
 import axios from "axios"
+import riskStore from "./risk.store"
+import alertStore from "./alert.store"
 
-const platformId = window.APP_CONFIG.PLATFORM_ID
-const {SECTIONS} = window.APP_CONFIG
+const {SECTIONS, PLATFORM_ID, API_URL} = window.APP_CONFIG
 const apiEndpoints = ['overview', 'accounts', 'dex_liquidity', 'oracles', 'usd_volume_for_slippage', 'current_simulation_risk',
-                      'risk_params', 'lending_platform_current', 'whale_accounts', 'open_liquidations']
+                      'risk_params', 'lending_platform_current', 'whale_accounts', 'open_liquidations', 'stability_pool']
 
 
 class MainStore {
 
-  apiUrl = process.env.REACT_APP_API_URL || 'https://analytics.riskdao.org'
   blackMode =  true
   loading = {}
   apiData = {}
   proView = false
+  apiUrl = API_URL
+  stagingLoader = 0
 
   constructor () {
     this.init()
@@ -59,7 +61,7 @@ class MainStore {
   fetchData = (endpoint) => {
     this[endpoint + '_loading'] = true
     this[endpoint + '_data'] = null
-    this[endpoint + '_request'] = axios.get(`${this.apiUrl}/${endpoint}/${platformId}`)
+    this[endpoint + '_request'] = axios.get(`${this.apiUrl}/${endpoint}/${PLATFORM_ID}`)
     .then(({data})=> {
       this[endpoint + '_loading'] = false
       this[endpoint + '_data'] = data
@@ -67,6 +69,20 @@ class MainStore {
     })
     .catch(console.error)
   }
+
+  setStaging = async ()=> {
+    debugger
+    runInAction(()=> this.stagingLoader = 1)
+    this.apiUrl = 'https://api-staging.riskdao.org'
+    await Promise.all([this.init(), sleep(1)])
+    runInAction(()=> this.stagingLoader = 33)
+    await Promise.all([riskStore.init(), sleep(1)])
+    runInAction(()=> this.stagingLoader = 66)
+    await  Promise.all([alertStore.init(), sleep(1)])
+    runInAction(()=> this.stagingLoader = 100)
+  }
 }
+
+const sleep = async (sec)=> new Promise(resolve => setTimeout(resolve, sec * 1000))
 
 export default new MainStore()
