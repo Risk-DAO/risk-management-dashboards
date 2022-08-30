@@ -142,7 +142,8 @@ class AlertStore {
 
     Object.entries(whales)
       .map(([key, row]) => {
-        row.big_collateral.forEach(({id: account, size})=> {
+        row.big_collateral.forEach(({id: account, size, whale_flag})=> {
+          if(!whale_flag) return
           alerts.push({
             asset: key,
             type: 'Collateral',
@@ -150,7 +151,9 @@ class AlertStore {
             account,
           })
         })        
-        row.big_debt.forEach(({id: account, size})=> {
+        row.big_debt.forEach(({id: account, size, whale_flag})=> {
+          debugger
+          if(!whale_flag) return
           alerts.push({
             asset: key,
             type: 'Debt',
