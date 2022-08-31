@@ -10,7 +10,8 @@ window.APP_CONFIG = {
   feature_flags: {
     alerts: true,
     loopingToggle: false,
-    dexLiquidityLpStatsRow: false
+    dexLiquidityLpStatsRow: false,
+    systemStatusStableLiquidity: true
   },
   SECTIONS: [
     {
