@@ -61,7 +61,7 @@ class MainStore {
   fetchData = (endpoint) => {
     this[endpoint + '_loading'] = true
     this[endpoint + '_data'] = null
-    this[endpoint + '_request'] = axios.get(`${this.apiUrl}/${endpoint}/${PLATFORM_ID}`)
+    this[endpoint + '_request'] = axios.get(`${this.apiUrl}/${endpoint}/${PLATFORM_ID}?timestamp=${parseInt(new Date().getTime() / (1000 * 60 * 60))}`)
     .then(({data})=> {
       this[endpoint + '_loading'] = false
       this[endpoint + '_data'] = data
