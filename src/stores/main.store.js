@@ -71,7 +71,6 @@ class MainStore {
   }
 
   setStaging = async ()=> {
-    debugger
     runInAction(()=> this.stagingLoader = 1)
     this.apiUrl = 'https://api-staging.riskdao.org'
     await Promise.all([this.init(), sleep(1)])

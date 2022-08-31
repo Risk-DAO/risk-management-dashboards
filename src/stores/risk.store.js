@@ -297,7 +297,6 @@ class RiskStore {
       const [{current_collateral_factor }] = this.currentData.filter(r => r.asset === asset)
       return current_collateral_factor
     } catch (err){
-      debugger
       console.error(err)
     }
   }

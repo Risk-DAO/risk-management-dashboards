@@ -152,7 +152,6 @@ class AlertStore {
           })
         })        
         row.big_debt.forEach(({id: account, size, whale_flag})=> {
-          debugger
           if(!whale_flag) return
           alerts.push({
             asset: key,
