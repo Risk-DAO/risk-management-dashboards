@@ -33,6 +33,8 @@ const defaultTexts = {
   SANDBOX_DESCRIPTION: "The sandbox lets you set different Supply and Borrow caps to get Collateral Factor recommendations according to different caps. The tool also provides optimization setting recommendations.",
   DEX_LIQUIDITY_DESCRIPTION: "Monitoring available on-chain DEX liquidity per asset. The statistics monitor the top accounts portion of total liquidity as well as the average and median size of LP positions.",
   DEX_LIQUIDITY_EXPLAINER: "Max liquidation size that can be executed with a single transaction according to current available DEX liquidity.",
+  COLLATERAL_PIE_CHART_TITLE: "Collateral",
+  DEBT_PIE_CHART_TITLE: "Debt",
 }
 
 export const TEXTS = Object.assign(defaultTexts, window.APP_CONFIG.TEXTS)

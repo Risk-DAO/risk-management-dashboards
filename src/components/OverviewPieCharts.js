@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import {observer} from "mobx-react"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer } from 'recharts';
-import {COLORS} from '../constants'
+import {COLORS, TEXTS} from '../constants'
 import BoxGrid from '../components/BoxGrid'
 import Box from '../components/Box'
 import PieChart from '../components/PieChart'
@@ -23,11 +23,11 @@ class OverviewPieCharts extends Component {
     return (
       <BoxGrid>
         <Box loading={loading} height={450} time={json_time}>
-          <h6 style={{margin: 0}}>Collateral</h6>
+          <h6 style={{margin: 0}}>{TEXTS.COLLATERAL_PIE_CHART_TITLE}</h6>
           {!loading && <PieChart data={data} dataKey={'total_collateral'}/>}
         </Box>
         <Box loading={loading} height={450} time={json_time}>
-          <h6 style={{margin: 0}}>Debt</h6>
+          <h6 style={{margin: 0}}>{TEXTS.DEBT_PIE_CHART_TITLE}</h6>
           {!loading && <PieChart data={data} dataKey={'total_debt'}/>}
         </Box>
       </BoxGrid>
