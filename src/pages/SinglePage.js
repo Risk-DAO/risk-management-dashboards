@@ -14,8 +14,10 @@ import mainStore from '../stores/main.store'
 import {TEXTS} from "../constants"
 
 class SinglePage extends Component {
+
   render (){
     const {sectionShow: proViewShow} = mainStore
+    const color = mainStore.blackMode ? 'white' : 'black';
     return (
       <ScrollSpy offsetBottom={400} scrollThrottle={100} parentScrollContainerRef={this.props.scrollContainer}>
         <section id="system-status">
@@ -88,12 +90,15 @@ class SinglePage extends Component {
         </section>
         <section id="liquidity">
           {mainStore.sectionShow("liquidity") && <div>
-            <hgroup>
-              <h2>DEX Liquidity</h2>
-              <p className="description">Monitoring available on-chain DEX liquidity per asset. 
-                The statistics monitor the top accounts portion of total liquidity as well as the average and median size of LP positions.  
-              </p>
+              <hgroup>
+                <h2>DEX Liquidity</h2>
+                <p className="description">
+                  {TEXTS.DEX_LIQUIDITY_DESCRIPTION}
+                </p>
             </hgroup>
+            {/* <small>Aggregated DEX data is provided by</small> */}
+            <img style={{width: '250px', display: 'block'}} src={`/images/${color}-powered-by-kyberswap.png`}/>
+            
             <Liquidity/>
           </div>}
         </section>

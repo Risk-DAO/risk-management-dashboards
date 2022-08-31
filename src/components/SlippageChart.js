@@ -2,7 +2,7 @@ import React, { Component, PureComponent } from "react";
 import {observer} from "mobx-react"
 import mainStore from '../stores/main.store'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, ReferenceLine, Tooltip } from 'recharts';
-import {COLORS, BLOCK_EXPLORER} from '../constants'
+import {COLORS, TEXTS} from '../constants'
 import {removeTokenPrefix} from '../utils'
 import {whaleFriendlyFormater, WhaleFriendlyAxisTick} from '../components/WhaleFriendly'
 import BoxRow from "./BoxRow";
@@ -35,8 +35,8 @@ class SlippageChart extends Component {
 
   render () {
     debugger
-    let market = this.props.data.toUpperCase()
-    if (market === 'WETH'){
+    let market = this.props.data
+    if (market.toUpperCase() === 'WETH'){
       market = 'ETH'
     }
     const loading = mainStore['usd_volume_for_slippage_loading']
@@ -55,7 +55,6 @@ class SlippageChart extends Component {
       secondBiggest = biggest
     }
     const dataMax = Math.min(secondBiggest.value * 2, biggest.value)
-    const color = mainStore.blackMode ? 'white' : 'black';
 
     return (
       <div style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
@@ -72,11 +71,8 @@ class SlippageChart extends Component {
         <div className="box-space" style={{width: '50%', display: 'flex', justifyContent: 'space-between', flexDirection: 'column'}}>
           <hgroup>
             <h1></h1>
-            <p>Max liquidation size that can be executed with a single transaction according to current available DEX liquidity.</p>
+            <p>{TEXTS.DEX_LIQUIDITY_EXPLAINER}</p>
           </hgroup>
-          <div style={{width: '50%'}}>
-            <img src={`/images/${color}-powered-by-kyberswap.png`}/>
-          </div>
         </div>
           {/* <h6>top 5 accounts</h6>
           <div style={{display: 'flex', justifyContent: 'space-between', flexDirection: 'column'}}>
