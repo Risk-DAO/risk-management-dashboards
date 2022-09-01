@@ -200,6 +200,7 @@ class AlertStore {
       markets[k].borrow_usage = Number(v.total_debt)
     })
     const currentCaps = mainStore.clean(await mainStore['lending_platform_current_request'])
+    const systemHasCollateralCaps = !window.APP_CONFIG.STABLE
     Object.entries(currentCaps).forEach(([k, v]) => {
       if(k === 'borrow_caps'){
         Object.entries(v).forEach(([asset, cap]) => {
@@ -216,7 +217,7 @@ class AlertStore {
           markets[asset].borrow_cap = cap
         })
       }
-      if(k === 'collateral_caps'){
+      if(k === 'collateral_caps' && systemHasCollateralCaps){
         Object.entries(v).forEach(([asset, cap]) => {
           cap = Number(cap)
           if(cap === 0){
