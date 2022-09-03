@@ -7,6 +7,8 @@ export default class Solver {
       this.longStableLfs = [0.25, 0.5, 1]
       this.otherLfs = [0.5, 1, 1.5]
       this.caps = {}
+      this.borrowCaps = {}
+      this.supplyCaps = {}
       this.cfs = {}
 
       // the output ori should have give me...
@@ -42,6 +44,9 @@ export default class Solver {
                   }
 
                   perDcResult[dc].push(data["md"])
+
+                  this.borrowCaps[short] = this.mergeArrays(this.borrowCaps[short], [dc])
+                  this.supplyCaps[long] = this.mergeArrays(this.supplyCaps[long], [dc])
               }
 
               for(const dc of dcs) {
@@ -63,7 +68,8 @@ export default class Solver {
       }
 
       console.log(JSON.stringify(this.parsedData, null, 2))
-      console.log(this.caps)
+      console.log("supply caps", this.supplyCaps)
+      console.log("borrow caps", this.borrowCaps)      
   }
 
   mergeArrays(arr1, arr2) {
@@ -146,7 +152,7 @@ export default class Solver {
 
   optimizeCfg(cfg) {
       for(const asset of this.collaterals) {
-          if(this.caps[asset] === undefined) continue
+          if(this.supplyCaps[asset] === undefined) continue
 
           for(const cf of this.cfs[asset]) {
               if(cf > cfg.cfs[asset]) {
@@ -188,8 +194,8 @@ export default class Solver {
   optimizeBorrowCaps(mintCaps, borrowCaps, cfs) {
       let newBorrowCaps = Object.assign({}, borrowCaps)
       for(const asset of this.collaterals) {
-          if(this.caps[asset] === undefined) continue
-          for(const cap of this.caps[asset]) {
+          if(this.borrowCaps[asset] === undefined) continue
+          for(const cap of this.borrowCaps[asset]) {
               if(cap <= borrowCaps[asset]) continue
               const tempBorrowCaps = Object.assign({}, newBorrowCaps)
               tempBorrowCaps[asset] = cap
