@@ -27,11 +27,11 @@
   },
   "scripts": {
     "start": "REACT_APP_CONFIG=dev && react-app-rewired start",
-    "build": "react-app-rewired build",
-    "build-staging": "REACT_APP_CONFIG=staging react-app-rewired build",
-    "build-aurigami": "REACT_APP_CONFIG=aurigami react-app-rewired build",
-    "build-nervos": "REACT_APP_CONFIG=nervos react-app-rewired build",
-    "build-vesta": "REACT_APP_CONFIG=vesta react-app-rewired build",
+    "build": "react-app-rewired build && ./generate-static.sh",
+    "build-staging": "REACT_APP_API_URL=https://api-staging.riskdao.org && npm run build",
+    "build-aurigami": "REACT_APP_CONFIG=aurigami && npm run build",
+    "build-nervos": "REACT_APP_CONFIG=nervos && npm run build",
+    "build-vesta": "REACT_APP_CONFIG=vesta && npm run build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
   },

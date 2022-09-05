@@ -8,6 +8,7 @@ import './themeSwitcher'
 import './App.css'
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import React from "react";
+import AlertsJson from './API/AlertsJson'
 
 function renderPage (props, PageComponent) {
   return (
@@ -33,6 +34,7 @@ class App extends React.Component {
             <main>
               <Routes>
                 <Route exact path="/"  element={<SinglePage scrollContainer={this.scrollContainer}/>}/>
+                <Route exact path="/api/alerts"  element={<AlertsJson/>}/>
               </Routes>
             </main>
             <Footer/>

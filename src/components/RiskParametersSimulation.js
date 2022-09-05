@@ -23,8 +23,8 @@ const columns = [
   },  
   {
     name: 'Bad Debt Accrued',
-    selector: row => row.max_drop,
-    format: row => whaleFriendlyFormater(row.max_drop),
+    selector: row => row.pnl,
+    format: row => whaleFriendlyFormater(row.pnl),
     sortable: true,
   },      
   {

@@ -7,6 +7,8 @@ export default class Solver {
       this.longStableLfs = [0.25, 0.5, 1]
       this.otherLfs = [0.5, 1, 1.5]
       this.caps = {}
+      this.borrowCaps = {}
+      this.supplyCaps = {}
       this.cfs = {}
 
       // the output ori should have give me...
@@ -42,6 +44,9 @@ export default class Solver {
                   }
 
                   perDcResult[dc].push(data["md"])
+
+                  this.borrowCaps[short] = this.mergeArrays(this.borrowCaps[short], [dc])
+                  this.supplyCaps[long] = this.mergeArrays(this.supplyCaps[long], [dc])
               }
 
               for(const dc of dcs) {
@@ -54,8 +59,8 @@ export default class Solver {
               }
 
               perPairResult = Object.assign({}, result)
-              this.caps[long] = dcs
-              this.cfs[long] = cfs.sort((a,b) => a-b)
+              this.caps[long] = this.mergeArrays(this.caps[long], dcs)
+              this.cfs[long] = this.mergeArrays(this.cfs[long], cfs)
           }
 
           if(! this.parsedData[long]) this.parsedData[long] = {}
@@ -63,6 +68,23 @@ export default class Solver {
       }
 
       console.log(JSON.stringify(this.parsedData, null, 2))
+      console.log("supply caps", this.supplyCaps)
+      console.log("borrow caps", this.borrowCaps)      
+  }
+
+  mergeArrays(arr1, arr2) {
+    let realArr1 = [] 
+    if(arr1 !== undefined) realArr1 = [].concat(arr1)
+    const combinedArray = realArr1.concat(arr2)
+    const unique = Array.from(new Set(combinedArray))
+
+    const sortedUnique = unique.sort((a,b) => Number(a)- Number(b))
+
+    return sortedUnique
+  }
+
+  sortArray(arr) {
+    return arr.sort((a,b) => Number(a)- Number(b))
   }
 
   min(val1, val2) {
@@ -82,7 +104,7 @@ export default class Solver {
           for(const short of Object.keys(this.parsedData[long])) {
               //console.log(long, short)
               let prevDc = 0
-              for(let dc of Object.keys(this.parsedData[long][short])) {
+              for(let dc of this.sortArray(Object.keys(this.parsedData[long][short]))) {
                   dc = Number(dc)
                   const cf = this.parsedData[long][short][dc]
                   //if(long === "auETH") console.log(long, short, dc, cf, cfs[long], mintCaps[long], borrowCaps[short])
@@ -130,7 +152,7 @@ export default class Solver {
 
   optimizeCfg(cfg) {
       for(const asset of this.collaterals) {
-          if(this.caps[asset] === undefined) continue
+          if(this.supplyCaps[asset] === undefined) continue
 
           for(const cf of this.cfs[asset]) {
               if(cf > cfg.cfs[asset]) {
@@ -172,8 +194,8 @@ export default class Solver {
   optimizeBorrowCaps(mintCaps, borrowCaps, cfs) {
       let newBorrowCaps = Object.assign({}, borrowCaps)
       for(const asset of this.collaterals) {
-          if(this.caps[asset] === undefined) continue
-          for(const cap of this.caps[asset]) {
+          if(this.borrowCaps[asset] === undefined) continue
+          for(const cap of this.borrowCaps[asset]) {
               if(cap <= borrowCaps[asset]) continue
               const tempBorrowCaps = Object.assign({}, newBorrowCaps)
               tempBorrowCaps[asset] = cap
