@@ -269,7 +269,7 @@ class RiskStore {
     const collateralFactorCaps = {}
     if(dataSet.length){
       dataSet.forEach(row => {
-        mintCaps[row.asset] = this.findCap(row.asset, row.mint_cap, false)
+        mintCaps[row.asset] = row.mint_cap ? this.findCap(row.asset, row.mint_cap, false) : 0
         borrowCaps[row.asset] = this.findCap(row.asset, row.borrow_cap, true)
         collateralFactorCaps[row.asset] = 0
       })
