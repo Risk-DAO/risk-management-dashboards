@@ -34,7 +34,6 @@ const CustomTooltip = ({ active, payload, label }) => {
 class SlippageChart extends Component {
 
   render () {
-    debugger
     let market = this.props.data
     if (market.toUpperCase() === 'WETH'){
       market = 'ETH'
