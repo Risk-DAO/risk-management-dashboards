@@ -71,10 +71,11 @@ const Recommendation = (props) => {
   </div>
 }
 
-class Simulation extends Component {
+class SandBox extends Component {
   render (){
     const {loading} = riskStore
     const {json_time} = mainStore['risk_params_data'] || {}
+    
     return (
       <div>
         <Box loading={loading} time={json_time}>
@@ -91,4 +92,4 @@ class Simulation extends Component {
   }
 }
 
-export default observer(Simulation)
+export default observer(SandBox)

@@ -11,7 +11,8 @@ window.APP_CONFIG = {
     alerts: true,
     loopingToggle: false,
     dexLiquidityLpStatsRow: false,
-    systemStatusStableLiquidity: true
+    systemStatusStableLiquidity: true,
+    sandBoxVersion: 1,
   },
   SECTIONS: [
     {

@@ -22,7 +22,8 @@ const tweakCurrentCap = cap => {
 }
 
 class RiskStore {
-  data = [] 
+  data = []
+  spData = null
   currentData = []
   utilization = []
   loading = true
@@ -30,6 +31,8 @@ class RiskStore {
   incrementationOptions = {}
   incrementSupplyOptions = {}
   incrementBorrowOptions = {}
+  incramentStabilityPoolOptions = {}
+  incramentBprotocolOptions = {}
   recommendations = []
   asterixs = {
     worstDay: false,
@@ -45,7 +48,9 @@ class RiskStore {
   init = async ()=> {
     if(true) {
       await loadSolver()
+      
       const data = await mainStore['risk_params_request']
+      const spData = await mainStore['stability_pool_request']
       this.utilization = await mainStore['accounts_request']
       .then(u=> {
         return Object.entries(u)
@@ -77,6 +82,7 @@ class RiskStore {
       if(json_time){
         delete this.rawData.json_time
       }
+
       // inctanciate a solver
       this.solver = new Solver(this.rawData)
       this.solveFor(this.utilization)
@@ -86,6 +92,8 @@ class RiskStore {
         this.incrementationOptions = this.solver.caps
         this.incrementSupplyOptions = this.solver.supplyCaps
         this.incrementBorrowOptions = this.solver.borrowCaps
+        this.incramentStabilityPoolOptions = this.solver.stabilityPoolCaps
+        this.incramentBprotocolOptions = this.solver.bprotocolCaps
         console.log(this.incrementationOptions)
         // const sorted = riskData.sort((a,b)=> a.asset.localeCompare(b.asset))
         // this.data = sorted
@@ -94,7 +102,7 @@ class RiskStore {
       })
     }
   }
-
+  
   toggleLooping = async () => {
     this.looping = !this.looping
     this.utilization = await mainStore['accounts_request']
@@ -123,11 +131,21 @@ class RiskStore {
     return [this.utilization, this.currentData, simulation]
   }
 
+  getOptions = (type, asset) => {
+    if(type === "borrow_cap"){
+      return this.incrementBorrowOptions[asset]
+    } else if (type === "mint_cap"){
+      return this.incrementSupplyOptions[asset]
+    } else if (type === "stability_pool_cap") {
+      return this.incramentStabilityPoolOptions[asset]
+    } else if (type === "bprotocol_cap"){
+      return this.incramentBprotocolOptions[asset]
+    }
+  }
+
   incrament = (row, field) => {
     // find the options
-    const options = 
-      (field === "borrow_cap" ? this.incrementBorrowOptions[row.asset] : this.incrementSupplyOptions[row.asset]) || []
-    //  this.incrementationOptions[row.asset] || []
+    const options = this.getOptions(field, row.asset)
     console.log({options}, field)
     // find the index of exisiting value
     const currentIndex = options.indexOf(Number(row[field]))
@@ -144,6 +162,29 @@ class RiskStore {
     row[field] = options[currentIndex+1]
     this.solve()
     console.log('incrament')
+  }
+
+
+  decrament = (row, field) => {
+    // find the options
+    const options = this.getOptions(field, row.asset)
+      //this.incrementationOptions[row.asset] || []
+    // find the index of exisiting value
+    console.log({options}, this.incrementationOptions[row.asset])
+    const currentIndex = options.indexOf(Number(row[field]))
+    // validate we can incrament or decrament
+    if(currentIndex == -1 ){
+      console.log('cant decrament 1', row[field])
+      return
+    }
+    if(currentIndex === 0){
+      console.log('cant decrament 2')
+      return
+    }
+    // cahnge the value
+    row[field] = options[currentIndex-1]
+    this.solve()
+    console.log('decrament')
   }
 
   clearDiffs = () => {
@@ -178,8 +219,43 @@ class RiskStore {
         for(const row of this.currentData) {
           //console.log(row.asset, k)
           if(row.asset === k) {
-            max = this.findCap(row.asset, row.mint_cap, false)
+            max = this.findCap(row.asset, row.mint_cap, 'mint_cap')
             console.log("found max collateral", k, {max})
+            break
+          }
+        }
+        //console.log("currdata",this.currentData[0].asset)
+        //console.log("collateral", {k},{v})
+        //const max = this.findCap(k, 9, false) //v[parseInt(v.length / 2)]
+        //max = v[parseInt(v.length / 2)]
+        mintCaps[k] = max
+        // borrowCaps[k] = max
+        collateralFactorCaps[k] = 0
+      })
+      Object.entries(this.solver.borrowCaps).forEach(([k, v])=> {
+        // console.log("debt", {k},{v})        
+        // const max = this.findCap(k, 8, true)
+        let max
+        for(const row of this.currentData) {
+          // todo: qqq
+          if(row.asset === k) {
+            max = this.findCap(row.asset, row.borrow_cap, 'borrow_cap')
+            console.log("found max debt", k, {max}, row.borrow_cap)
+
+            break
+          }
+        }
+        //max = v[parseInt(v.length / 2)]        
+        borrowCaps[k] = max
+      })    
+      Object.entries(this.solver.stabilityPoolCaps || []).forEach(([k, v])=> {
+        let max
+        for(const row of this.currentData) {
+          //console.log(row.asset, k)
+          if(row.asset === k) {
+            // 
+            max = this.findCap(row.asset, row.mint_cap, 'stability_pool_caps')
+            console.log("found max stability_pool", k, {max})
             break
           }
         }
@@ -190,22 +266,7 @@ class RiskStore {
         mintCaps[k] = max
         //borrowCaps[k] = max
         collateralFactorCaps[k] = 0
-      })
-      Object.entries(this.solver.borrowCaps).forEach(([k, v])=> {
-        //console.log("debt", {k},{v})        
-        //const max = this.findCap(k, 8, true)
-        let max
-        for(const row of this.currentData) {
-          if(row.asset === k) {
-            max = this.findCap(row.asset, row.borrow_cap, true)
-            console.log("found max debt", k, {max}, row.borrow_cap)
-
-            break
-          }
-        }
-        //max = v[parseInt(v.length / 2)]        
-        borrowCaps[k] = max
-      })      
+      })  
     }
     const newRiskParameters = this.solver.optimizeCfg(this.solver.findValidCfg(mintCaps, borrowCaps, collateralFactorCaps))
     
@@ -242,8 +303,8 @@ class RiskStore {
   }
 
 
-  findCap = (asset, value, borrow) => {
-    const caps = borrow ? this.solver.borrowCaps[asset] : this.solver.supplyCaps[asset]// this.solver.caps[asset]
+  findCap = (asset, value, field) => {
+    const caps = this.getOptions(field, asset)
     if(!caps) {
       console.warn("findCap fn: No caps found for asset " + asset)
       return 0
@@ -303,28 +364,6 @@ class RiskStore {
     })
   }
 
-  decrament = (row, field) => {
-    // find the options
-    const options =
-      (field === "borrow_cap" ? this.incrementBorrowOptions[row.asset] : this.incrementSupplyOptions[row.asset]) || []    
-      //this.incrementationOptions[row.asset] || []
-    // find the index of exisiting value
-    console.log({options}, this.incrementationOptions[row.asset])
-    const currentIndex = options.indexOf(Number(row[field]))
-    // validate we can incrament or decrament
-    if(currentIndex == -1 ){
-      console.log('cant decrament 1', row[field])
-      return
-    }
-    if(currentIndex === 0){
-      console.log('cant decrament 2')
-      return
-    }
-    // cahnge the value
-    row[field] = options[currentIndex-1]
-    this.solve()
-    console.log('decrament')
-  }
 
   getCurrentCollateralFactor = (asset) => {
     try{
@@ -337,6 +376,8 @@ class RiskStore {
       console.error(err)
     }
   }
+
+  
 
   preformRecommendation = (recommendation) => {
     // decrease ADA.e mint cap to 40

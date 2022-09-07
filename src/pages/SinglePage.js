@@ -5,13 +5,22 @@ import Liquidity from './Liquidity2'
 import Accounts from "./Accounts";
 import Oracles from "./Oracles";
 import RiskParameters from "./RiskParameters";
-import Simulation from "./Simulation";
+import SandBox from "./SandBox";
+import VestaSandBox from "./VestaSandBox";
 import Alerts from './Alerts';
 import StabilityPool from "./StabilityPool";
 import OpenLiquidations from "./OpenLiquidations";
 import ScrollSpy from "react-ui-scrollspy";
 import mainStore from '../stores/main.store'
 import {TEXTS} from "../constants"
+
+const renderSandbox = () => {
+  const {sandBoxVersion} = window.APP_CONFIG.feature_flags
+  switch (sandBoxVersion){
+    case 1: return <VestaSandBox/>
+    default: return <SandBox/>
+  }
+}
 
 class SinglePage extends Component {
 
@@ -47,7 +56,7 @@ class SinglePage extends Component {
               <h2> Risk Parameters Sandbox</h2>
               <p className="description">{TEXTS.SANDBOX_DESCRIPTION}</p>
             </hgroup>
-            <Simulation />
+            {renderSandbox()}
           </div>}
         </section>
         <section id="asset-distribution">
