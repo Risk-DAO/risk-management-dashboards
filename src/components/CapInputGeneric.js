@@ -10,21 +10,14 @@ const buttonsStyle = {
   boxShadow: 'var(--card-box-shadow)',
 }
 
-const formatter = new Intl.NumberFormat('en-US', { 
-  style: 'currency', 
-  currency: 'USD',   
-  notation: "compact", 
-  compactDisplay: "short" 
-})
-
 class CapInputGeneric extends React.Component {
   render() {
     
     const {val, increment, decrement} = this.props;
     
-    return <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
-      <span style={{minWidth: '50px'}}>
-        {formatter.format(val*1000000)}
+    return <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', minWidth: '135px'}}>
+      <span style={{minWidth: '30px'}}>
+        {val}
       </span>
       <span>
         <div style={buttonsStyle}>

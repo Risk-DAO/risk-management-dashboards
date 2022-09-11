@@ -1,13 +1,7 @@
 import React from "react";
 import {observer} from "mobx-react"
 import riskStore from "../stores/risk.store"
-
-const formatter = new Intl.NumberFormat('en-US', { 
-  style: 'currency', 
-  currency: 'USD',   
-  notation: "compact", 
-  compactDisplay: "short" 
-});
+import {shortCurrencyFormatter} from '../utils'
 
 const buttonsStyle = {
   display: 'flex', 
@@ -21,7 +15,7 @@ const buttonsStyle = {
 class CapInput extends React.Component {
   render() {
     const {row, field} = this.props;
-    const val = formatter.format(row[field]);
+    const val = shortCurrencyFormatter.format(row[field]);
     return <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
       <span style={{minWidth: '50px'}}>{val}M</span>
       <span>

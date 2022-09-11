@@ -30,20 +30,22 @@ class VestaRiskStore {
     this.solver = new Solver(cleanRiskParams)
     
     const data = await mainStore['lending_platform_current_request']
+    const accountsData = await mainStore['accounts_request']
     const spData = await mainStore['stability_pool_request']
     this.json_time = Math.min(data.json_time, spData.json_time)
     
     const cleanData = Object.entries(data.borrow_caps).map(([asset, v])=> {
+      const minted = accountsData[asset].total_debt
       const borrowCap = v / 1000000
-      const stabilityPoolSize = spData.stabilityPoolVstBalance[asset] / 1000000
-      const bprotocolSize = spData.bprotocolBalance[asset] / 1000000
+      const stabilityPoolSize = spData.stabilityPoolVstBalance[asset] / minted
+      const bprotocolSize = spData.bprotocolBalance[asset] / stabilityPoolSize
       const current_mcr = 100 / data.collateral_factors[asset]
       const recommended_mcr = 100 / this.solver.getCf(asset, borrowCap, stabilityPoolSize, bprotocolSize)
       return {
         asset,
-        borrowCap,
-        stabilityPoolSize, 
-        bprotocolSize,
+        borrowCap: this.roundUpCap(asset, "borrowCap", borrowCap),
+        stabilityPoolSize: this.roundUpCap(asset, "stabilityPoolSize", stabilityPoolSize), 
+        bprotocolSize: this.roundUpCap(asset, "bprotocolSize", bprotocolSize),
         current_mcr,
         recommended_mcr,
       }
@@ -67,15 +69,47 @@ class VestaRiskStore {
       newCap = cap
       if (cap > currentValue) break
     }
-    console.log({newCap})
     
     runInAction(()=> {
       this.loading = false
       row[fieldName] = newCap
       const newRecommendedMcr = 100 / this.solver.getCf(asset, borrowCap, stabilityPoolSize, bprotocolSize)
-      row.diff = newRecommendedMcr - row.recommended_mcr
+      row.diff = row.recommended_mcr - newRecommendedMcr
       row.recommended_mcr = newRecommendedMcr
       this.data = this.data.map(r => r.asset === asset ? {...row} : r)
+    })
+    this.clearDiff(row.asset)
+  }
+
+  roundUpCap = (asset, fieldName, currentValue) => {
+    const capsName = capsMap[fieldName]
+    const caps = this.solver[capsName][asset]
+    let newCap
+    for (const cap of caps) {
+      newCap = cap
+      if (cap >= currentValue) break
+    }
+    return newCap
+  }
+
+  clearDiff = (asset) => {
+    let row = this.data.filter(r => r.asset === asset)[0]
+    if(row.timeout){
+      clearTimeout(row.timeout)
+    }
+    row.timeout = setTimeout(()=> runInAction(()=>{
+        this.data = this.data.map(r => {
+          if(r.asset === asset){
+            r.diff = 0
+            return {...r}
+          }
+          return r
+        })
+      })
+    , 5000)
+    // updates dataTable now
+    runInAction(()=>{
+      this.data = this.data.map(r => r.asset === asset ? {...row} : r) 
     })
   }
 
@@ -92,16 +126,16 @@ class VestaRiskStore {
       newCap = cap
       if (cap && cap < currentValue) break
     }
-    console.log({newCap})
     
     runInAction(()=> {
       this.loading = false
       row[fieldName] = newCap
       const newRecommendedMcr = 100 / this.solver.getCf(asset, borrowCap, stabilityPoolSize, bprotocolSize)
-      row.diff = newRecommendedMcr - row.recommended_mcr
+      row.diff = row.recommended_mcr - newRecommendedMcr
       row.recommended_mcr = newRecommendedMcr
       this.data = this.data.map(r => r.asset === asset ? {...row} : r)
     })
+    this.clearDiff(row.asset)
   }
 }
 

@@ -3,11 +3,14 @@ import {observer} from "mobx-react"
 import Box from "../components/Box"
 import DataTable from 'react-data-table-component'
 import vestaRiskStore from '../stores/vestaRisk.store'
-import {removeTokenPrefix} from '../utils'
+import {removeTokenPrefix, shortCurrencyFormatter} from '../utils'
 import CapInputGeneric from '../components/CapInputGeneric'
 import CfDiffGeneric from '../components/CfDiffGeneric'
 import Token from "../components/Token"
 import {TEXTS} from "../constants"
+
+const displayCap = (val) => shortCurrencyFormatter.format(val * 1000000)
+const displayPercentage = (val) => (val * 100).toFixed(2) + '%'
 
 const columns = [
   {
@@ -19,17 +22,17 @@ const columns = [
   {
       name: 'Mint Cap',
       selector: row => row.borrowCap,
-      format: row => <CapInputGeneric val={row.borrowCap} increment={()=> vestaRiskStore.increment(row, 'borrowCap')} decrement={()=> vestaRiskStore.decrement(row, 'borrowCap')}/>,
+      format: row => <CapInputGeneric val={displayCap(row.borrowCap)} increment={()=> vestaRiskStore.increment(row, 'borrowCap')} decrement={()=> vestaRiskStore.decrement(row, 'borrowCap')}/>,
   }, 
   {
-      name: `Stability Pool Size`,
+      name: `Stability Pool % of Mint Cap`,
       selector: row => row.stabilityPoolSize,
-      format: row => <CapInputGeneric val={row.stabilityPoolSize} increment={()=> vestaRiskStore.increment(row, 'stabilityPoolSize')} decrement={()=> vestaRiskStore.decrement(row, 'stabilityPoolSize')}/>,
+      format: row => <CapInputGeneric val={displayPercentage(row.stabilityPoolSize)} increment={()=> vestaRiskStore.increment(row, 'stabilityPoolSize')} decrement={()=> vestaRiskStore.decrement(row, 'stabilityPoolSize')}/>,
   }, 
   {
-      name: `Backstop Size`,
+      name: `Backstop % of SP`,
       selector: row => row.bprotocolSize,
-      format: row => <CapInputGeneric val={row.bprotocolSize} increment={()=> vestaRiskStore.increment(row, 'bprotocolSize')} decrement={()=> vestaRiskStore.decrement(row, 'bprotocolSize')}/>,
+      format: row => <CapInputGeneric val={displayPercentage(row.bprotocolSize)} increment={()=> vestaRiskStore.increment(row, 'bprotocolSize')} decrement={()=> vestaRiskStore.decrement(row, 'bprotocolSize')}/>,
   },
   {
       name: `Current MCR`,
