@@ -74,6 +74,9 @@ class Liquidity extends Component {
     
     if(window.APP_CONFIG.PLATFORM_ID === '0'){
       assets['WNEAR'] = { name: 'WNEAR', lps: []}
+    }    
+    if(window.APP_CONFIG.PLATFORM_ID === '2'){
+      assets['gOHM'] = { name: 'gOHM', lps: []}
     }
 
     return (
