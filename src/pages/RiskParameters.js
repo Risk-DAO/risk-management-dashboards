@@ -2,14 +2,18 @@ import React, { Component } from "react"
 import {observer} from "mobx-react"
 import RiskParametersCurrent from '../components/RiskParametersCurrent'
 import RiskParametersUtilization from '../components/RiskParametersUtilization'
+import RiskParametersUtilization2 from '../components/RiskParametersUtilization2'
 import RiskParametersSimulation from '../components/RiskParametersSimulation'
+
 
 class RiskParameters extends Component {
   render (){
+    const {PLATFORM_ID} = window.APP_CONFIG
     return (
       <div>
-        <RiskParametersSimulation />  
-        <RiskParametersUtilization/>                  
+        <RiskParametersSimulation />
+        {PLATFORM_ID === "2" && <RiskParametersUtilization2 />}  
+        {PLATFORM_ID != "2" && <RiskParametersUtilization />}  
         <RiskParametersCurrent/>      
       </div>
     )

@@ -13,6 +13,9 @@ class VestaRiskStore {
   loading = true
   data = []
   json_time = null
+  loadingUtilization = true
+  utilizationData = []
+  utilizationJsonTime = null
 
   constructor(){
     this.initPromise = this.init()
@@ -55,6 +58,34 @@ class VestaRiskStore {
       this.data = cleanData
     })
 
+    this.initUtilization()
+  }
+
+  initUtilization = async () => {
+    const accountsData = mainStore.clean(await mainStore['accounts_request'])
+    const spData =  mainStore.clean(await mainStore['stability_pool_request'])
+    const json_time = Math.min(mainStore['stability_pool_data'].json_time, mainStore['accounts_data'].json_time)
+
+    const data = Object.entries(accountsData)
+      .filter(([asset, v])=> asset !== 'VST')
+      .map(([asset, v]) => {
+        const {total_debt} = v
+        const stabilityPoolVstBalance = spData.stabilityPoolVstBalance[asset]
+        const bprotocolBalance = spData.bprotocolBalance[asset]
+        const recommended_mcr = 100 / this.solver.getCf(asset, (total_debt / 1000000), (stabilityPoolVstBalance / total_debt), (bprotocolBalance / stabilityPoolVstBalance))
+        return {
+          asset,
+          total_debt,
+          stabilityPoolVstBalance,
+          bprotocolBalance,
+          recommended_mcr,
+        }
+      })
+    runInAction(()=> {
+      this.loadingUtilization = false
+      this.utilizationData = data
+      this.utilizationJsonTime = json_time
+    })
   }
 
   increment = (row, fieldName) => {
