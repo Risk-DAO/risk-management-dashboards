@@ -25,7 +25,7 @@ window.APP_CONFIG = {
     },   
     {
       name: 'collateral-factors',
-      displayName: 'collateral ratios',
+      displayName: 'MCRs',
     },    
     {
       name: 'sandbox',
