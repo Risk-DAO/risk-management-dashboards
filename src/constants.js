@@ -35,6 +35,7 @@ const defaultTexts = {
   DEX_LIQUIDITY_EXPLAINER: "Max liquidation size that can be executed with a single transaction according to current available DEX liquidity.",
   COLLATERAL_PIE_CHART_TITLE: "Collateral",
   DEBT_PIE_CHART_TITLE: "Debt",
+  SIMULATION_ASTERISK: "* Decreasing CF to Max CF is recommended."
 }
 
 export const TEXTS = Object.assign(defaultTexts, window.APP_CONFIG.TEXTS)

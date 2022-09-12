@@ -77,6 +77,7 @@ window.APP_CONFIG = {
     DEX_LIQUIDITY_EXPLAINER: "Max Liquidation in single tx for up to 10% slippage",
     COLLATERAL_PIE_CHART_TITLE: "VST Collateralization",
     DEBT_PIE_CHART_TITLE: "VST minted by Vault",
+    SIMULATION_ASTERISK: "Increase current MCR to LCR is recommended",
   },
   QA: {
     "DPX": {
