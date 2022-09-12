@@ -56,7 +56,7 @@ window.APP_CONFIG = {
     WORST_DAY_SIMULATION_DESCRIPTION: "Worst day simulation is done according to the worst day price-drop in ETH history. Other assets are being normalized according to their volatility compared to ETH. The simulation considers the current MCRs and users’ usage to present total liquidations and bad debt that would have accrued in the platform. The LCR is the lowest collateral ratio that won’t create bad debt for the platform in case the same scenario repeats today.",
     UTILIZATION_DESCRIPTION: "Recommended MCRs according to current collateral and borrow usage.",
     TOTAL_DEBT: "Total VST Debt",
-    COLLATERAL_FACTOR: 'Collateral Ratio',
+    COLLATERAL_FACTOR: 'MCR',
     MAX_COLLATERAL_FACTOR: "Lowest Collateral Ratio",
     UTILIZATION: {
       ASSET: "Vault",

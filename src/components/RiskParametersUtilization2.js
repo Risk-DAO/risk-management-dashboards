@@ -33,6 +33,12 @@ const currentColumns = [
       grow: 2,
   },  
   {
+    name: `Current MCR`,
+    selector: row => row.current_mcr,
+    format: row => <CfDiffGeneric val={row.current_mcr.toFixed(2) + "%"} diff={row.diff} />,
+    grow: 2,
+  }, 
+  {
       name: 'Recommended MCR',
       selector: row => row.recommended_mcr,
       format: row => <CfDiffGeneric val={row.recommended_mcr.toFixed(2) + "%"} diff={row.diff} />,

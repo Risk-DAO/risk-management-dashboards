@@ -45,14 +45,13 @@ class VestaRiskStore {
       const borrowCap = v / 1000000
       const stabilityPoolSize = spData.stabilityPoolVstBalance[asset] / minted
       const bprotocolSize = spData.bprotocolBalance[asset] / stabilityPoolSize
-      const current_mcr = 100 / data.collateral_factors[asset]
       const recommended_mcr = 100 / this.solver.getCf(asset, borrowCap, stabilityPoolSize, bprotocolSize)
       return {
         asset,
         borrowCap: this.roundUpCap(asset, "borrowCap", borrowCap),
         stabilityPoolSize: this.roundUpCap(asset, "stabilityPoolSize", stabilityPoolSize), 
         bprotocolSize: this.roundUpCap(asset, "bprotocolSize", bprotocolSize),
-        current_mcr,
+        current_mcr: 100 / data.collateral_factors[asset],
         recommended_mcr,
       }
     })
@@ -66,6 +65,7 @@ class VestaRiskStore {
   }
 
   initUtilization = async () => {
+    const current = await mainStore['lending_platform_current_request']
     const accountsData = mainStore.clean(await mainStore['accounts_request'])
     const spData =  mainStore.clean(await mainStore['stability_pool_request'])
     const json_time = Math.min(mainStore['stability_pool_data'].json_time, mainStore['accounts_data'].json_time)
@@ -82,6 +82,7 @@ class VestaRiskStore {
           total_debt,
           stabilityPoolVstBalance,
           bprotocolBalance,
+          current_mcr: 100 / current.collateral_factors[asset],
           recommended_mcr,
         }
       })
@@ -103,13 +104,12 @@ class VestaRiskStore {
         const stabilityPoolVstBalance = spData.stabilityPoolVstBalance[asset]
         const bprotocolBalance = spData.bprotocolBalance[asset]
         const recommended_mcr = 100 / this.solver.getCf(asset, (borrow_caps / 1000000), (stabilityPoolVstBalance / borrow_caps), (bprotocolBalance / stabilityPoolVstBalance))
-        const current_mcr = 100 / current.collateral_factors[asset]
         return {
           asset,
           borrow_caps,
           stabilityPoolVstBalance,
           bprotocolBalance,
-          current_mcr,
+          current_mcr: 100 / current.collateral_factors[asset],
           recommended_mcr,
         }
       })
