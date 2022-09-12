@@ -16,6 +16,9 @@ class VestaRiskStore {
   loadingUtilization = true
   utilizationData = []
   utilizationJsonTime = null
+  loadingCurrent = true
+  currentData = []
+  currentJsonTime = null
 
   constructor(){
     this.initPromise = this.init()
@@ -59,6 +62,7 @@ class VestaRiskStore {
     })
 
     this.initUtilization()
+    this.initCurrent()
   }
 
   initUtilization = async () => {
@@ -85,6 +89,34 @@ class VestaRiskStore {
       this.loadingUtilization = false
       this.utilizationData = data
       this.utilizationJsonTime = json_time
+    })
+  }
+
+  initCurrent = async () => {
+    const current = mainStore.clean(await mainStore['lending_platform_current_request'])
+    const spData =  mainStore.clean(await mainStore['stability_pool_request'])
+    const json_time = Math.min(mainStore['stability_pool_data'].json_time, mainStore['lending_platform_current_data'].json_time)
+
+    const data = Object.entries(current.borrow_caps)
+      .filter(([asset, v])=> asset !== 'VST')
+      .map(([asset, borrow_caps]) => {
+        const stabilityPoolVstBalance = spData.stabilityPoolVstBalance[asset]
+        const bprotocolBalance = spData.bprotocolBalance[asset]
+        const recommended_mcr = 100 / this.solver.getCf(asset, (borrow_caps / 1000000), (stabilityPoolVstBalance / borrow_caps), (bprotocolBalance / stabilityPoolVstBalance))
+        const current_mcr = 100 / current.collateral_factors[asset]
+        return {
+          asset,
+          borrow_caps,
+          stabilityPoolVstBalance,
+          bprotocolBalance,
+          current_mcr,
+          recommended_mcr,
+        }
+      })
+    runInAction(()=> {
+      this.loadingCurrent = false
+      this.currentData = data
+      this.currentJsonTime = json_time
     })
   }
 

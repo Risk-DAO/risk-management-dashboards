@@ -68,7 +68,7 @@ window.APP_CONFIG = {
     ACCORDING_TO_EXISTING_CAPS: "According to Existing Mint Caps",
     ACCORDING_TO_EXISTING_CAPS_DESCRIPTION: "Recommended MCRs according to existing mint caps.",
     ASSET: "Vault",
-    SUPPLY_CAP: "VST Mint Cap",
+    BORROW_CAP: "VST Mint Cap",
     SANDBOX_DESCRIPTION: "The sandbox lets you set different Mint caps, Stability Pools size, and B.AMM percentage of the Stability Pool, to get MCR recommendations according to different caps. The tool also provides optimization setting recommendations.",
     DEX_LIQUIDITY_DESCRIPTION: "Monitoring available on-chain DEX liquidity per asset. The graph shows maximum liquidation size that can be executed in a single transaction according to current available DEX liquidity w.r.t current liquidation bonus offered by the platform.",
     DEX_LIQUIDITY_EXPLAINER: "Max Liquidation in single tx for up to 10% slippage",

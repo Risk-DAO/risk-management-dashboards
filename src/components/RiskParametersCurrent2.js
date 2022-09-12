@@ -5,8 +5,8 @@ import DataTable from 'react-data-table-component'
 import {whaleFriendlyFormater} from './WhaleFriendly'
 import vestaRiskStore from '../stores/vestaRisk.store'
 import Token from './Token'
-import {TEXTS} from '../constants'
 import CfDiffGeneric from './CfDiffGeneric'
+import { TEXTS } from '../constants' 
 
 const currentColumns = [
   {
@@ -15,46 +15,50 @@ const currentColumns = [
       format: row => <Token value={row.asset}/>,
   },
   {
-      name: 'Current Minted VST',
-      selector: row => row.total_debt,
-      format: row => whaleFriendlyFormater(row.total_debt),
+      name: TEXTS.BORROW_CAP,
+      selector: row => row.borrow_caps,
+      format: row => whaleFriendlyFormater(row.borrow_caps),
       grow: 2,
-  },  
+  },
   {
-      name: 'VST in Stability Pool',
+      name: `VST in Stability Pool`,
       selector: row => row.stabilityPoolVstBalance,
       format: row => whaleFriendlyFormater(row.stabilityPoolVstBalance),
       grow: 2,
   },  
   {
-      name: 'VST in B.AMM',
+      name: `VST in B.AMM`,
       selector: row => row.bprotocolBalance,
       format: row => whaleFriendlyFormater(row.bprotocolBalance),
       grow: 2,
-  },  
+  }, 
   {
-      name: 'Recommended MCR',
+      name: `Current MCR`,
+      selector: row => row.current_mcr,
+      format: row => <CfDiffGeneric val={row.current_mcr.toFixed(2) + "%"} diff={row.diff} />,
+      grow: 2,
+  }, 
+  {
+      name: `Recommended MCR`,
       selector: row => row.recommended_mcr,
       format: row => <CfDiffGeneric val={row.recommended_mcr.toFixed(2) + "%"} diff={row.diff} />,
       grow: 2,
   },
 ];
 
-class RiskParametersUtilization2 extends Component {
+class RiskParametersCurrent2 extends Component {
   render (){
-    const {loadingUtilization, utilizationData, utilizationJsonTime} = vestaRiskStore
-    // const text = hasAtLeastOneAsterisk(utilization, "collateral_factor") ? "* if user composition will change, reduction of CF might be required to avoid bad debt." : ""
+    const {loadingCurrent, currentData, currentJsonTime} = vestaRiskStore
     return (
       <div>
-        <Box loading={loadingUtilization} time={utilizationJsonTime} >
+        <Box loading={loadingCurrent} time={currentJsonTime}>
           <hgroup>
-            <h6>According to Current Usage</h6>
-            <p>{TEXTS.UTILIZATION_DESCRIPTION}</p>
+            <h6>{TEXTS.ACCORDING_TO_EXISTING_CAPS}</h6>
+            <p className="description">{TEXTS.ACCORDING_TO_EXISTING_CAPS_DESCRIPTION}</p>
           </hgroup>
-
-          {!loadingUtilization && <DataTable
+          {!loadingCurrent && <DataTable
               columns={currentColumns}
-              data={utilizationData}
+              data={currentData}
           />}
         </Box>
       </div>
@@ -62,4 +66,4 @@ class RiskParametersUtilization2 extends Component {
   }
 }
 
-export default observer(RiskParametersUtilization2)
+export default observer(RiskParametersCurrent2)
