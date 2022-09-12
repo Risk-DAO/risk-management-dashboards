@@ -28,15 +28,20 @@ class StableLiquidity extends Component {
           <BoxRow>
             <h5 style={{margin: 0}}>VST Liquidity</h5>
             <h5 style={{margin: 0}}></h5>
+          </BoxRow>           
+          <BoxRow>
+            <span>Curve</span>
+            <span>
+              <span>{whaleFriendlyFormater(curveVstBalance)}</span>
+              <span style={{margin: '0 2px'}}></span>
+              <b>VST</b>
+              <span style={{margin: '0 10px'}}></span>
+              <span>{whaleFriendlyFormater(curveFraxBalance)}</span>
+              <span style={{margin: '0 2px'}}></span>
+              <b>FRAX</b>
+            </span>
+
           </BoxRow>          
-          <BoxRow>
-            <span style={{margin: 0}}>VST-FRAX</span>
-            <span style={{margin: 0}}>{whaleFriendlyFormater(curveFraxBalance)}</span>
-          </BoxRow>
-          <BoxRow>
-            <span style={{margin: 0}}>Curve</span>
-            <span style={{margin: 0}}>{whaleFriendlyFormater(curveVstBalance)}</span>
-          </BoxRow>
         </Box>
       </BoxGrid>
     )
