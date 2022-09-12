@@ -181,7 +181,7 @@ class AlertStore {
         sortable: true,
       },
       {
-        name: 'Supply/ Borrow',
+        name: 'Supply / Borrow',
         selector: row => row.type,
         sortable: true,
       },
@@ -192,6 +192,9 @@ class AlertStore {
         sortable: true,
       }
     ]
+    if(window.APP_CONFIG.PLATFORM_ID === '2'){
+      columns.splice(1, 1)
+    }
     const currentUsage = mainStore.clean(await mainStore['accounts_request'])
     
     Object.entries(currentUsage).forEach(([k, v]) => {
@@ -251,7 +254,7 @@ class AlertStore {
         if(borrowUtilization > 70){
           alerts.push({
             asset: market.market,
-            type: 'borrow',
+            type: 'Borrow',
             cap: borrowUtilization
           })
         }
