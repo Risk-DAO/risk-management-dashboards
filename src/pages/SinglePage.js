@@ -5,6 +5,7 @@ import Liquidity from './Liquidity2'
 import Accounts from "./Accounts";
 import Oracles from "./Oracles";
 import RiskParameters from "./RiskParameters";
+import Qualitative from "./Qualitative";
 import SandBox from "./SandBox";
 import VestaSandBox from "./VestaSandBox";
 import Alerts from './Alerts';
@@ -109,6 +110,28 @@ class SinglePage extends Component {
             <img style={{width: '250px', display: 'block'}} src={`/images/${color}-powered-by-kyberswap.png`}/>
             
             <Liquidity/>
+          </div>}
+        </section>
+        <section id="qualitative-analysis">
+        {mainStore.sectionShow("qualitative-analysis") && <div>
+              <hgroup>
+                <h2>Qualitative Analysis</h2>
+                <p className="description">
+                  We propose to cap the debt ceiling of the assets according to their Score: 
+                  <br/>
+                  <small>
+                  <b>A</b> - could potentially be uncapped, however to mitigate price oracle attacks and other potential glitches, we recommend to cap it by 2 times the amount of VST DEX liquidity (on Curve Finance)
+                  <br/>
+                  <b>B</b> -  should be capped to at most 20-30% of the entire VST target supply*.
+                  <br/> 
+                  <b>C</b> - should be capped to at most 10% of the entire VST target supply*.
+                  <br/>      
+                  * Target supply: Given the early stage of Vesta Finance, the target supply need not be the current VST supply, as otherwise, it would lift heavy restrictions on risky assets. 
+                  </small>
+                </p>
+            </hgroup>
+            
+            <Qualitative/>
           </div>}
         </section>
       </ScrollSpy>

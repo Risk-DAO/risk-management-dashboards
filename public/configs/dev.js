@@ -46,6 +46,9 @@ window.APP_CONFIG = {
     {
       name: 'liquidity',
       displayName: 'DEX Liquidity'
+    },
+    {
+      name: 'qualitative-analysis'
     }
     // 'backstop',
     // 'assumptions',
@@ -74,5 +77,47 @@ window.APP_CONFIG = {
     DEX_LIQUIDITY_EXPLAINER: "Max Liquidation in single tx for up to 10% slippage",
     COLLATERAL_PIE_CHART_TITLE: "VST Collateralization",
     DEBT_PIE_CHART_TITLE: "VST minted by Vault",
+  },
+  QA: {
+    "DPX": {
+      score: 'A',
+      comments: [
+        'yaron adds text here',
+        'also say where is risk hiding',
+        'derisk DeFi until all banks are on chain'
+      ]
+    },
+    "ETH": {
+      score: 'A',
+      comments: [
+        'yaron adds text here',
+        'also say where is risk hiding',
+        'derisk DeFi until all banks are on chain'
+      ]
+    },
+    "gOHM": {
+      score: 'A',
+      comments: [
+        'yaron adds text here',
+        'also say where is risk hiding',
+        'derisk DeFi until all banks are on chain'
+      ]
+    },
+    "GMX": {
+      score: 'A',
+      comments: [
+        'yaron adds text here',
+        'also say where is risk hiding',
+        'derisk DeFi until all banks are on chain'
+      ]
+    },
+    "renBTC": {
+      score: 'A',
+      comments: [
+        'yaron adds text here',
+        'also say where is risk hiding',
+        'derisk DeFi until all banks are on chain'
+      ]
+    },
   }
 }
