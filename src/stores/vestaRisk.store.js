@@ -71,7 +71,7 @@ class VestaRiskStore {
     const json_time = Math.min(mainStore['stability_pool_data'].json_time, mainStore['accounts_data'].json_time)
 
     const data = Object.entries(accountsData)
-      .filter(([asset, v])=> asset !== 'VST')
+      .filter(([asset, v])=> asset !== window.APP_CONFIG.STABLE || "")
       .map(([asset, v]) => {
         const {total_debt} = v
         const stabilityPoolVstBalance = spData.stabilityPoolVstBalance[asset]
@@ -99,7 +99,7 @@ class VestaRiskStore {
     const json_time = Math.min(mainStore['stability_pool_data'].json_time, mainStore['lending_platform_current_data'].json_time)
 
     const data = Object.entries(current.borrow_caps)
-      .filter(([asset, v])=> asset !== 'VST')
+      .filter(([asset, v])=> asset !== window.APP_CONFIG.STABLE || "")
       .map(([asset, borrow_caps]) => {
         const stabilityPoolVstBalance = spData.stabilityPoolVstBalance[asset]
         const bprotocolBalance = spData.bprotocolBalance[asset]

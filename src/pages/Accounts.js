@@ -116,6 +116,7 @@ class Accounts extends Component {
       delete rawData.json_time
     }
     const data = !loading ? Object.entries(rawData)
+    .filter(([k, v])=> k !== window.APP_CONFIG.STABLE || "")
     .map(([k, v])=> {
       v.key = k
       v.whales = whaleData[k]

@@ -60,6 +60,9 @@ class StabilityPool extends Component {
     const sortedData = {}
     Object.entries(rawData).forEach(([column, v]) => {
       Object.entries(v).forEach(([asset, value])=> {
+        if(asset === window.APP_CONFIG.STABLE || ""){
+          return // exit
+        }
         sortedData[asset] = sortedData[asset] || {asset}
         sortedData[asset][column] = value
       })
