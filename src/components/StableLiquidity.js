@@ -21,7 +21,7 @@ class StableLiquidity extends Component {
         <Box loading={loading} time={json_time}>
           <BoxRow>
             <h5 style={{margin: 0}}>VST Price</h5>
-            <h5 style={{margin: 0}}>{whaleFriendlyFormater(prices.VST)}</h5>
+            <h5 style={{margin: 0}}>${parseFloat(prices.VST).toFixed(2)}</h5>
           </BoxRow>
         </Box>
         <Box loading={loading} time={json_time}>
