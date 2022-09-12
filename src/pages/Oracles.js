@@ -51,7 +51,9 @@ class Oracles extends Component {
     if(json_time){
       delete rawData.json_time
     }
-    const data = !loading ? Object.entries(rawData).map(([k, v])=> {
+    const data = !loading ? Object.entries(rawData)
+    .filter(([k, v])=> k !== window.APP_CONFIG.STABLE || "")
+    .map(([k, v])=> {
       v.key = k
       return v
     }) : []
