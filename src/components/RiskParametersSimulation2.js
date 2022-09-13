@@ -10,10 +10,10 @@ import { TEXTS } from '../constants'
 
 const columns = [
   {
-      name: 'Asset',
-      selector: row => row.key,
-      format: row => <Token value={row.key}/>,
-      sortable: true,
+    name: 'Asset',
+    selector: row => row.key,
+    format: row => <Token value={row.key}/>,
+    sortable: true,
   },
   {
     name: 'Total Liquidations',
@@ -28,10 +28,10 @@ const columns = [
     sortable: true,
   },      
   {
-      name: 'LCR',
-      selector: row => row['max_collateral'],
-      format: row =>  <Asterisk row={row} field={"max_collateral"} CR={true}/>,
-      sortable: true,
+    name: 'LCR',
+    selector: row => row['max_collateral'],
+    format: row =>  <Asterisk row={row} field={"max_collateral"} CR={true}/>,
+    sortable: true,
   },  
 ];
 
