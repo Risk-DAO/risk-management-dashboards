@@ -9,7 +9,7 @@ const Comments = props => {
   return (
     <div>
       <ul style={{margin: 'var(--spacing) 0'}}>
-        {props.comments.map(comment => <li>{comment}</li>)}
+        {props.comments.map((comment, i) => <li key={i}>{comment}</li>)}
       </ul>
     </div>
   )
