@@ -90,9 +90,6 @@ window.APP_CONFIG = {
     "ETH": {
       score: 'A',
       comments: [
-        'yaron adds text here',
-        'also say where is risk hiding',
-        'derisk DeFi until all banks are on chain'
       ]
     },
     "gOHM": {
