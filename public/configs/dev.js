@@ -3,7 +3,7 @@ window.APP_CONFIG = {
   PLATFORM_ID: '2',
   TOKEN_PREFIX: '',
   BLOCK_EXPLORER: 'https://arbiscan.io',
-  WHITE_LOGO: 'vesta.svg',  
+  WHITE_LOGO: 'vesta-dark.svg',  
   BLACK_LOGO: 'vesta.svg',
   SOLVER: 'solver_vesta',
   STABLE: 'VST',
