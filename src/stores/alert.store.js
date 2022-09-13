@@ -173,6 +173,8 @@ class AlertStore {
   getUtilizationAlert = async () => {
     const markets = {}
     const alerts = []
+    const alertThreshold = 70
+    const severThreshold = 85
     const columns = [
       {
         name: 'Asset',
@@ -188,7 +190,7 @@ class AlertStore {
       {
         name: 'Cap Utilization',
         selector: row => row.cap,
-        format: row => <Ramzor red={row.cap > 85} yellow={row.cap > 70}> {row.cap.toFixed(2)}%</Ramzor>,
+        format: row => <Ramzor red={row.cap > severThreshold} yellow={row.cap > alertThreshold}> {row.cap.toFixed(2)}%</Ramzor>,
         sortable: true,
       }
     ]
@@ -260,7 +262,14 @@ class AlertStore {
         }
       })
 
-    const type = alerts.length ? 'review' : 'healthy'
+    let type
+    if(!alerts.length){
+      type = 'healthy'
+    } else if(alerts.filter(({cap}) => cap > severThreshold).length){
+      type = 'danger'
+    } else {
+      type = 'review'
+    }
     return {
       title: 'utilization',
       data: alerts,
