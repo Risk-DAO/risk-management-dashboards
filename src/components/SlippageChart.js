@@ -45,7 +45,7 @@ class SlippageChart extends Component {
       delete rawData.json_time
     }
     const data = !loading ? (rawData[TOKEN_PREFIX + market] || {}) : {}
-    const dataSet = Object.entries(data).map(([k, v])=> ({name: removeTokenPrefix(k), value: v}))
+    const dataSet = Object.entries(data).map(([k, v])=> ({name: removeTokenPrefix(k), value: v.volume, penalty: v.llc}))
     if(!dataSet.length){
       return null
     }
@@ -54,7 +54,8 @@ class SlippageChart extends Component {
       secondBiggest = biggest
     }
     const dataMax = Math.min(secondBiggest.value * 2, biggest.value)
-
+    debugger
+    const text = TEXTS.DEX_LIQUIDITY_EXPLAINER.replace('<place_holder>', ((dataSet[0].penalty - 1) * 100).toFixed(0))
     return (
       <div style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
         <article style={expendedBoxStyle}>
@@ -70,7 +71,7 @@ class SlippageChart extends Component {
         <div className="box-space" style={{width: '50%', display: 'flex', justifyContent: 'space-between', flexDirection: 'column'}}>
           <hgroup>
             <h1></h1>
-            <p>{TEXTS.DEX_LIQUIDITY_EXPLAINER}</p>
+            <p>{text}</p>
           </hgroup>
         </div>
           {/* <h6>top 5 accounts</h6>
