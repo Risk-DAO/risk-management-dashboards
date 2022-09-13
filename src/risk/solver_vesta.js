@@ -1,3 +1,5 @@
+// TODO: change order of look ups 
+
 class VestaSolver {
     constructor(rawDataObj) {
         this.liquidationPenalty = 0.1
@@ -83,14 +85,16 @@ class VestaSolver {
             if (bc >= borrowCap) break
         }
 
-        for (const sp of this.stabilityPoolCaps[asset]) {
+        for (let i = this.stabilityPoolCaps[asset].length - 1; i >= 0; i--) {
+            const sp = this.stabilityPoolCaps[asset][i] 
             realStabilityPoolSize = sp
-            if (sp >= stabilityPoolSize) break
+            if (sp <= stabilityPoolSize) break
         }
 
-        for (const bp of this.bprotocolCaps[asset]) {
+        for (let i = this.bprotocolCaps[asset].length - 1; i >= 0; i--) {
+            const bp = this.bprotocolCaps[asset][i]
             realBProtocolSize = bp
-            if (bp >= bprotocolSize) break
+            if (bp <= bprotocolSize) break
         }
 
         return 1 - this.parsedData[asset][realBorrowCap][realStabilityPoolSize][realBProtocolSize].avg
