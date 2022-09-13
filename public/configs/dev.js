@@ -81,11 +81,10 @@ window.APP_CONFIG = {
   },
   QA: {
     "DPX": {
-      score: 'A',
+      score: 'C',
       comments: [
-        'yaron adds text here',
-        'also say where is risk hiding',
-        'derisk DeFi until all banks are on chain'
+        'TWAP oracle owned by the team',
+        'Governance risk',
       ]
     },
     "ETH": {
@@ -97,27 +96,22 @@ window.APP_CONFIG = {
       ]
     },
     "gOHM": {
-      score: 'A',
+      score: 'B-',
       comments: [
-        'yaron adds text here',
-        'also say where is risk hiding',
-        'derisk DeFi until all banks are on chain'
+        'Governance risk',
       ]
     },
     "GMX": {
-      score: 'A',
+      score: 'C',
       comments: [
-        'yaron adds text here',
-        'also say where is risk hiding',
-        'derisk DeFi until all banks are on chain'
+        'TWAP oracle',
+        'Governance risk',
       ]
     },
     "renBTC": {
-      score: 'A',
+      score: 'B+',
       comments: [
-        'yaron adds text here',
-        'also say where is risk hiding',
-        'derisk DeFi until all banks are on chain'
+        'Custodial risk',
       ]
     },
   }
