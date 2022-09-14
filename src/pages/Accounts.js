@@ -41,6 +41,18 @@ const rowPreExpanded = row => row.defaultExpanded
 class Accounts extends Component {
   render (){
     const {prefixLooping} = localStore
+
+    const onRowExpandToggled = (expanded, row) => {
+      if(expanded === false){
+        row.top10Coll = false
+        row.top10Debt = false
+      }
+      row.expanded = expanded
+    }
+
+    const toggleTopTen = (row, name) => {
+      row[name] = !row[name]
+    }
     const columns = [
       {
           name: 'Asset',
@@ -80,14 +92,14 @@ class Accounts extends Component {
       {
           name: 'Top 10 Accounts Collateral',
           selector: row =>  Number(row[prefixLooping('top_10_collateral')]),
-          format: row => < TopTenAccounts row={row} accounts={row.whales.big_collateral} value={whaleFriendlyFormater(row[prefixLooping('top_10_collateral')])}/>,
+          format: row => < TopTenAccounts row={row} name={"top10Coll"} toggleTopTen={toggleTopTen} accounts={row.whales.big_collateral} value={whaleFriendlyFormater(row[prefixLooping('top_10_collateral')])}/>,
           sortable: true,
           minWidth: usersMinWidth
       },
       {
           name: 'Top 10 Accounts Debt',
           selector: row =>  Number(row[prefixLooping('top_10_debt')]),
-          format: row => <TopTenAccounts row={row} accounts={row.whales.big_debt} value={whaleFriendlyFormater(row[prefixLooping('top_10_debt')])}/>,
+          format: row => <TopTenAccounts row={row} name={"top10Debt"} toggleTopTen={toggleTopTen} accounts={row.whales.big_debt} value={whaleFriendlyFormater(row[prefixLooping('top_10_debt')])}/>,
           sortable: true,
           minWidth: usersMinWidth
       },
@@ -122,16 +134,13 @@ class Accounts extends Component {
       v.whales = whaleData[k]
       return v
     })
-    .sort((a, b)=> {
-      return b.total_collateral - a.total_collateral
-    }) : []
+    : []
 
     if(data.length){
       data[0].defaultExpanded = true  
     }
 
     const text = "* Big account included in the list"
-    const onRowExpandToggled = (expanded, row) => row.expanded = expanded
     
     return (
       <div>
@@ -146,7 +155,7 @@ class Accounts extends Component {
               expandableRows
               columns={columns}
               defaultSortFieldId={2}
-              defaultSortAsc={false}
+              defaultSortAsc={true}
               data={data}
               expandableRowsComponent={LiquidationsGraph}
               expandableRowExpanded={rowPreExpanded}
