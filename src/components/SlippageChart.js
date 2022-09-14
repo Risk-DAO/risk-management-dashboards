@@ -54,7 +54,7 @@ class SlippageChart extends Component {
       secondBiggest = biggest
     }
     const dataMax = Math.min(secondBiggest.value * 2, biggest.value)
-    debugger
+    
     const text = TEXTS.DEX_LIQUIDITY_EXPLAINER.replace('<place_holder>', ((dataSet[0].penalty - 1) * 100).toFixed(0))
     return (
       <div style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
