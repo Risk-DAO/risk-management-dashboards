@@ -1,5 +1,5 @@
 window.APP_CONFIG = {
-  API_URL: 'https://api-staging.riskdao.org',
+  API_URL: 'https://analytics.riskdao.org',
   PLATFORM_ID: '2',
   TOKEN_PREFIX: '',
   BLOCK_EXPLORER: 'https://arbiscan.io',

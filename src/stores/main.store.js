@@ -1,7 +1,7 @@
 import { makeAutoObservable, runInAction } from "mobx"
 import axios from "axios"
-import riskStore from "./risk.store"
-import alertStore from "./alert.store"
+
+const STAGING = 'https://api-staging.riskdao.org'
 
 const {SECTIONS, PLATFORM_ID, API_URL} = window.APP_CONFIG
 const apiEndpoints = ['overview', 'accounts', 'dex_liquidity', 'oracles', 'usd_volume_for_slippage', 'current_simulation_risk',
@@ -18,6 +18,10 @@ class MainStore {
   stagingLoader = 0
 
   constructor () {
+
+    if(window.location.href.indexOf('staging') > -1){
+      this.apiUrl = STAGING
+    }
     this.init()
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       // dark mode
@@ -71,14 +75,7 @@ class MainStore {
   }
 
   setStaging = async ()=> {
-    runInAction(()=> this.stagingLoader = 1)
-    this.apiUrl = 'https://api-staging.riskdao.org'
-    await Promise.all([this.init(), sleep(1)])
-    runInAction(()=> this.stagingLoader = 33)
-    await Promise.all([riskStore.init(), sleep(1)])
-    runInAction(()=> this.stagingLoader = 66)
-    await  Promise.all([alertStore.init(), sleep(1)])
-    runInAction(()=> this.stagingLoader = 100)
+    window.location.replace(window.location.origin + '/staging')
   }
 }
 

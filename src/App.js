@@ -34,6 +34,7 @@ class App extends React.Component {
             <main>
               <Routes>
                 <Route exact path="/"  element={<SinglePage scrollContainer={this.scrollContainer}/>}/>
+                <Route exact path="/staging"  element={<SinglePage scrollContainer={this.scrollContainer}/>}/>
                 <Route exact path="/api/alerts"  element={<AlertsJson/>}/>
               </Routes>
             </main>
