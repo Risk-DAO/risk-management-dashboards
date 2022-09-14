@@ -111,5 +111,13 @@ window.APP_CONFIG = {
         'Custodial risk',
       ]
     },
+    "sGLP": {
+      score: 'C',
+      comments: [
+        "Operational risk",
+        "Might no be redeemable when in full utilization",
+        "Underlying asset composition could change over time"
+      ]
+    }
   }
 }
