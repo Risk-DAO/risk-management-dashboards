@@ -4,8 +4,13 @@ import axios from "axios"
 const STAGING = 'https://api-staging.riskdao.org'
 
 const {SECTIONS, PLATFORM_ID, API_URL} = window.APP_CONFIG
-const apiEndpoints = ['overview', 'accounts', 'dex_liquidity', 'oracles', 'usd_volume_for_slippage', 'current_simulation_risk',
-                      'risk_params', 'lending_platform_current', 'whale_accounts', 'open_liquidations', 'stability_pool']
+const apiEndpoints = [
+  'overview', 'accounts', 'dex_liquidity', 
+  'oracles', 'usd_volume_for_slippage', 
+  'current_simulation_risk',
+  'risk_params', 'lending_platform_current', 'whale_accounts', 
+  'open_liquidations', 'stability_pool', 'glp_data'
+]
 
 
 class MainStore {

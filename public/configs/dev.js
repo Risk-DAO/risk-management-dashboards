@@ -49,7 +49,11 @@ window.APP_CONFIG = {
     },
     {
       name: 'qualitative-analysis'
-    }
+    },
+    {
+      name: 'glp-utilization',
+      displayName: 'GLP Utilization'
+    },
     // 'backstop',
     // 'assumptions',
     //'qualitative-anlysis',

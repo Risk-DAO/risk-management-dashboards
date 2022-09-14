@@ -11,6 +11,7 @@ import VestaSandBox from "./VestaSandBox";
 import Alerts from './Alerts';
 import StabilityPool from "./StabilityPool";
 import OpenLiquidations from "./OpenLiquidations";
+import GlpUtilization from "./GlpUtilization";
 import ScrollSpy from "react-ui-scrollspy";
 import mainStore from '../stores/main.store'
 import {TEXTS} from "../constants"
@@ -132,6 +133,17 @@ class SinglePage extends Component {
             </hgroup>
             
             <Qualitative/>
+          </div>}
+        </section>
+        <section id="glp-utilization">
+          {mainStore.sectionShow("glp-utilization") && <div>
+            <hgroup>
+              <h2>GLP Utilization</h2>
+              <p className="description">
+              explainer would be nice...
+              </p>
+            </hgroup>
+            <GlpUtilization/>
           </div>}
         </section>
       </ScrollSpy>
