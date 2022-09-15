@@ -67,7 +67,7 @@ class AlertStore {
       })
     })
     runInAction(()=> {
-      this.valueAtRisk = whaleFriendlyFormater(valueAtRisk)
+      this.valueAtRisk = whaleFriendlyFormater(Math.abs(valueAtRisk))
     })
   }
 
