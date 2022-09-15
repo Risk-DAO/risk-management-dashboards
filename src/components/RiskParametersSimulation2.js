@@ -24,7 +24,7 @@ const columns = [
   {
     name: 'Bad Debt Accrued',
     selector: row => row.pnl,
-    format: row => whaleFriendlyFormater(row.pnl),
+    format: row => whaleFriendlyFormater(Math.abs(row.pnl)),
     sortable: true,
   },      
   {
