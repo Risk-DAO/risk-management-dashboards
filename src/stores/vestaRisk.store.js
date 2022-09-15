@@ -42,15 +42,15 @@ class VestaRiskStore {
     
     const cleanData = Object.entries(data.borrow_caps).map(([asset, v])=> {
       const minted = accountsData[asset].total_debt
-      const borrowCap = v / 1000000
-      const stabilityPoolSize = spData.stabilityPoolVstBalance[asset] / minted
-      const bprotocolSize = spData.bprotocolBalance[asset] / stabilityPoolSize
+      const borrowCap = this.roundUpCap(asset, "borrowCap", v / 1000000)
+      const stabilityPoolSize = this.roundDownCap(asset, "stabilityPoolSize", spData.stabilityPoolVstBalance[asset] / minted)
+      const bprotocolSize = this.roundDownCap(asset, "bprotocolSize", spData.bprotocolBalance[asset] / stabilityPoolSize)
       const recommended_mcr = 100 / this.solver.getCf(asset, borrowCap, stabilityPoolSize, bprotocolSize)
       return {
         asset,
-        borrowCap: this.roundUpCap(asset, "borrowCap", borrowCap),
-        stabilityPoolSize: this.roundUpCap(asset, "stabilityPoolSize", stabilityPoolSize), 
-        bprotocolSize: this.roundUpCap(asset, "bprotocolSize", bprotocolSize),
+        borrowCap,
+        stabilityPoolSize, 
+        bprotocolSize,
         current_mcr: 100 / data.collateral_factors[asset],
         recommended_mcr,
       }
@@ -153,6 +153,16 @@ class VestaRiskStore {
       if (cap >= currentValue) break
     }
     return newCap
+  }
+
+  roundDownCap = (asset, fieldName, currentValue) => {
+    const capsName = capsMap[fieldName]
+    const caps = this.solver[capsName][asset]
+    // first value is half current size
+    // second value is current size
+    // third is double the current
+    // forth is BAMM is 100% of SP
+    return caps[1]
   }
 
   clearDiff = (asset) => {

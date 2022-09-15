@@ -46,16 +46,6 @@ const columns = [
   },
 ];
 
-const expendedBoxStyle = {margin: '30px', width: '100%', minHeight: '100px', padding: '30px'}
-const humanizeRecommendation = r => {
-  const rItems = r.split(' ')
-  rItems[1] = removeTokenPrefix(rItems[1])
-  if(rItems[2] === 'mint'){
-    rItems[2] = 'supply'
-  }
-  return rItems.join(' ')
-}
-
 class VestaSandBox extends Component {
   
   render (){
