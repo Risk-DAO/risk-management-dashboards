@@ -30,7 +30,7 @@ const columns = [
       format: row => <CapInputGeneric val={displayPercentage(row.stabilityPoolSize)} increment={()=> vestaRiskStore.increment(row, 'stabilityPoolSize')} decrement={()=> vestaRiskStore.decrement(row, 'stabilityPoolSize')}/>,
   }, 
   {
-      name: `Backstop % of SP`,
+      name: `B.AMM % of SP`,
       selector: row => row.bprotocolSize,
       format: row => <CapInputGeneric val={displayPercentage(row.bprotocolSize)} increment={()=> vestaRiskStore.increment(row, 'bprotocolSize')} decrement={()=> vestaRiskStore.decrement(row, 'bprotocolSize')}/>,
   },
