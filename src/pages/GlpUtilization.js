@@ -38,15 +38,15 @@ class GlpUtilization extends Component {
     } = glp_data
 
     const dataMap = {
-      solid: {
-        name: "ETH/BTC",
-        utilization: solidTreasuryUtilization,
-        size: liquidStableTreasury  / (1 - stableTreasuryUtilization)
-      },
       stable: {
         name: "Stables",
         utilization: stableTreasuryUtilization,
         size: liquidSolidAssetTreasury / (1 - solidTreasuryUtilization)
+      },
+      solid: {
+        name: "ETH/BTC",
+        utilization: solidTreasuryUtilization,
+        size: liquidStableTreasury  / (1 - stableTreasuryUtilization)
       },
       other:{
         name: "Total",

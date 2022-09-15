@@ -265,8 +265,8 @@ class AlertStore {
     let type
     if(!alerts.length){
       type = 'healthy'
-    } else if(alerts.filter(({cap}) => cap > severThreshold).length){
-      type = 'danger'
+    // } else if(alerts.filter(({cap}) => cap > severThreshold).length){
+    //   type = 'danger'
     } else {
       type = 'review'
     }
