@@ -140,7 +140,7 @@ class SinglePage extends Component {
             <hgroup>
               <h2>GLP Utilization</h2>
               <p className="description">
-              explainer would be nice...
+              Monitoring the utilization of the GLP vault
               </p>
             </hgroup>
             <GlpUtilization/>
