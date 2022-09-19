@@ -8,6 +8,10 @@ import Token from './Token'
 import CfDiffGeneric from './CfDiffGeneric'
 import { TEXTS } from '../constants' 
 
+const hasAsterisk = row => row.current_mcr < row.recommended_mcr
+const hasAtLeastOneAsterisk = data => data.filter(hasAsterisk).length
+
+
 const currentColumns = [
   {
       name: TEXTS.ASSET,
@@ -41,7 +45,7 @@ const currentColumns = [
   {
       name: `Recommended MCR`,
       selector: row => row.recommended_mcr,
-      format: row => <CfDiffGeneric val={row.recommended_mcr.toFixed(2) + "%"} diff={row.diff} />,
+      format: row => <CfDiffGeneric val={row.recommended_mcr.toFixed(2) + "%" + (hasAsterisk(row) ? " *" : "")} diff={row.diff} />,
       grow: 2,
   },
 ];
@@ -49,9 +53,10 @@ const currentColumns = [
 class RiskParametersCurrent2 extends Component {
   render (){
     const {loadingCurrent, currentData, currentJsonTime} = vestaRiskStore
+    const text = hasAtLeastOneAsterisk(currentData) ? "* increasing MCR is recommended to avoid bad debt." : ""
     return (
       <div>
-        <Box loading={loadingCurrent} time={currentJsonTime}>
+        <Box loading={loadingCurrent} time={currentJsonTime} text={text}>
           <hgroup>
             <h6>{TEXTS.ACCORDING_TO_EXISTING_CAPS}</h6>
             <p className="description">{TEXTS.ACCORDING_TO_EXISTING_CAPS_DESCRIPTION}</p>

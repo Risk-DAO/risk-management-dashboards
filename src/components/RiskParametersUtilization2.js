@@ -8,6 +8,9 @@ import Token from './Token'
 import {TEXTS} from '../constants'
 import CfDiffGeneric from './CfDiffGeneric'
 
+const hasAsterisk = row => row.current_mcr < row.recommended_mcr
+const hasAtLeastOneAsterisk = data => data.filter(hasAsterisk).length
+
 const currentColumns = [
   {
       name: TEXTS.ASSET,
@@ -41,7 +44,7 @@ const currentColumns = [
   {
       name: 'Recommended MCR',
       selector: row => row.recommended_mcr,
-      format: row => <CfDiffGeneric val={row.recommended_mcr.toFixed(2) + "%"} diff={row.diff} />,
+      format: row => <CfDiffGeneric val={row.recommended_mcr.toFixed(2) + "%" + (hasAsterisk(row) ? " *" : "")} diff={row.diff} />,
       grow: 2,
   },
 ];
@@ -49,10 +52,10 @@ const currentColumns = [
 class RiskParametersUtilization2 extends Component {
   render (){
     const {loadingUtilization, utilizationData, utilizationJsonTime} = vestaRiskStore
-    // const text = hasAtLeastOneAsterisk(utilization, "collateral_factor") ? "* if user composition will change, reduction of CF might be required to avoid bad debt." : ""
+    const text = hasAtLeastOneAsterisk(utilizationData) ? "* increasing MCR is recommended to avoid bad debt." : ""
     return (
       <div>
-        <Box loading={loadingUtilization} time={utilizationJsonTime} >
+        <Box loading={loadingUtilization} time={utilizationJsonTime} text={text}>
           <hgroup>
             <h6>According to Current Usage</h6>
             <p>{TEXTS.UTILIZATION_DESCRIPTION}</p>
