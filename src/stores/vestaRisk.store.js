@@ -19,6 +19,7 @@ class VestaRiskStore {
   loadingCurrent = true
   currentData = []
   currentJsonTime = null
+  sandBoxTimeoutId = null
 
   constructor(){
     this.initPromise = this.init()
@@ -136,12 +137,12 @@ class VestaRiskStore {
     runInAction(()=> {
       this.loading = false
       row[fieldName] = newCap
-      const newRecommendedMcr = 100 / this.solver.getCf(asset, borrowCap, stabilityPoolSize, bprotocolSize)
+      const newRecommendedMcr = 100 / this.solver.getCf(row.asset, row.borrowCap, row.stabilityPoolSize, row.bprotocolSize)
       row.diff = row.recommended_mcr - newRecommendedMcr
       row.recommended_mcr = newRecommendedMcr
       this.data = this.data.map(r => r.asset === asset ? {...row} : r)
     })
-    this.clearDiff(row.asset)
+    this.clearDiff()
   }
 
   roundUpCap = (asset, fieldName, currentValue) => {
@@ -165,25 +166,17 @@ class VestaRiskStore {
     return caps[1]
   }
 
-  clearDiff = (asset) => {
-    let row = this.data.filter(r => r.asset === asset)[0]
-    if(row.timeout){
-      clearTimeout(row.timeout)
+  clearDiff = () => {
+    if(this.sandBoxTimeoutId){
+      clearTimeout(this.sandBoxTimeoutId)
     }
-    row.timeout = setTimeout(()=> runInAction(()=>{
-        this.data = this.data.map(r => {
-          if(r.asset === asset){
-            r.diff = 0
-            return {...r}
-          }
-          return r
+    this.sandBoxTimeoutId = setTimeout(()=> runInAction(()=>{
+        this.data = this.data.map(r => { 
+          r.diff = 0
+          return {...r}
         })
       })
     , 5000)
-    // updates dataTable now
-    runInAction(()=>{
-      this.data = this.data.map(r => r.asset === asset ? {...row} : r) 
-    })
   }
 
   decrement = (row, fieldName) => {
@@ -203,12 +196,12 @@ class VestaRiskStore {
     runInAction(()=> {
       this.loading = false
       row[fieldName] = newCap
-      const newRecommendedMcr = 100 / this.solver.getCf(asset, borrowCap, stabilityPoolSize, bprotocolSize)
+      const newRecommendedMcr = 100 / this.solver.getCf(row.asset, row.borrowCap, row.stabilityPoolSize, row.bprotocolSize)
       row.diff = row.recommended_mcr - newRecommendedMcr
       row.recommended_mcr = newRecommendedMcr
       this.data = this.data.map(r => r.asset === asset ? {...row} : r)
     })
-    this.clearDiff(row.asset)
+    this.clearDiff()
   }
 }
 
