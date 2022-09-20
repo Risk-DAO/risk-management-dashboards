@@ -163,7 +163,7 @@ class VestaRiskStore {
     // second value is current size
     // third is double the current
     // forth is BAMM is 100% of SP
-    return caps[1]
+    return caps[caps.length > 2 ? 1 : 0]
   }
 
   clearDiff = () => {
