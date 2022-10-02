@@ -1,40 +1,40 @@
-import React, { Component } from "react";
+import React, { Component, lazy, Suspense } from "react";
 import {observer} from "mobx-react"
-import Overview from './Overview'
-import Liquidity from './Liquidity2'
-import Accounts from "./Accounts";
-import Oracles from "./Oracles";
-import RiskParameters from "./RiskParameters";
-import Qualitative from "./Qualitative";
-import SandBox from "./SandBox";
-import VestaSandBox from "./VestaSandBox";
-import Alerts from './Alerts';
-import StabilityPool from "./StabilityPool";
-import OpenLiquidations from "./OpenLiquidations";
-import GlpUtilization from "./GlpUtilization";
 import ScrollSpy from "react-ui-scrollspy";
 import mainStore from '../stores/main.store'
 import {TEXTS} from "../constants"
 
-const renderSandbox = () => {
+const Overview = lazy(() => import('./Overview'))
+const Liquidity = lazy(() => import('./Liquidity'))
+const Accounts = lazy(() => import('./Accounts'))
+const Oracles = lazy(() => import('./Oracles'))
+const RiskParameters = lazy(() => import('./RiskParameters'))
+const Alerts = lazy(() => import('./Alerts'))
+const StabilityPool = lazy(() => import('./StabilityPool'))
+const OpenLiquidations = lazy(() => import('./OpenLiquidations'))
+const Qualitative = lazy(() => import('./Qualitative'))
+const GlpUtilization = lazy(() => import('./GlpUtilization'))
+
+const SandBox = lazy(()=> {
   const {sandBoxVersion} = window.APP_CONFIG.feature_flags
   switch (sandBoxVersion){
-    case 1: return <VestaSandBox/>
-    default: return <SandBox/>
+    case 1: return import("./VestaSandBox")
+    default: return import("./SandBox")
   }
-}
+})
 
 class SinglePage extends Component {
 
   render (){
-    const {sectionShow: proViewShow} = mainStore
     const color = mainStore.blackMode ? 'white' : 'black';
     return (
       <ScrollSpy offsetBottom={400} scrollThrottle={100} parentScrollContainerRef={this.props.scrollContainer}>
         <section id="system-status">
           {mainStore.sectionShow("system-status") && <div>
             <h2>System Status</h2>
-            <Alerts/>
+            <Suspense fallback={<article aria-busy="true"></article>}>
+              <Alerts/>
+            </Suspense>
           </div>}
         </section>
         <section id="overview">
@@ -43,13 +43,17 @@ class SinglePage extends Component {
               <h2>Overview</h2>
               <p className="description">State of the platform overview</p>
             </hgroup>
-            <Overview/>
+            <Suspense fallback={<article aria-busy="true"></article>}>
+              <Overview/>
+            </Suspense>
           </div>}
         </section>
         <section id="collateral-factors">
           {mainStore.sectionShow("collateral-factors") && <div>
             <h2>{TEXTS.COLLATERAL_FACTOR} Recommendations</h2>
-            <RiskParameters />
+            <Suspense fallback={<article aria-busy="true"></article>}>
+              <RiskParameters />
+            </Suspense>
           </div>}
         </section>
        <section id="sandbox">
@@ -58,7 +62,9 @@ class SinglePage extends Component {
               <h2> Risk Parameters Sandbox</h2>
               <p className="description">{TEXTS.SANDBOX_DESCRIPTION}</p>
             </hgroup>
-            {renderSandbox()}
+            <Suspense fallback={<article aria-busy="true"></article>}>
+              <SandBox/>
+            </Suspense>
           </div>}
         </section>
         <section id="asset-distribution">
@@ -69,7 +75,9 @@ class SinglePage extends Component {
                 {TEXTS.ASSET_DISTRIBUTION_DESCRIPTION}
               </p>
             </hgroup>
-            <Accounts/>
+            <Suspense fallback={<article aria-busy="true"></article>}>
+              <Accounts/>
+            </Suspense>
           </div>}
         </section>
         <section id="stability-pool">
@@ -78,7 +86,9 @@ class SinglePage extends Component {
               <h2>Stability Pool</h2>
               <p>VST in the Stability Pool is used to execute liquidations of Vaults which crossed the MCR. The B.AMM (Backstop AMM) operates an automatic rebalance process for the seized collateral, selling it back to VST for users who have deposited VST through B.Protocol.</p>
             </hgroup>
-            <StabilityPool/>
+            <Suspense fallback={<article aria-busy="true"></article>}>
+              <StabilityPool/>
+            </Suspense>
           </div>}
         </section>
         <section id="open-liquidations">
@@ -87,7 +97,9 @@ class SinglePage extends Component {
               <h2>Open Liquidations</h2>
               <p></p>
             </hgroup>
-            <OpenLiquidations/>
+            <Suspense fallback={<article aria-busy="true"></article>}>
+              <OpenLiquidations/>
+            </Suspense>
           </div>}
         </section>
         <section  id="oracle-deviation">
@@ -96,7 +108,9 @@ class SinglePage extends Component {
               <h2>Oracle Deviation</h2>
               <p className="description">The table tracks the deviation from the oracle price feed used by the platform compared to the assets’ prices taken from Centralized Exchanges (CEX) and Decentralized Exchanges (DEX). This helps monitor any critical deviations that might indicate an oracle manipulation, de-pegging, downtime, etc.</p>
             </hgroup>
-            <Oracles/>
+            <Suspense fallback={<article aria-busy="true"></article>}>
+              <Oracles/>
+            </Suspense>
           </div>}
         </section>
         <section id="liquidity">
@@ -109,8 +123,9 @@ class SinglePage extends Component {
             </hgroup>
             {/* <small>Aggregated DEX data is provided by</small> */}
             <img style={{width: '250px', display: 'block'}} src={`/images/${color}-powered-by-kyberswap.png`}/>
-            
-            <Liquidity/>
+            <Suspense fallback={<article aria-busy="true"></article>}>
+              <Liquidity/>
+            </Suspense>
           </div>}
         </section>
         <section id="qualitative-analysis">
@@ -131,8 +146,9 @@ class SinglePage extends Component {
                   </small>
                 </p>
             </hgroup>
-            
-            <Qualitative/>
+            <Suspense fallback={<article aria-busy="true"></article>}>
+              <Qualitative/>
+            </Suspense>
           </div>}
         </section>
         <section id="glp-utilization">
@@ -142,8 +158,10 @@ class SinglePage extends Component {
               <p className="description">
               Monitoring the utilization of the GLP vault
               </p>
-            </hgroup>
-            <GlpUtilization/>
+            </hgroup>            
+            <Suspense fallback={<article aria-busy="true"></article>}>
+              <GlpUtilization/>
+            </Suspense>
           </div>}
         </section>
       </ScrollSpy>

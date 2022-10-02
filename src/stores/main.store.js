@@ -3,15 +3,7 @@ import axios from "axios"
 
 const STAGING = 'https://api-staging.riskdao.org'
 
-const {SECTIONS, PLATFORM_ID, API_URL} = window.APP_CONFIG
-const apiEndpoints = [
-  'overview', 'accounts', 'dex_liquidity', 
-  'oracles', 'usd_volume_for_slippage', 
-  'current_simulation_risk',
-  'risk_params', 'lending_platform_current', 'whale_accounts', 
-  'open_liquidations', 'stability_pool', 'glp_data'
-]
-
+const {SECTIONS, PLATFORM_ID, API_URL, apiEndpoints} = window.APP_CONFIG
 
 class MainStore {
 
@@ -41,11 +33,11 @@ class MainStore {
   toggleProView = () => this.proView = !this.proView
 
   sectionShow = (sectionName) => {
-    if(this.proView){
-      return true
-    }
     for(let section of SECTIONS){
       if (section.name === sectionName){
+        if(this.proView){
+          return true
+        }
         return section.defaultVisible
       }
     }

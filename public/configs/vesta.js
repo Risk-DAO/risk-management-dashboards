@@ -14,6 +14,13 @@ window.APP_CONFIG = {
     systemStatusStableLiquidity: true,
     sandBoxVersion: 1,
   },
+  apiEndpoints: [
+    'overview', 'accounts', 'dex_liquidity', 
+    'oracles', 'usd_volume_for_slippage', 
+    'current_simulation_risk',
+    'risk_params', 'lending_platform_current', 'whale_accounts', 
+    'open_liquidations', 'stability_pool', 'glp_data'
+  ],
   SECTIONS: [
     {
       name: 'system-status',
