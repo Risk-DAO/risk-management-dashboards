@@ -1,5 +1,5 @@
 window.APP_CONFIG = {
-  API_URL: 'https://analytics.riskdao.org',
+  API_URL: 'https://raw.githubusercontent.com/Risk-DAO/simulation-results/main/',
   PLATFORM_ID: '2',
   TOKEN_PREFIX: '',
   BLOCK_EXPLORER: 'https://arbiscan.io',

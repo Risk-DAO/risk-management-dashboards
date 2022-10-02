@@ -33,9 +33,9 @@ class App extends React.Component {
             <h1>Risk Management Dashboard</h1>
             <main>
               <Routes>
-                <Route exact path="/"  element={<SinglePage scrollContainer={this.scrollContainer}/>}/>
-                <Route exact path="/staging"  element={<SinglePage scrollContainer={this.scrollContainer}/>}/>
-                <Route exact path="/api/alerts"  element={<AlertsJson/>}/>
+                <Route exact strict path="/"  element={<SinglePage scrollContainer={this.scrollContainer}/>}/>
+                <Route exact strict path="/staging"  element={<SinglePage scrollContainer={this.scrollContainer}/>}/>
+                <Route exact strict path="/api/alerts"  element={<AlertsJson/>}/>
               </Routes>
             </main>
             <Footer/>

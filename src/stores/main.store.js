@@ -55,7 +55,14 @@ class MainStore {
     this.blackMode = mode
   }
 
+  getApiVersion = () => {
+    const qsApiVersion = new URLSearchParams(window.location.search).get('api-version')
+    if(qsApiVersion) return new Promise(resolve => resolve(qsApiVersion))
+    return axios.get("https://raw.githubusercontent.com/Risk-DAO/version-control/main/dev").then(({data})=> data.trim().replace('\n', ''))
+  } 
+
   init = () => {
+    this.apiVersionPromise = this.getApiVersion()
     apiEndpoints.forEach(this.fetchData)
   }
 
@@ -70,7 +77,16 @@ class MainStore {
   fetchData = (endpoint) => {
     this[endpoint + '_loading'] = true
     this[endpoint + '_data'] = null
-    this[endpoint + '_request'] = axios.get(`${this.apiUrl}/${endpoint}/${PLATFORM_ID}?timestamp=${parseInt(new Date().getTime() / (1000 * 60 * 60))}`)
+    const apiIsV2 = this.apiUrl.indexOf("github") > -1
+    this[endpoint + '_request'] = this.apiVersionPromise.then(version=> {
+      let url;
+      if(apiIsV2) {
+        url = `${this.apiUrl}/${PLATFORM_ID}/${version}/${endpoint}.json`
+      } else {
+        url = `${this.apiUrl}/${endpoint}/${PLATFORM_ID}?timestamp=${parseInt(new Date().getTime() / (1000 * 60 * 60))}`
+      }
+      return axios.get(url)
+    })
     .then(({data})=> {
       this[endpoint + '_loading'] = false
       this[endpoint + '_data'] = data
