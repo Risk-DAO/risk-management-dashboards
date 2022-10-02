@@ -32,7 +32,7 @@ class Top10Accounts extends Component {
             {accounts.map(account => {
               return <div key={account.id} style={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
                 <div style={{ maxWidth: '45%' }}>
-                  <BlockExplorerLink address={account.id} />
+                  <BlockExplorerLink address={account.id.split('_')[0]} />
                 </div>
                 <div>{whaleFriendlyFormater(account.size)} </div>
               </div>

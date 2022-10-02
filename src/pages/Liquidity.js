@@ -71,18 +71,26 @@ class Liquidity extends Component {
       v.key = k
       assets[asset].lps.push(v)
     })
-    assets['WNEAR'] = { name: 'WNEAR', lps: []}
+    
+    if(window.APP_CONFIG.PLATFORM_ID === '0'){
+      assets['WNEAR'] = { name: 'WNEAR', lps: []}
+    }    
+    if(window.APP_CONFIG.PLATFORM_ID === '2'){
+      assets['gOHM'] = { name: 'gOHM', lps: []}
+    }
 
     return (
       <div>
         <Box loading={loading} time={json_time}>
+          <p> 
+            </p>
           {Object.values(assets).map((asset, i)=><details key={i} open>
             <summary><Token value={asset.name} /></summary>
             <div style={{display: 'flex'}}>
               <SlippageChart data={asset.name} i={i}/>
             </div>
             <div style={{marginLeft: '30px'}}>
-            {!!asset.lps.length && <Box>
+            {window.APP_CONFIG.feature_flags.dexLiquidityLpStatsRow && !!asset.lps.length && <Box>
                    <DataTable
                     columns={columns}
                     data={asset.lps}

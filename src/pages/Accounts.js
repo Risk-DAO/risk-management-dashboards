@@ -8,12 +8,16 @@ import {whaleFriendlyFormater} from '../components/WhaleFriendly'
 import { makeAutoObservable, runInAction } from "mobx"
 import Token from "../components/Token"
 import {TopTenAccounts, usersMinWidth} from "../components/TopAccounts"
+import {TEXTS} from "../constants"
 
 
 class LocalStore {
   looping = true
 
   constructor (){
+    if(window.APP_CONFIG.feature_flags.loopingToggle  === false){
+      this.looping = false
+    }
     makeAutoObservable(this)
   }
 
@@ -65,7 +69,7 @@ class Accounts extends Component {
           minWidth: '140px'
       },
       {
-          name: 'Total Debt',
+          name: TEXTS.TOTAL_DEBT,
           selector: row => Number(row[prefixLooping('total_debt')]),
           format: row => whaleFriendlyFormater(row[prefixLooping('total_debt')]),
           sortable: true,
@@ -124,6 +128,7 @@ class Accounts extends Component {
       delete rawData.json_time
     }
     const data = !loading ? Object.entries(rawData)
+    .filter(([k, v])=> k !== window.APP_CONFIG.STABLE || "")
     .map(([k, v])=> {
       v.key = k
       v.whales = whaleData[k]
@@ -140,12 +145,12 @@ class Accounts extends Component {
     return (
       <div>
         <Box loading={loading} time={json_time} text={text}>
-        <fieldset>
+        {window.APP_CONFIG.feature_flags.loopingToggle && <fieldset>
           <label htmlFor="switch">
             <input onChange={localStore.toggleLooping} defaultChecked={localStore.looping} type="checkbox" id="switch" name="switch" role="switch"/>
             <span>Ignore correlated debt and collateral, and assets not in market</span>
           </label>
-        </fieldset>
+        </fieldset>}
           {!loading && <DataTable
               expandableRows
               columns={columns}

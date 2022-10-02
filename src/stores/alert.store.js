@@ -6,6 +6,7 @@ import { whaleFriendlyFormater } from '../components/WhaleFriendly'
 import BlockExplorerLink from "../components/BlockExplorerLink"
 import Ramzor from "../components/Ramzor"
 import Token from "../components/Token"
+import { TEXTS } from "../constants"
 
 const priceOracleDiffThreshold = 5
 
@@ -26,6 +27,7 @@ class AlertStore {
   }
   
   init = async () => {
+    await riskStore.initPromise
     this.getValueRisk()
     this.getLiquidationsRisk()
     this.getVarLarJsonTime()
@@ -36,6 +38,9 @@ class AlertStore {
       this.getWhaleAlert(),
       this.getUtilizationAlert(),
     ])
+    .catch(err=> {
+      console.error(err)
+    })
     runInAction(() => {
       this.alerts = alerts
       this.loading = false
@@ -62,7 +67,7 @@ class AlertStore {
       })
     })
     runInAction(()=> {
-      this.valueAtRisk = whaleFriendlyFormater(valueAtRisk)
+      this.valueAtRisk = whaleFriendlyFormater(Math.abs(valueAtRisk))
     })
   }
 
@@ -137,7 +142,8 @@ class AlertStore {
 
     Object.entries(whales)
       .map(([key, row]) => {
-        row.big_collateral.forEach(({id: account, size})=> {
+        row.big_collateral.forEach(({id: account, size, whale_flag})=> {
+          if(!whale_flag) return
           alerts.push({
             asset: key,
             type: 'Collateral',
@@ -145,7 +151,8 @@ class AlertStore {
             account,
           })
         })        
-        row.big_debt.forEach(({id: account, size})=> {
+        row.big_debt.forEach(({id: account, size, whale_flag})=> {
+          if(!whale_flag) return
           alerts.push({
             asset: key,
             type: 'Debt',
@@ -166,6 +173,8 @@ class AlertStore {
   getUtilizationAlert = async () => {
     const markets = {}
     const alerts = []
+    const alertThreshold = 70
+    const severThreshold = 85
     const columns = [
       {
         name: 'Asset',
@@ -174,17 +183,20 @@ class AlertStore {
         sortable: true,
       },
       {
-        name: 'Supply/ Borrow',
+        name: 'Supply / Borrow',
         selector: row => row.type,
         sortable: true,
       },
       {
         name: 'Cap Utilization',
         selector: row => row.cap,
-        format: row => <Ramzor red={row.cap > 85} yellow={row.cap > 70}> {row.cap.toFixed(2)}%</Ramzor>,
+        format: row => <Ramzor red={row.cap > severThreshold} yellow={row.cap > alertThreshold}> {row.cap.toFixed(2)}%</Ramzor>,
         sortable: true,
       }
     ]
+    if(window.APP_CONFIG.PLATFORM_ID === '2'){
+      columns.splice(1, 1)
+    }
     const currentUsage = mainStore.clean(await mainStore['accounts_request'])
     
     Object.entries(currentUsage).forEach(([k, v]) => {
@@ -193,6 +205,7 @@ class AlertStore {
       markets[k].borrow_usage = Number(v.total_debt)
     })
     const currentCaps = mainStore.clean(await mainStore['lending_platform_current_request'])
+    const systemHasCollateralCaps = !window.APP_CONFIG.STABLE
     Object.entries(currentCaps).forEach(([k, v]) => {
       if(k === 'borrow_caps'){
         Object.entries(v).forEach(([asset, cap]) => {
@@ -209,7 +222,7 @@ class AlertStore {
           markets[asset].borrow_cap = cap
         })
       }
-      if(k === 'collateral_caps'){
+      if(k === 'collateral_caps' && systemHasCollateralCaps){
         Object.entries(v).forEach(([asset, cap]) => {
           cap = Number(cap)
           if(cap === 0){
@@ -243,13 +256,20 @@ class AlertStore {
         if(borrowUtilization > 70){
           alerts.push({
             asset: market.market,
-            type: 'borrow',
+            type: 'Borrow',
             cap: borrowUtilization
           })
         }
       })
 
-    const type = alerts.length ? 'review' : 'healthy'
+    let type
+    if(!alerts.length){
+      type = 'healthy'
+    // } else if(alerts.filter(({cap}) => cap > severThreshold).length){
+    //   type = 'danger'
+    } else {
+      type = 'review'
+    }
     return {
       title: 'utilization',
       data: alerts,
@@ -324,7 +344,7 @@ class AlertStore {
     })
     const type = alerts.length ? 'review' : 'success'
     return {
-      title: 'collateral factors',
+      title: TEXTS.COLLATERAL_FACTOR + 's',
       data: alerts,
       type,
       link: '#collateral-factors'

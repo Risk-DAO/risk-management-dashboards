@@ -1,26 +1,24 @@
 import { makeAutoObservable, runInAction } from "mobx"
 import axios from "axios"
 
-const platformId = window.APP_CONFIG.PLATFORM_ID
-const apiEndpoints = ['overview', 'accounts', 'dex_liquidity', 'oracles', 'usd_volume_for_slippage', 'current_simulation_risk',
-                      'risk_params', 'lending_platform_current', 'whale_accounts', 'open_liquidations']
-const defaultSections = {
-  'system-status': true,
-  'overview': true,
-  'asset-distribution': true,
-  
-} 
+const STAGING = 'https://api-staging.riskdao.org'
 
+const {SECTIONS, PLATFORM_ID, API_URL, apiEndpoints} = window.APP_CONFIG
 
 class MainStore {
 
-  apiUrl = process.env.REACT_APP_API_URL || 'https://analytics.riskdao.org'
   blackMode =  true
   loading = {}
   apiData = {}
   proView = false
+  apiUrl = API_URL
+  stagingLoader = 0
 
   constructor () {
+
+    if(window.location.href.indexOf('staging') > -1){
+      this.apiUrl = STAGING
+    }
     this.init()
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       // dark mode
@@ -34,13 +32,29 @@ class MainStore {
 
   toggleProView = () => this.proView = !this.proView
 
-  proViewShow = (section) => this.proView || defaultSections[section]
+  sectionShow = (sectionName) => {
+    for(let section of SECTIONS){
+      if (section.name === sectionName){
+        if(this.proView){
+          return true
+        }
+        return section.defaultVisible
+      }
+    }
+  }
 
   setBlackMode = (mode) => {
     this.blackMode = mode
   }
 
+  getApiVersion = () => {
+    const qsApiVersion = new URLSearchParams(window.location.search).get('api-version')
+    if(qsApiVersion) return new Promise(resolve => resolve(qsApiVersion))
+    return axios.get("https://raw.githubusercontent.com/Risk-DAO/version-control/main/dev").then(({data})=> data.trim().replace('\n', ''))
+  } 
+
   init = () => {
+    this.apiVersionPromise = this.getApiVersion()
     apiEndpoints.forEach(this.fetchData)
   }
 
@@ -55,7 +69,16 @@ class MainStore {
   fetchData = (endpoint) => {
     this[endpoint + '_loading'] = true
     this[endpoint + '_data'] = null
-    this[endpoint + '_request'] = axios.get(`${this.apiUrl}/${endpoint}/${platformId}`)
+    const apiIsV2 = this.apiUrl.indexOf("github") > -1
+    this[endpoint + '_request'] = this.apiVersionPromise.then(version=> {
+      let url;
+      if(apiIsV2) {
+        url = `${this.apiUrl}/${PLATFORM_ID}/${version}/${endpoint}.json`
+      } else {
+        url = `${this.apiUrl}/${endpoint}/${PLATFORM_ID}?timestamp=${parseInt(new Date().getTime() / (1000 * 60 * 60))}`
+      }
+      return axios.get(url)
+    })
     .then(({data})=> {
       this[endpoint + '_loading'] = false
       this[endpoint + '_data'] = data
@@ -63,6 +86,12 @@ class MainStore {
     })
     .catch(console.error)
   }
+
+  setStaging = async ()=> {
+    window.location.replace(window.location.origin + '/staging')
+  }
 }
+
+const sleep = async (sec)=> new Promise(resolve => setTimeout(resolve, sec * 1000))
 
 export default new MainStore()

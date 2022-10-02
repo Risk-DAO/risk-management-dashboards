@@ -10,10 +10,10 @@ import { TEXTS } from '../constants'
 
 const columns = [
   {
-      name: 'Asset',
-      selector: row => row.key,
-      format: row => <Token value={row.key}/>,
-      sortable: true,
+    name: 'Asset',
+    selector: row => row.key,
+    format: row => <Token value={row.key}/>,
+    sortable: true,
   },
   {
     name: 'Total Liquidations',
@@ -24,18 +24,18 @@ const columns = [
   {
     name: 'Bad Debt Accrued',
     selector: row => row.pnl,
-    format: row => whaleFriendlyFormater(row.pnl),
+    format: row => whaleFriendlyFormater(Math.abs(row.pnl)),
     sortable: true,
   },      
   {
-      name: 'Max Collateral Factor',
-      selector: row => row['max_collateral'],
-      format: row =>  <Asterisk row={row} field={"max_collateral"}/>,
-      sortable: true,
+    name: 'LCR',
+    selector: row => row['max_collateral'],
+    format: row =>  <Asterisk row={row} field={"max_collateral"} CR={true}/>,
+    sortable: true,
   },  
 ];
 
-class RiskParametersSimulation extends Component {
+class RiskParametersSimulation2 extends Component {
   render (){
     const loading = mainStore['current_simulation_risk_loading']
     const rawData = Object.assign({}, mainStore['current_simulation_risk_data'] || {})
@@ -64,4 +64,4 @@ class RiskParametersSimulation extends Component {
   }
 }
 
-export default observer(RiskParametersSimulation)
+export default observer(RiskParametersSimulation2)

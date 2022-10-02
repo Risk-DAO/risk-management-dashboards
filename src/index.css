@@ -144,9 +144,10 @@ text {
   padding-bottom: 10px;
   border-bottom: 1px solid rgba(120, 120, 120, 0.1);
   color: var(--color);
+  flex-wrap: wrap;
 }
 
-.box-row:last-child{
+.box-row:last-of-type{
   border-bottom: none;
   margin-bottom: 0;
   padding-bottom: 0;

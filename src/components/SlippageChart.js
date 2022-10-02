@@ -2,7 +2,7 @@ import React, { Component, PureComponent } from "react";
 import {observer} from "mobx-react"
 import mainStore from '../stores/main.store'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, ReferenceLine, Tooltip } from 'recharts';
-import {COLORS, BLOCK_EXPLORER} from '../constants'
+import {COLORS, TEXTS} from '../constants'
 import {removeTokenPrefix} from '../utils'
 import {whaleFriendlyFormater, WhaleFriendlyAxisTick} from '../components/WhaleFriendly'
 import BoxRow from "./BoxRow";
@@ -34,6 +34,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 class SlippageChart extends Component {
 
   render () {
+    
     let market = this.props.data.toUpperCase()
     if (market === 'WETH'){
       market = 'ETH'
@@ -45,14 +46,17 @@ class SlippageChart extends Component {
       delete rawData.json_time
     }
     const data = !loading ? (rawData[TOKEN_PREFIX + market] || {}) : {}
-    const dataSet = Object.entries(data).map(([k, v])=> ({name: removeTokenPrefix(k), value: v}))
+    const dataSet = Object.entries(data).map(([k, v])=> ({name: removeTokenPrefix(k), value: v.volume, penalty: v.llc}))
     if(!dataSet.length){
       return null
     }
-    const [biggest, secondBiggest] = dataSet.sort((a, b)=> b.value - a.value)
+    let [biggest, secondBiggest] = dataSet.sort((a, b)=> b.value - a.value)
+    if(!secondBiggest){
+      secondBiggest = biggest
+    }
     const dataMax = Math.min(secondBiggest.value * 2, biggest.value)
-    const color = mainStore.blackMode ? 'white' : 'black';
-
+    
+    const text = TEXTS.DEX_LIQUIDITY_EXPLAINER.replace('<place_holder>', ((dataSet[0].penalty - 1) * 100).toFixed(0))
     return (
       <div style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
         <article style={expendedBoxStyle}>
@@ -68,11 +72,8 @@ class SlippageChart extends Component {
         <div className="box-space" style={{width: '50%', display: 'flex', justifyContent: 'space-between', flexDirection: 'column'}}>
           <hgroup>
             <h1></h1>
-            <p>Max liquidation size that can be executed with a single transaction according to current available DEX liquidity.</p>
+            <p>{text}</p>
           </hgroup>
-          <div style={{width: '50%'}}>
-            <img src={`/images/${color}-powered-by-kyberswap.png`}/>
-          </div>
         </div>
           {/* <h6>top 5 accounts</h6>
           <div style={{display: 'flex', justifyContent: 'space-between', flexDirection: 'column'}}>

@@ -2,24 +2,17 @@ import React from "react"
 import {observer} from "mobx-react"
 import mainStore from "../stores/main.store"
 
-const pages = [
-  'system-status',
-  'overview',
-  'collateral-factors',
-  'sandbox',
-  'asset-distribution',
-  'open-liquidations',
-  'oracle-deviation',
-  'liquidity',
-  // 'backstop',
-  // 'assumptions',
-  //'qualitative-anlysis',
-]
- 
+const {SECTIONS} = window.APP_CONFIG 
 
-const humanPagesMap = {
-  liquidity: "DEX Liquidity"
-}
+const StagingBtn = observer(() => {
+  return (<div
+    className="staging-btn">
+      <div onClick={mainStore.setStaging}>
+        { !!mainStore.stagingLoader && <progress value={mainStore.stagingLoader} max="100"></progress>}
+        <span style={{color: 'var(--contrast-inverse)'}}>Staging</span>
+      </div>
+  </div>)
+})
 
 const Sidenav = (props) => {
   return (
@@ -34,20 +27,21 @@ const Sidenav = (props) => {
       <aside>
         <nav>
           <ul>
-            {pages.map(page=> <li key={page}>
+            {SECTIONS.map(section=> <li key={section.name}>
               <a
-                href={'#'+page}
-                data-to-scrollspy-id={page}
+                href={'#'+section.name}
+                data-to-scrollspy-id={section.name}
                 className='nav-link'
               >
-                {mainStore.proViewShow(page) && <span>
-                  {humanPagesMap[page] || page.split('-').join(' ')}
+                {mainStore.sectionShow(section.name) && <span>
+                  {section.displayName || section.name.split('-').join(' ')}
                 </span>}
               </a>
             </li>)}
           </ul>
         </nav>
       </aside>
+      <StagingBtn/>
     </div>
   )
 }

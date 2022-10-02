@@ -41,16 +41,17 @@ const Alert = props => {
         {alert.type === 'healthy' && <kbd className="status-tag" style={{backgroundColor: 'var(--ins-color)'}}>Healthy</kbd>}
         {alert.type === 'danger' && <a href={alert.link} ><kbd className="status-tag" style={{backgroundColor: 'var(--red-text)'}}>Action Required</kbd></a>}
         {alert.type === 'review' && <a href={alert.link} ><kbd className="status-tag" style={{backgroundColor: 'var(--yellow-text)'}}>Review</kbd></a>}
+        {alert.showTable && !!alert.data.length && <div style={{marginTop: 'var(--spacing)', minWidth: '100%'}}>
+          <Box>
+              <DataTable
+                data={alert.data}
+                columns={alert.columns}
+                defaultSortFieldId={1}
+              />
+          </Box>
+        </div>}
       </BoxRow>
-      <div>
-        {alert.showTable && !!alert.data.length && <Box>
-          <DataTable
-            data={alert.data}
-            columns={alert.columns}
-            defaultSortFieldId={1}
-          />
-        </Box>}
-      </div>
+      
     </>
   )
 }
@@ -59,13 +60,6 @@ const Alert = props => {
 class Alerts extends Component {
   render (){
 
-    /* 
-      utilization alert
-      cf alert
-      oracle alert
-      big accounts alert (with user addresses)
-      Open liquidation
-    */
     return (
       <div>
         <AtRisk/>

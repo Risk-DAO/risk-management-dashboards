@@ -19,12 +19,16 @@ const showAsterisk = (row, field) => {
 }
 
 const Asterisk = props => {
-  const {row, field} = props
-  const recommendedCF = row[field]
+  const {row, field, CR} = props
+  let recommendedCF = row[field]
   const asterisk = showAsterisk(row, field)
+  if(CR){
+    recommendedCF = 100 / recommendedCF
+  }
   return (
     <>
       <span>{recommendedCF.toFixed(2)}</span>
+      {CR && <span>%</span>}
       {asterisk && <span> *</span>}
     </>
   )
