@@ -2,7 +2,9 @@ window.APP_CONFIG = {
   PLATFORM_ID: '1',
   API_URL: 'https://raw.githubusercontent.com/Risk-DAO/simulation-results/main/',
   TOKEN_PREFIX: '',
-  BLOCK_EXPLORER: 'https://aurorascan.dev',  
+  BLOCK_EXPLORER: 'https://explorer.nervos.org',  
+  WHITE_LOGO: 'nervos-dark.svg',
+  BLACK_LOGO: 'nervos.svg',
   feature_flags: {
     alerts: true,
     loopingToggle: false,
