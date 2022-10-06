@@ -233,6 +233,14 @@ class RiskStore {
 
   findCap = (asset, value, borrow) => {
     const caps = borrow ? this.solver.borrowCaps[asset] : this.solver.supplyCaps[asset]// this.solver.caps[asset]
+    if(!caps) {
+      console.warn("findCap fn: No caps found for asset " + asset)
+      return 0
+    }
+    if(value === undefined) {
+      console.warn("findCap fn: No value provided for asset " + asset)
+      return caps[0]
+    }
     if(value === Infinity){
       return caps[caps.length - 1]
     }
@@ -308,6 +316,9 @@ class RiskStore {
   }
 
   getCurrentCollateralFactor = (asset) => {
+    if(asset === window.APP_CONFIG.STABLE){
+      return 0
+    }
     const [{current_collateral_factor }] = this.currentData.filter(r => r.asset === asset)
     return current_collateral_factor
   }
