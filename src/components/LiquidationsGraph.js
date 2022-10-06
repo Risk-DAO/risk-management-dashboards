@@ -58,6 +58,9 @@ class LiquidationsGraph extends Component {
     })
     const dataKeys = Object.keys(graphKeys)
     const dataSet = Object.values(graphData).sort((a, b) => a.x - b.x)
+    if(!dataSet.length) {
+      return null
+    }
     const dataSetItemProps = Object.keys(dataSet[0]).filter(p => p != 'x')
     const rawData = Object.assign({}, mainStore['oracles_data'] || {})
     const asset = this.props.data.key

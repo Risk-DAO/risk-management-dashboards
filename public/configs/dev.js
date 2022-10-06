@@ -1,13 +1,13 @@
 window.APP_CONFIG = {
-  PLATFORM_ID: '0',
+  PLATFORM_ID: '1',
   API_URL: 'https://raw.githubusercontent.com/Risk-DAO/simulation-results/main/',
-  TOKEN_PREFIX: 'au',
-  BLOCK_EXPLORER: 'https://aurorascan.dev',
-  WHITE_LOGO: 'aurigami.svg',
-  BLACK_LOGO: 'aurigami.svg',
+  TOKEN_PREFIX: '',
+  BLOCK_EXPLORER: 'https://explorer.nervos.org',  
+  WHITE_LOGO: 'nervos-dark.svg',
+  BLACK_LOGO: 'nervos.svg',
   feature_flags: {
-    alerts: false,
-    loopingToggle: true
+    alerts: true,
+    loopingToggle: false,
   },
   apiEndpoints: [
     'overview', 'accounts', 'dex_liquidity', 
@@ -24,26 +24,16 @@ window.APP_CONFIG = {
     {
       name: 'overview',
       defaultVisible: true,
-    },   
-    {
-      name: 'collateral-factors',
-    },    
-    {
-      name: 'sandbox',
-    },    
+    }, 
     {
       name: 'asset-distribution',
       defaultVisible: true,
-    },
+    },    
     {
       name: 'open-liquidations',
     },
     {
       name: 'oracle-deviation',
     },
-    {
-      name: 'liquidity',
-      displayName: 'DEX Liquidity'
-    },
-  ],
+  ]
 }

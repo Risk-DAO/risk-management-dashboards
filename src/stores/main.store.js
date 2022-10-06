@@ -50,7 +50,8 @@ class MainStore {
   getApiVersion = () => {
     const qsApiVersion = new URLSearchParams(window.location.search).get('api-version')
     if(qsApiVersion) return new Promise(resolve => resolve(qsApiVersion))
-    return axios.get("https://raw.githubusercontent.com/Risk-DAO/version-control/main/dev").then(({data})=> data.trim().replace('\n', ''))
+    const build = process.env.REACT_APP_CONFIG || 'dev'
+    return axios.get(`https://raw.githubusercontent.com/Risk-DAO/version-control/main/${build}`).then(({data})=> data.trim().replace('\n', ''))
   } 
 
   init = () => {
