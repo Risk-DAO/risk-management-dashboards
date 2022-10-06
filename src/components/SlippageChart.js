@@ -41,11 +41,15 @@ class SlippageChart extends Component {
     }
     const loading = mainStore['usd_volume_for_slippage_loading']
     const rawData = Object.assign({}, mainStore['usd_volume_for_slippage_data'] || {})
-    const {json_time} = rawData
+    const cleanData = {}
+    Object.entries(rawData).forEach(([k, v])=> {
+      cleanData[k.toUpperCase()] = v
+    })
+    const {json_time} = cleanData
     if(json_time){
-      delete rawData.json_time
+      delete cleanData.json_time
     }
-    const data = !loading ? (rawData[TOKEN_PREFIX + market] || {}) : {}
+    const data = !loading ? (cleanData[TOKEN_PREFIX + market] || {}) : {}
     const dataSet = Object.entries(data).map(([k, v])=> ({name: removeTokenPrefix(k), value: v.volume, penalty: v.llc}))
     if(!dataSet.length){
       return null
