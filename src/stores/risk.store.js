@@ -249,6 +249,8 @@ class RiskStore {
         return cap
       }
     }
+    // if nothing catches return the highest cap
+    return caps[caps.length - 1]
   }
 
   solveFor = (dataSet) => {
