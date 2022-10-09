@@ -24,7 +24,13 @@ window.APP_CONFIG = {
     {
       name: 'overview',
       defaultVisible: true,
-    }, 
+    },  
+    {
+      name: 'collateral-factors',
+    },   
+    {
+      name: 'sandbox',
+    },
     {
       name: 'asset-distribution',
       defaultVisible: true,
