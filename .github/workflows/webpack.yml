@@ -2,9 +2,7 @@ name: NodeJS with Webpack
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ "production", "staging" ]
 
 jobs:
   build:
@@ -27,6 +25,3 @@ jobs:
 
     - name: Build
       run: npm run build
-      
-    - name: Deploy
-      run: export CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }} wrangler publish
