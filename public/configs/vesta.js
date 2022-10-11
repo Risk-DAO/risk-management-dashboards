@@ -92,9 +92,8 @@ window.APP_CONFIG = {
   },
   QA: {
     "DPX": {
-      score: 'C',
+      score: 'B',
       comments: [
-        'TWAP oracle owned by the team',
         'Governance risk',
       ]
     },
