@@ -41,5 +41,9 @@ window.APP_CONFIG = {
     {
       name: 'oracle-deviation',
     },
+    {
+      name: 'liquidity',
+      displayName: 'DEX Liquidity'
+    },
   ]
 }
