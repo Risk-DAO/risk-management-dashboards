@@ -30,9 +30,9 @@
     "build-aurigami": "REACT_APP_CONFIG=aurigami react-app-rewired build && ./generate-static.sh",
     "build-nervos": "REACT_APP_CONFIG=nervos react-app-rewired build && ./generate-static.sh",
     "build-vesta": "REACT_APP_CONFIG=vesta react-app-rewired build && ./generate-static.sh",
-    "deploy-aurigami": "wrangler publish --name aurigami-${GITHUB_REF##*/}",
-    "deploy-nervos": "wrangler publish --name nervos-${GITHUB_REF##*/}",
-    "deploy-vesta": "wrangler publish --name vesta-${GITHUB_REF##*/}",
+    "deploy-aurigami": "node tomlEditor.js --name aurigami-${GITHUB_REF##*/} && wrangler publish",
+    "deploy-nervos": "node tomlEditor.js --name nervos-${GITHUB_REF##*/} && wrangler publish",
+    "deploy-vesta": "node tomlEditor.js --name vesta-${GITHUB_REF##*/} && wrangler publish",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
   },
@@ -59,11 +59,13 @@
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
     "https-browserify": "^1.0.0",
+    "json2toml": "^3.0.1",
     "os-browserify": "^0.3.0",
     "process": "^0.11.10",
     "react-app-rewired": "^2.2.1",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
+    "toml": "^3.0.0",
     "url": "^0.11.0",
     "wrangler": "^2.1.11"
   }
