@@ -123,7 +123,7 @@ class VestaRiskStore {
 
   increment = (row, fieldName) => {
     runInAction(()=> this.loading = true)
-    const {asset, borrowCap, stabilityPoolSize, bprotocolSize} = row
+    const {asset} = row
     const capsName = capsMap[fieldName]
     const caps = this.solver[capsName][asset]
     const currentValue = row[fieldName]
@@ -181,7 +181,7 @@ class VestaRiskStore {
 
   decrement = (row, fieldName) => {
     runInAction(()=> this.loading = true)
-    const {asset, borrowCap, stabilityPoolSize, bprotocolSize} = row
+    const {asset} = row
     const capsName = capsMap[fieldName]
     const caps = this.solver[capsName][asset]
     const currentValue = row[fieldName]

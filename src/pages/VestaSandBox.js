@@ -3,7 +3,7 @@ import {observer} from "mobx-react"
 import Box from "../components/Box"
 import DataTable from 'react-data-table-component'
 import vestaRiskStore from '../stores/vestaRisk.store'
-import {removeTokenPrefix, shortCurrencyFormatter} from '../utils'
+import {shortCurrencyFormatter} from '../utils'
 import CapInputGeneric from '../components/CapInputGeneric'
 import CfDiffGeneric from '../components/CfDiffGeneric'
 import Token from "../components/Token"

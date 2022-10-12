@@ -10,12 +10,6 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import React from "react";
 import AlertsJson from './API/AlertsJson'
 
-function renderPage (props, PageComponent) {
-  return (
-    <PageComponent {...props}/> 
-  )
-}
-
 class App extends React.Component {
 
   constructor(props) {

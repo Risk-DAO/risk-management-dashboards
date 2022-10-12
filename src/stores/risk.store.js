@@ -40,7 +40,7 @@ class RiskStore {
       .then(u=> {
         return Object.entries(u)
         .map(([k, v])=> {
-          if(k == 'json_time'){
+          if(k === 'json_time'){
             return null
           }
           return { 
@@ -91,7 +91,7 @@ class RiskStore {
       .then(u=> {
         return Object.entries(u)
         .map(([k, v])=> {
-          if(k == 'json_time'){
+          if(k === 'json_time'){
             return null
           }
           return { 
@@ -122,7 +122,7 @@ class RiskStore {
     // find the index of exisiting value
     const currentIndex = options.indexOf(Number(row[field]))
     // validate we can incrament or decrament
-    if(currentIndex == -1 ){
+    if(currentIndex === -1 ){
       console.log('cant incrament 1')
       return
     }
@@ -301,7 +301,7 @@ class RiskStore {
     console.log({options}, this.incrementationOptions[row.asset])
     const currentIndex = options.indexOf(Number(row[field]))
     // validate we can incrament or decrament
-    if(currentIndex == -1 ){
+    if(currentIndex === -1 ){
       console.log('cant decrament 1', row[field])
       return
     }
@@ -325,7 +325,7 @@ class RiskStore {
 
   preformRecommendation = (recommendation) => {
     // decrease ADA.e mint cap to 40
-    const [operation, asset, type, , , amount] = recommendation.split(' ')
+    const [asset, type, , , amount] = recommendation.split(' ')
     for (let row of this.data) {
       if(row.asset === asset){
         row[`${type}_cap`] = amount

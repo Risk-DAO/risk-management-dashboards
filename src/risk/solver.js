@@ -167,25 +167,25 @@ export default class Solver {
 
           return cfg
 
-          for(const cap of this.caps[asset]) {
-              if(cap > cfg.mintCaps[asset]) {
-                  const tempMintCaps = Object.assign({}, cfg.mintCaps)
-                  tempMintCaps[asset] = cap
-                  if(this.isValidCfg(tempMintCaps, cfg.borrowCaps, cfg.cfs)) {
-                      console.log("improve mint", asset, "old cap", cfg.mintCaps[asset], "new cap", cap)                        
-                      return this.optimizeCfg(this.findValidCfg(tempMintCaps, cfg.borrowCaps, cfg.cfs))
-                  }                    
-              }
+        //   for(const cap of this.caps[asset]) {
+        //       if(cap > cfg.mintCaps[asset]) {
+        //           const tempMintCaps = Object.assign({}, cfg.mintCaps)
+        //           tempMintCaps[asset] = cap
+        //           if(this.isValidCfg(tempMintCaps, cfg.borrowCaps, cfg.cfs)) {
+        //               console.log("improve mint", asset, "old cap", cfg.mintCaps[asset], "new cap", cap)                        
+        //               return this.optimizeCfg(this.findValidCfg(tempMintCaps, cfg.borrowCaps, cfg.cfs))
+        //           }                    
+        //       }
 
-              if(cap > cfg.borrowCaps[asset]) {
-                  const tempBorrowCaps = Object.assign({}, cfg.borrowCaps)
-                  tempBorrowCaps[asset] = cap
-                  if(this.isValidCfg(cfg.mintCaps, tempBorrowCaps, cfg.cfs)) {
-                      console.log("improve borrow", asset, "old cap", cfg.borrowCaps[asset], "new cap", cap)
-                      return this.optimizeCfg(this.findValidCfg(cfg.mintCaps, tempBorrowCaps, cfg.cfs))
-                  }
-              }
-          }
+        //       if(cap > cfg.borrowCaps[asset]) {
+        //           const tempBorrowCaps = Object.assign({}, cfg.borrowCaps)
+        //           tempBorrowCaps[asset] = cap
+        //           if(this.isValidCfg(cfg.mintCaps, tempBorrowCaps, cfg.cfs)) {
+        //               console.log("improve borrow", asset, "old cap", cfg.borrowCaps[asset], "new cap", cap)
+        //               return this.optimizeCfg(this.findValidCfg(cfg.mintCaps, tempBorrowCaps, cfg.cfs))
+        //           }
+        //       }
+        //   }
       }
 
       return cfg

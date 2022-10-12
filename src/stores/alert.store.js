@@ -3,7 +3,6 @@ import mainStore from "./main.store"
 import riskStore from "./risk.store"
 import { removeTokenPrefix } from "../utils"
 import { whaleFriendlyFormater } from '../components/WhaleFriendly'
-import BlockExplorerLink from "../components/BlockExplorerLink"
 import Ramzor from "../components/Ramzor"
 import Token from "../components/Token"
 import { TEXTS } from "../constants"
@@ -55,7 +54,6 @@ class AlertStore {
   }
 
   getValueRisk = async () => {
-    const alerts = []
     const data = mainStore.clean( await mainStore['current_simulation_risk_request'])
     let valueAtRisk = 0
     Object.values(data).forEach(o=> {
@@ -72,7 +70,6 @@ class AlertStore {
   }
 
   getLiquidationsRisk = async () => {
-    const alerts = []
     const data = mainStore.clean( await mainStore['current_simulation_risk_request'])
     let liquidationsAtRisk = 0
     Object.values(data).forEach(o=> {
@@ -119,12 +116,12 @@ class AlertStore {
       .map(([key, row]) => {
         const diff = Math.max(percentFromDiff(row.oracle, row.cex_price), percentFromDiff(row.oracle, row.dex_price))
         if(diff >= priceOracleDiffThreshold){
-
           return {
             asset: removeTokenPrefix(key),
             diff,
           }
         }
+        return null
       })
       .filter(r => !!r)
       const type = alerts.length ? 'review' : 'healthy'
@@ -141,7 +138,7 @@ class AlertStore {
     const alerts = []
 
     Object.entries(whales)
-      .map(([key, row]) => {
+      .forEach(([key, row]) => {
         row.big_collateral.forEach(({id: account, size, whale_flag})=> {
           if(!whale_flag) return
           alerts.push({
@@ -216,9 +213,6 @@ class AlertStore {
           else if(cap === '1'){
             cap = 0
           }
-          else {
-            cap = cap
-          }
           markets[asset].borrow_cap = cap
         })
       }
@@ -230,9 +224,6 @@ class AlertStore {
           }
           else if(cap === 1){
             cap = 0
-          }
-          else {
-            cap = cap
           }
           markets[asset].mint_cap = cap
         })

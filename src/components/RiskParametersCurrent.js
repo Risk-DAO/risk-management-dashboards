@@ -4,7 +4,6 @@ import Box from "./Box"
 import DataTable from 'react-data-table-component'
 import mainStore from '../stores/main.store'
 import {whaleFriendlyFormater} from './WhaleFriendly'
-import {removeTokenPrefix} from '../utils'
 import riskStore from '../stores/risk.store'
 import Token from './Token'
 import Asterisk, {hasAtLeastOneAsterisk} from './Asterisk'

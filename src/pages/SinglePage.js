@@ -122,7 +122,7 @@ class SinglePage extends Component {
                 </p>
             </hgroup>
             {/* <small>Aggregated DEX data is provided by</small> */}
-            <img style={{width: '250px', display: 'block'}} src={`/images/${color}-powered-by-kyberswap.png`}/>
+            <img style={{width: '250px', display: 'block'}} src={`/images/${color}-powered-by-kyberswap.png`} alt=""/>
             <Suspense fallback={<article aria-busy="true"></article>}>
               <Liquidity/>
             </Suspense>
