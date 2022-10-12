@@ -27,5 +27,4 @@ yarn-error.log*
 
 # CF worker site
 #===========================
-wrangler.toml
 worker-site/*
