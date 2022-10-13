@@ -6,6 +6,8 @@ on:
 
 env:
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
+  ZONE_ID: ${{ secrets.ZONE_ID }}
 
 jobs:
   build:
