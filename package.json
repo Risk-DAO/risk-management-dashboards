@@ -30,9 +30,9 @@
     "build-aurigami": "REACT_APP_CONFIG=aurigami react-app-rewired build && ./generate-static.sh",
     "build-nervos": "REACT_APP_CONFIG=nervos react-app-rewired build && ./generate-static.sh",
     "build-vesta": "REACT_APP_CONFIG=vesta react-app-rewired build && ./generate-static.sh",
-    "deploy-aurigami": "wrangler publish --name aurigami-${GITHUB_REF##*/}",
-    "deploy-nervos": "wrangler publish --name nervos-${GITHUB_REF##*/}",
-    "deploy-vesta": "wrangler publish --name vesta-${GITHUB_REF##*/}",
+    "deploy-aurigami": "node tomlGen.js --name aurigami-${GITHUB_REF##*/} && wrangler publish",
+    "deploy-nervos": "node tomlGen.js --name nervos-${GITHUB_REF##*/} && wrangler publish",
+    "deploy-vesta": "node tomlGen.js --name vesta-${GITHUB_REF##*/} && wrangler publish",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
   },

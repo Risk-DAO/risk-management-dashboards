@@ -1,10 +1,10 @@
-account_id = "b27be28403d4c93295ffe1baf591566f"
+account_id = "xyz"
 compatibility_date = "2022-06-25"
-name = "xxx"
+name = "xyz"
 route = ""
 type = "webpack"
 workers_dev = true
-zone_id = "2ddde6f9273e3b04cdc256fbae79e5c2"
+zone_id = "xyz"
 [site]
 bucket = "./build"
 entry-point = "workers-site"
