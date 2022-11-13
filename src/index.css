@@ -115,7 +115,7 @@
 }
 
 text {
-  font-size: var(--data-font-size);
+  font-size: calc(var(--data-font-size) - 2px);
   color: var(--color);
 }
 .data-text {
