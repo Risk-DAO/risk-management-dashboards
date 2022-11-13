@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from "mobx"
+import { makeAutoObservable } from "mobx"
 import axios from "axios"
 
 const STAGING = 'https://api-staging.riskdao.org'
@@ -92,7 +92,5 @@ class MainStore {
     window.location.replace(window.location.origin + '/staging')
   }
 }
-
-const sleep = async (sec)=> new Promise(resolve => setTimeout(resolve, sec * 1000))
 
 export default new MainStore()

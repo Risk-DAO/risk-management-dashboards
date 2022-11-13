@@ -58,14 +58,14 @@ const Recommendation = (props) => {
       recommendations.push(r.recommendation)
     }
   })
-  recommendations = [... new Set(recommendations)]
+  recommendations = [...new Set(recommendations)]
   return <div style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
     <article style={expendedBoxStyle}>
       <h6>to improve collateral factor</h6>
       {recommendations.map(r=> <div key={r}>
-        <a onClick={()=>riskStore.preformRecommendation(r)}>
+        <button class="outline" style={{border: 'none', display: 'inline', padding: '5px', width: 'auto'}} onClick={()=>riskStore.preformRecommendation(r)}>
           {humanizeRecommendation(r)}
-        </a>
+        </button>
       </div>)}
     </article>
   </div>

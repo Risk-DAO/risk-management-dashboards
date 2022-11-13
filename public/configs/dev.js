@@ -5,9 +5,10 @@ window.APP_CONFIG = {
   BLOCK_EXPLORER: 'https://gnosisscan.io',  
   WHITE_LOGO: 'agave.svg',
   BLACK_LOGO: 'agave.svg',
+
   feature_flags: {
-    alerts: true,
-    loopingToggle: false,
+    alerts: false,
+    loopingToggle: true
   },
   apiEndpoints: [
     'overview', 'accounts', 'dex_liquidity', 
@@ -24,7 +25,7 @@ window.APP_CONFIG = {
     {
       name: 'overview',
       defaultVisible: true,
-    },  
+    },   
     {
       name: 'collateral-factors',
     },   
@@ -34,7 +35,7 @@ window.APP_CONFIG = {
     {
       name: 'asset-distribution',
       defaultVisible: true,
-    },    
+    },
     {
       name: 'open-liquidations',
     },

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import {observer} from "mobx-react"
 import riskStore from '../stores/risk.store'
 import Ramzor from './Ramzor'

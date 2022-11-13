@@ -65,7 +65,7 @@ class Liquidity extends Component {
     if(json_time){
       delete rawData.json_time
     }
-    Object.entries(rawData).map(([k, v])=> {
+    Object.entries(rawData).forEach(([k, v])=> {
       const asset = k.split('-')[0]
       assets[asset] = assets[asset] || { name: asset, lps: []}
       v.key = k

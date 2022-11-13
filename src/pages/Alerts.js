@@ -8,7 +8,7 @@ import DataTable from 'react-data-table-component'
 import AtRisk from '../components/AtRisk'
 
 const AlertText = props => {
-  const { type, hasAlerts } = props
+  const { type } = props
   const style = { 
     display: 'inline-block',
     minWidth: '26px',
@@ -30,7 +30,6 @@ const AlertText = props => {
 
 const Alert = props => {
   const { alert } = props
-  const hasAlerts = alert.data.length || alert.negative
 
   return (
     <>
