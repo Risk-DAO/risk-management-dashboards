@@ -59,7 +59,7 @@ class SlippageChart extends Component {
         <article style={expendedBoxStyle}>
           <ResponsiveContainer>
             <BarChart data={dataSet}>
-              <XAxis dataKey="name" />
+              <XAxis dataKey="name" interval={0}/>
               <YAxis type="number" domain={[0, dataMax]} tick={<WhaleFriendlyAxisTick />} allowDataOverflow={true}/>
               <Tooltip content={CustomTooltip}/>
               <Bar dataKey="value" fill={COLORS[0]} />

@@ -141,7 +141,7 @@ class Accounts extends Component {
     }
 
     const text = "* Big account included in the list"
-    
+    debugger
     return (
       <div>
         <Box loading={loading} time={json_time} text={text}>
