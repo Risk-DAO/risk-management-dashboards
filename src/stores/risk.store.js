@@ -327,7 +327,7 @@ class RiskStore {
 
   preformRecommendation = (recommendation) => {
     // decrease ADA.e mint cap to 40
-    const [asset, type, , , amount] = recommendation.split(' ')
+    const [,asset, type, , , amount] = recommendation.split(' ')
     for (let row of this.data) {
       if(row.asset === asset){
         row[`${type}_cap`] = amount

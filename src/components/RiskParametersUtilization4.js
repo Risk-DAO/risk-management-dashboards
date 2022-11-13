@@ -9,56 +9,63 @@ import Token from './Token'
 import Asterisk, {hasAtLeastOneAsterisk} from './Asterisk'
 import { TEXTS } from '../constants' 
 
-const currentCapFormater = num => {
-  if (num === Infinity) {
-    return '∞';
-  }
-  return whaleFriendlyFormater(num)
-}
-
 const currentColumns = [
   {
-      name: TEXTS.ASSET,
+      name: 'Asset',
       selector: row => row.asset,
       format: row => <Token value={row.asset}/>,
   },
   {
-      name: TEXTS.SUPPLY_CAP,
+      name: 'Current Supply',
       selector: row => row.mint_cap,
-      format: row => currentCapFormater(row.mint_cap),
-  },    
-
+      format: row => whaleFriendlyFormater(row.mint_cap),
+      grow: 2,
+  },     
+  // {
+  //     name: 'debug_mc',
+  //     selector: row => row.debug_mc,
+  //     grow: 2,
+  // },   
   {
-      name: TEXTS.BORROW_CAP,
+      name: 'Current Borrow',
       selector: row => row.borrow_cap,
-      format: row => currentCapFormater(row.borrow_cap),
-  },
+      format: row => whaleFriendlyFormater(row.borrow_cap),
+      grow: 2,
+  },   
+  // {
+  //     name: 'debug_bc',
+  //     selector: row => row.debug_bc,
+  //     grow: 2,
+  // },
   {
       name: `Current ${TEXTS.COLLATERAL_FACTOR}`,
       selector: row => riskStore.getCurrentCollateralFactor(row.asset),
-  },  
+      width: '260px'
+  },    
   {
       name: `Recommended ${TEXTS.COLLATERAL_FACTOR}`,
       selector: row => row.collateral_factor,
       format: row => <Asterisk row={row} field={"collateral_factor"}/>,
+      grow: 2,
   },
 ];
 
-class RiskParametersCurrent extends Component {
+class RiskParametersUtilization extends Component {
   render (){
-    const {loading, currentData} = riskStore
+    const {loading, utilization} = riskStore
     const {json_time: currentJsonTime} = mainStore['lending_platform_current_data'] || {}
-    const text = hasAtLeastOneAsterisk(currentData, "collateral_factor") ? "* If usage will increase, reduction of CF might be required to avoid bad debt." : ""
+    const text = hasAtLeastOneAsterisk(utilization, "collateral_factor") ? "* if user composition will change, reduction of CF might be required to avoid bad debt." : ""
     return (
       <div>
         <Box loading={loading} time={currentJsonTime} text={text}>
           <hgroup>
-            <h6>{TEXTS.ACCORDING_TO_EXISTING_CAPS}</h6>
-            <p className="description">{TEXTS.ACCORDING_TO_EXISTING_CAPS_DESCRIPTION}</p>
+            <h6>According to Current Usage</h6>
+            <p>{TEXTS.UTILIZATION_DESCRIPTION}</p>
           </hgroup>
+
           {!loading && <DataTable
               columns={currentColumns}
-              data={currentData}
+              data={utilization}
           />}
         </Box>
       </div>
@@ -66,4 +73,4 @@ class RiskParametersCurrent extends Component {
   }
 }
 
-export default observer(RiskParametersCurrent)
+export default observer(RiskParametersUtilization)

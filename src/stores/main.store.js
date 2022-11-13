@@ -1,7 +1,7 @@
 import { makeAutoObservable } from "mobx"
 import axios from "axios"
 
-const STAGING = 'https://api-staging.riskdao.org'
+// const STAGING = 'https://api-staging.riskdao.org'
 
 const {SECTIONS, PLATFORM_ID, API_URL, apiEndpoints} = window.APP_CONFIG
 
@@ -16,9 +16,9 @@ class MainStore {
 
   constructor () {
 
-    if(window.location.href.indexOf('staging') > -1){
-      this.apiUrl = STAGING
-    }
+    // if(window.location.href.indexOf('staging') > -1){
+    //   this.apiUrl = STAGING
+    // }
     this.init()
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       // dark mode
