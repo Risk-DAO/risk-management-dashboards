@@ -1,7 +1,7 @@
 import { makeAutoObservable } from "mobx"
 import axios from "axios"
 
-const STAGING = 'https://api-staging.riskdao.org'
+// const STAGING = 'https://api-staging.riskdao.org'
 
 const {SECTIONS, PLATFORM_ID, API_URL, apiEndpoints} = window.APP_CONFIG
 
