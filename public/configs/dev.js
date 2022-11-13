@@ -27,10 +27,10 @@ window.APP_CONFIG = {
     },   
     {
       name: 'collateral-factors',
-    },    
+    },   
     {
       name: 'sandbox',
-    },    
+    },
     {
       name: 'asset-distribution',
       defaultVisible: true,
@@ -45,5 +45,5 @@ window.APP_CONFIG = {
       name: 'liquidity',
       displayName: 'DEX Liquidity'
     },
-  ],
+  ]
 }
