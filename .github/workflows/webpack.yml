@@ -41,3 +41,6 @@ jobs:
 
     - name: deploy nervos
       run: npm run build-nervos && npm run deploy-nervos
+
+    - name: deploy agave
+      run: npm run build-agave && npm run deploy-agave
