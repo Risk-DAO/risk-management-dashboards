@@ -4,6 +4,11 @@ on:
   push:
     branches: [ "production", "staging" ]
 
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
+  ZONE_ID: ${{ secrets.ZONE_ID }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,8 +25,19 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Install dependencies
-      run: npm install
+    - name: Extract branch name
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_branch
 
-    - name: Build
-      run: npm run build
+    - name: Install dependencies
+      run: npm install --force
+
+    - name: deploy aurigami
+      run: npm run build-aurigami && npm run deploy-aurigami
+
+    - name: deploy vesta
+      run: npm run build-vesta && npm run deploy-vesta      
+
+    - name: deploy nervos
+      run: npm run build-nervos && npm run deploy-nervos

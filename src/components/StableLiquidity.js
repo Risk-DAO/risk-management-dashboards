@@ -27,7 +27,7 @@ class StableLiquidity extends Component {
         <Box loading={loading} time={json_time}>
           <BoxRow>
             <h5 style={{margin: 0}}>VST Liquidity</h5>
-            <h5 style={{margin: 0}}></h5>
+            <div style={{margin: 0}}></div>
           </BoxRow>           
           <BoxRow>
             <span>Curve</span>

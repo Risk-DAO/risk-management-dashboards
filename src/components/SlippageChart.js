@@ -1,19 +1,12 @@
-import React, { Component, PureComponent } from "react";
+import React, { Component } from "react";
 import {observer} from "mobx-react"
 import mainStore from '../stores/main.store'
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, ReferenceLine, Tooltip } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import {COLORS, TEXTS} from '../constants'
 import {removeTokenPrefix} from '../utils'
 import {whaleFriendlyFormater, WhaleFriendlyAxisTick} from '../components/WhaleFriendly'
 import BoxRow from "./BoxRow";
 import { TOKEN_PREFIX } from "../constants";
-
-const truncate = {
-  maxWidth: '200px',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis'
-}
 
 const expendedBoxStyle = {margin: '30px', width: '50%', minHeight: '300px', padding: '40px'}
 
@@ -75,18 +68,10 @@ class SlippageChart extends Component {
         </article>
         <div className="box-space" style={{width: '50%', display: 'flex', justifyContent: 'space-between', flexDirection: 'column'}}>
           <hgroup>
-            <h1></h1>
+            <div></div>
             <p>{text}</p>
           </hgroup>
         </div>
-          {/* <h6>top 5 accounts</h6>
-          <div style={{display: 'flex', justifyContent: 'space-between', flexDirection: 'column'}}>
-            {users.map(({user, size}, i)=> <BoxRow key={i}>
-              <a target="_blank" href={`${BLOCK_EXPLORER}/address/${user}`} style={truncate}>{user}</a>
-              <span className="data-text" >${whaleFriendlyFormater(size)}</span>
-            </BoxRow>
-            )}
-          </div> */}
       </div>
     )
   }

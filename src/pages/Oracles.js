@@ -41,8 +41,6 @@ const columns = [
   },  
 ];
 
-const ExpandedComponent = ({ data }) => <pre>{JSON.stringify(data, null, 2)}</pre>;
-
 class Oracles extends Component {
   render (){
     const loading = mainStore['oracles_loading']

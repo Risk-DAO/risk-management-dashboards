@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import {observer} from "mobx-react"
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer } from 'recharts';
-import {COLORS, TEXTS} from '../constants'
+import {TEXTS} from '../constants'
 import BoxGrid from '../components/BoxGrid'
 import Box from '../components/Box'
 import PieChart from '../components/PieChart'

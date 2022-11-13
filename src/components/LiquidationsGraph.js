@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import {observer} from "mobx-react"
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer } from 'recharts';
 import {COLORS} from '../constants'
 import mainStore from '../stores/main.store'
 import {removeTokenPrefix} from '../utils'
@@ -61,7 +61,7 @@ class LiquidationsGraph extends Component {
     if(!dataSet.length) {
       return null
     }
-    const dataSetItemProps = Object.keys(dataSet[0]).filter(p => p != 'x')
+    const dataSetItemProps = Object.keys(dataSet[0]).filter(p => p !== 'x')
     const rawData = Object.assign({}, mainStore['oracles_data'] || {})
     const asset = this.props.data.key
     const currentPrice = (rawData[asset] || {}).oracle
@@ -86,7 +86,6 @@ class LiquidationsGraph extends Component {
         <AreaChart
           data={dataSet}
         >
-          {/* <CartesianGrid strokeDasharray="3 3" /> */}
           {currentPrice && <ReferenceLine 
             alwaysShow={true} 
             x={currentPrice} 

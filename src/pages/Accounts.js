@@ -5,7 +5,7 @@ import DataTable from 'react-data-table-component'
 import mainStore from '../stores/main.store'
 import LiquidationsGraph from '../components/LiquidationsGraph'
 import {whaleFriendlyFormater} from '../components/WhaleFriendly'
-import { makeAutoObservable, runInAction } from "mobx"
+import { makeAutoObservable } from "mobx"
 import Token from "../components/Token"
 import {TopTenAccounts, usersMinWidth} from "../components/TopAccounts"
 import {TEXTS} from "../constants"
