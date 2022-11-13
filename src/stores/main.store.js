@@ -16,9 +16,9 @@ class MainStore {
 
   constructor () {
 
-    if(window.location.href.indexOf('staging') > -1){
-      this.apiUrl = STAGING
-    }
+    // if(window.location.href.indexOf('staging') > -1){
+    //   this.apiUrl = STAGING
+    // }
     this.init()
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       // dark mode
