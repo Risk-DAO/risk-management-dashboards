@@ -34,4 +34,4 @@ jobs:
       run: npm install --force
 
     - name: deploy ${GITHUB_REF##*/}
-      run: npm run build-${GITHUB_REF##*/} && node tomlGen.js --name ${GITHUB_REF##*/}-production && wrangler publish
+      run: npm run build-${GITHUB_REF##*/} && node tomlGen.js --name ${GITHUB_REF##*/}-production && npx wrangler publish
