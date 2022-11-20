@@ -46,5 +46,8 @@ window.APP_CONFIG = {
       name: 'liquidity',
       displayName: 'DEX Liquidity'
     },
-  ]
+  ],
+  marketMap: {
+    ETH: 'WETH'
+  }
 }

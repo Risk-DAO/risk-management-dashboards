@@ -27,10 +27,12 @@ const CustomTooltip = ({ active, payload, label }) => {
 class SlippageChart extends Component {
 
   render () {
-    
     let market = this.props.data.toUpperCase()
     if (market === 'WETH'){
       market = 'ETH'
+    }
+    if(window.APP_CONFIG.marketMap){
+      market = window.APP_CONFIG.marketMap[market] || market
     }
     const loading = mainStore['usd_volume_for_slippage_loading']
     const rawData = Object.assign({}, mainStore['usd_volume_for_slippage_data'] || {})
