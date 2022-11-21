@@ -1,11 +1,10 @@
 window.APP_CONFIG = {
-  PLATFORM_ID: '4',
+  PLATFORM_ID: '0',
   API_URL: 'https://raw.githubusercontent.com/Risk-DAO/simulation-results/main/',
-  TOKEN_PREFIX: '',
-  BLOCK_EXPLORER: 'https://gnosisscan.io',  
-  WHITE_LOGO: 'agave.svg',
-  BLACK_LOGO: 'agave.svg',
-
+  TOKEN_PREFIX: 'au',
+  BLOCK_EXPLORER: 'https://aurorascan.dev',
+  WHITE_LOGO: 'aurigami.svg',
+  BLACK_LOGO: 'aurigami.svg',
   feature_flags: {
     alerts: false,
     loopingToggle: true
@@ -28,10 +27,10 @@ window.APP_CONFIG = {
     },   
     {
       name: 'collateral-factors',
-    },   
+    },    
     {
       name: 'sandbox',
-    },
+    },    
     {
       name: 'asset-distribution',
       defaultVisible: true,
@@ -47,7 +46,4 @@ window.APP_CONFIG = {
       displayName: 'DEX Liquidity'
     },
   ],
-  marketMap: {
-    ETH: 'WETH'
-  }
 }

@@ -44,7 +44,8 @@ class SlippageChart extends Component {
     if(json_time){
       delete cleanData.json_time
     }
-    const data = !loading ? (cleanData[TOKEN_PREFIX + market] || {}) : {}
+    const key = (TOKEN_PREFIX + market).toUpperCase()
+    const data = !loading ? (cleanData[key] || {}) : {}
     const dataSet = Object.entries(data).map(([k, v])=> ({name: removeTokenPrefix(k), value: v.volume, penalty: v.llc}))
     if(!dataSet.length){
       return null
