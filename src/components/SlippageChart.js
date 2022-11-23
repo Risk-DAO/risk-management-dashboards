@@ -27,7 +27,6 @@ class SlippageChart extends Component {
 
   render () {
     let market = this.props.data
-
     const loading = mainStore['usd_volume_for_slippage_loading']
     const rawData = Object.assign({}, mainStore['usd_volume_for_slippage_data'] || {})
     const cleanData = {}
@@ -39,7 +38,7 @@ class SlippageChart extends Component {
       delete cleanData.json_time
     }
     const data = !loading ? (cleanData[market] || {}) : {}
-    const dataSet = Object.entries(data).map(([k, v])=> ({name: removeTokenPrefix(k), value: v.volume, penalty: v.llc}))
+    const dataSet = Object.entries(data).filter(([k]) => k !== 'key').map(([k, v])=> ({name: removeTokenPrefix(k), value: v.volume, penalty: v.llc}))
     if(!dataSet.length){
       return null
     }
