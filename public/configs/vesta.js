@@ -10,12 +10,11 @@ window.APP_CONFIG = {
   feature_flags: {
     alerts: true,
     loopingToggle: false,
-    dexLiquidityLpStatsRow: false,
     systemStatusStableLiquidity: true,
     sandBoxVersion: 1,
   },
   apiEndpoints: [
-    'overview', 'accounts', 'dex_liquidity', 
+    'overview', 'accounts',
     'oracles', 'usd_volume_for_slippage', 
     'current_simulation_risk',
     'risk_params', 'lending_platform_current', 'whale_accounts', 
