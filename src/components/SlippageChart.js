@@ -27,24 +27,19 @@ const CustomTooltip = ({ active, payload, label }) => {
 class SlippageChart extends Component {
 
   render () {
-    let market = this.props.data.toUpperCase()
-    if (market === 'WETH'){
-      market = 'ETH'
-    }
-    if(window.APP_CONFIG.marketMap){
-      market = window.APP_CONFIG.marketMap[market] || market
-    }
+    let market = this.props.data
+
     const loading = mainStore['usd_volume_for_slippage_loading']
     const rawData = Object.assign({}, mainStore['usd_volume_for_slippage_data'] || {})
     const cleanData = {}
     Object.entries(rawData).forEach(([k, v])=> {
-      cleanData[k.toUpperCase()] = v
+      cleanData[k] = v
     })
     const {json_time} = cleanData
     if(json_time){
       delete cleanData.json_time
     }
-    const data = !loading ? (cleanData[TOKEN_PREFIX + market] || {}) : {}
+    const data = !loading ? (cleanData[market] || {}) : {}
     const dataSet = Object.entries(data).map(([k, v])=> ({name: removeTokenPrefix(k), value: v.volume, penalty: v.llc}))
     if(!dataSet.length){
       return null

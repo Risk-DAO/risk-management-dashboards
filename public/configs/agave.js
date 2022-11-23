@@ -10,7 +10,7 @@ window.APP_CONFIG = {
     loopingToggle: false,
   },
   apiEndpoints: [
-    'overview', 'accounts', 'dex_liquidity', 
+    'overview', 'accounts', 
     'oracles', 'usd_volume_for_slippage', 
     'current_simulation_risk',
     'risk_params', 'lending_platform_current', 'whale_accounts', 
@@ -45,8 +45,5 @@ window.APP_CONFIG = {
       name: 'liquidity',
       displayName: 'DEX Liquidity'
     },
-  ],
-  marketMap: {
-    ETH: 'WETH'
-  }
+  ]
 }
