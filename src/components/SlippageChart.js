@@ -6,7 +6,6 @@ import {COLORS, TEXTS} from '../constants'
 import {removeTokenPrefix} from '../utils'
 import {whaleFriendlyFormater, WhaleFriendlyAxisTick} from '../components/WhaleFriendly'
 import BoxRow from "./BoxRow";
-import { TOKEN_PREFIX } from "../constants";
 
 const expendedBoxStyle = {margin: '30px', width: '50%', minHeight: '300px', padding: '40px'}
 
