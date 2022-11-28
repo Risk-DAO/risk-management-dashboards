@@ -2,7 +2,7 @@ export default class Solver {
   constructor(rawDataObj) {
       this.liquidationPenalty = 0.1
       this.collaterals = []
-      this.stables = ["auUSDC", "auUSDT", "USDT.e", "USDC.e", "USDC", ]
+      this.stables = ["auUSDC", "auUSDT", "USDT.e", "USDC.e", "USDC", "WXDAI"]
       this.shortStableLfs = [1, 1.5, 2]
       this.longStableLfs = [0.25, 0.5, 1]
       this.otherLfs = [0.5, 1, 1.5]
@@ -32,6 +32,7 @@ export default class Solver {
               for(const data of rawDataObj[pair][liquidity]) {
                   // init lfs - according to long and short assets
                   let lfs
+                  if (short === 'WXDAI')debugger
                   if(this.stables.includes(short)) lfs = this.shortStableLfs
                   else if(this.stables.includes(long)) lfs = this.longStableLfs
                   else lfs = this.otherLfs
