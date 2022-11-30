@@ -32,7 +32,6 @@ export default class Solver {
               for(const data of rawDataObj[pair][liquidity]) {
                   // init lfs - according to long and short assets
                   let lfs
-                  if (short === 'WXDAI')debugger
                   if(this.stables.includes(short)) lfs = this.shortStableLfs
                   else if(this.stables.includes(long)) lfs = this.longStableLfs
                   else lfs = this.otherLfs
