@@ -28,7 +28,7 @@ const columns = [
     sortable: true,
   },      
   {
-      name: 'Max Collateral Factor',
+      name: `Max ${TEXTS.COLLATERAL_FACTOR}`,
       selector: row => row['max_collateral'],
       format: row =>  <Asterisk row={row} field={"max_collateral"}/>,
       sortable: true,
