@@ -8,6 +8,7 @@ window.APP_CONFIG = {
   feature_flags: {
     alerts: true,
     loopingToggle: false,
+    initSandBoxFromCurrentUtilization: true
   },
   apiEndpoints: [
     'overview', 'accounts', 
