@@ -156,6 +156,10 @@ class RiskStore {
     const mintCaps = {}
     const borrowCaps = {}
     const collateralFactorCaps = {}
+    let sandBoxInitData = this.currentData
+    if (window.APP_CONFIG.feature_flags.initSandBoxFromCurrentUtilization) {
+      sandBoxInitData = this.utilization
+    }
     if(this.data.length){
       this.data.forEach(row => {
         mintCaps[row.asset] = row.mint_cap
@@ -165,7 +169,7 @@ class RiskStore {
     } else {
       Object.entries(this.solver.supplyCaps).forEach(([k, v])=> {
         let max
-        for(const row of this.currentData) {
+        for(const row of sandBoxInitData) {
           //console.log(row.asset, k)
           if(row.asset === k) {
             max = this.findCap(row.asset, row.mint_cap, false)
@@ -185,7 +189,7 @@ class RiskStore {
         //console.log("debt", {k},{v})        
         //const max = this.findCap(k, 8, true)
         let max
-        for(const row of this.currentData) {
+        for(const row of sandBoxInitData) {
           if(row.asset === k) {
             max = this.findCap(row.asset, row.borrow_cap, true)
             console.log("found max debt", k, {max}, row.borrow_cap)
