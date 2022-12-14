@@ -187,7 +187,7 @@ class RiskStore {
         //const max = this.findCap(k, 9, false) //v[parseInt(v.length / 2)]
         //max = v[parseInt(v.length / 2)]
         if(max === undefined){
-          max = this.solver.supplyCaps[k][0]
+          max = this.solver.supplyCaps[k][this.solver.supplyCaps[k].length -1]
         }
         mintCaps[k] = max
         //borrowCaps[k] = max
@@ -206,7 +206,7 @@ class RiskStore {
           }
         }
         if(max === undefined){
-          max = this.solver.borrowCaps[k][0]
+          max = this.solver.borrowCaps[k][this.solver.borrowCaps[k].length -1]
         }
         borrowCaps[k] = max
       })      
