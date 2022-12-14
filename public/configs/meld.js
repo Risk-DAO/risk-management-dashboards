@@ -10,10 +10,15 @@ window.APP_CONFIG = {
     loopingToggle: false,
     initSandBoxFromCurrentUtilization: false
   },
-  apiEndpoints: ['risk_params'],
+  apiEndpoints: ['risk_params' , 'usd_volume_for_slippage'],
   SECTIONS: [
     {
       name: 'sandbox',
+      defaultVisible: true,
+    },
+    {
+      name: 'liquidity',
+      displayName: 'DEX Liquidity',
       defaultVisible: true,
     },
   ],
