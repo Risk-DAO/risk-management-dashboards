@@ -33,36 +33,40 @@ class RiskStore {
     makeAutoObservable(this)
   }
 
+  getCurrentData = async () => {
+    const d = mainStore['lending_platform_current_request'] ? await mainStore['lending_platform_current_request'] : await Promise.resolve({})
+    const clean = {}
+    for (let asset in d.borrow_caps) {
+      clean[asset] = { asset }
+      clean[asset].borrow_cap = tweakCurrentCap(d.borrow_caps[asset])
+      clean[asset].mint_cap = tweakCurrentCap(d.collateral_caps[asset])
+      clean[asset].current_collateral_factor = d.collateral_factors[asset]
+    }
+    return Object.values(clean)
+  }
+
+  getUtilization = async () => {
+    const u = mainStore['accounts_request'] ? await mainStore['accounts_request'] : await Promise.resolve({})
+    return Object.entries(u)
+    .map(([k, v])=> {
+      if(k === 'json_time'){
+        return null
+      }
+      return { 
+        asset: k,
+        mint_cap: this.looping ? v.total_collateral : v.nl_total_collateral,
+        borrow_cap: this.looping ? v.total_debt : v.nl_total_debt,            
+      }
+    })
+    .filter(o=> o)
+  }
+
   init = async ()=> {
     if(true) {
       const data = await mainStore['risk_params_request'] 
-      this.utilization = mainStore['accounts_request'] ? await mainStore['accounts_request'] : await Promise.resolve({})
-      .then(u=> {
-        return Object.entries(u)
-        .map(([k, v])=> {
-          if(k === 'json_time'){
-            return null
-          }
-          return { 
-            asset: k,
-            mint_cap: this.looping ? v.total_collateral : v.nl_total_collateral,
-            borrow_cap: this.looping ? v.total_debt : v.nl_total_debt,            
-          }
-        })
-        .filter(o=> o)
-      })
+      this.utilization = await this.getUtilization()
 
-      this.currentData = mainStore['lending_platform_current_request'] ? await mainStore['lending_platform_current_request'] : await Promise.resolve({})
-        .then(d => {
-          const clean = {}
-          for (let asset in d.borrow_caps) {
-            clean[asset] = { asset }
-            clean[asset].borrow_cap = tweakCurrentCap(d.borrow_caps[asset])
-            clean[asset].mint_cap = tweakCurrentCap(d.collateral_caps[asset])
-            clean[asset].current_collateral_factor = d.collateral_factors[asset]
-          }
-          return Object.values(clean)
-        })
+      this.currentData = await this.getCurrentData()
       this.rawData = Object.assign({}, data || {})
       const {json_time} = this.rawData
       if(json_time){
