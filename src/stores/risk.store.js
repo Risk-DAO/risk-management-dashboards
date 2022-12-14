@@ -35,8 +35,8 @@ class RiskStore {
 
   init = async ()=> {
     if(true) {
-      const data = await mainStore['risk_params_request']
-      this.utilization = await mainStore['accounts_request']
+      const data = await mainStore['risk_params_request'] 
+      this.utilization = mainStore['accounts_request'] ? await mainStore['accounts_request'] : await Promise.resolve({})
       .then(u=> {
         return Object.entries(u)
         .map(([k, v])=> {
@@ -51,7 +51,8 @@ class RiskStore {
         })
         .filter(o=> o)
       })
-      this.currentData = await mainStore['lending_platform_current_request']
+
+      this.currentData = mainStore['lending_platform_current_request'] ? await mainStore['lending_platform_current_request'] : await Promise.resolve({})
         .then(d => {
           const clean = {}
           for (let asset in d.borrow_caps) {
@@ -181,6 +182,9 @@ class RiskStore {
         //console.log("collateral", {k},{v})
         //const max = this.findCap(k, 9, false) //v[parseInt(v.length / 2)]
         //max = v[parseInt(v.length / 2)]
+        if(max === undefined){
+          max = this.solver.supplyCaps[k][0]
+        }
         mintCaps[k] = max
         //borrowCaps[k] = max
         collateralFactorCaps[k] = 0
@@ -197,7 +201,9 @@ class RiskStore {
             break
           }
         }
-        //max = v[parseInt(v.length / 2)]        
+        if(max === undefined){
+          max = this.solver.borrowCaps[k][0]
+        }
         borrowCaps[k] = max
       })      
     }
@@ -322,10 +328,10 @@ class RiskStore {
   }
 
   getCurrentCollateralFactor = (asset) => {
-    if(asset === window.APP_CONFIG.STABLE){
+    if(asset === window.APP_CONFIG.STABLE || this.currentData.length === 0){
       return 0
     }
-    const [{current_collateral_factor }] = this.currentData.filter(r => r.asset === asset)
+    const [{current_collateral_factor}] = this.currentData.filter(r => r.asset === asset)
     return current_collateral_factor
   }
 

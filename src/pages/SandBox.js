@@ -63,7 +63,7 @@ const Recommendation = (props) => {
     <article style={expendedBoxStyle}>
       <h6>to improve collateral factor</h6>
       {recommendations.map(r=> <div key={r}>
-        <button class="outline" style={{border: 'none', display: 'inline', padding: '5px', width: 'auto'}} onClick={()=>riskStore.preformRecommendation(r)}>
+        <button className="outline" style={{border: 'none', display: 'inline', padding: '5px', width: 'auto'}} onClick={()=>riskStore.preformRecommendation(r)}>
           {humanizeRecommendation(r)}
         </button>
       </div>)}
@@ -79,7 +79,6 @@ class SandBox extends Component {
     return (
       <div>
         <Box loading={loading} time={json_time}>
-          {/* <h6>Risk Parameters Recommendations</h6> */}
           {!loading && <DataTable
               expandableRows
               columns={columns}
