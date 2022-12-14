@@ -188,6 +188,9 @@ class RiskStore {
         //max = v[parseInt(v.length / 2)]
         if(max === undefined){
           max = this.solver.supplyCaps[k][this.solver.supplyCaps[k].length -1]
+          if(window.APP_CONFIG.temp.iUSD_initial && k === 'iUSD'){
+            max = window.APP_CONFIG.temp.iUSD_initial
+          }
         }
         mintCaps[k] = max
         //borrowCaps[k] = max

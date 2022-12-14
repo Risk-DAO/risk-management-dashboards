@@ -33,5 +33,8 @@ window.APP_CONFIG = {
       CURRENT_COLLATERAL_FACTOR: "Current Liquidation Threshold",
       RECOMMENDED_COLLATERAL_FACTOR: "Recommended Liquidation Threshold",
     },
+  },
+  temp: {
+    iUSD_initial: 0.1
   }
 }
