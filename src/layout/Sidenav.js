@@ -15,15 +15,16 @@ const StagingBtn = observer(() => {
 })
 
 const Sidenav = (props) => {
+  const showProView = window.APP_CONFIG.SECTIONS.filter(({defaultVisible})=> !defaultVisible).length > 0
   return (
     <div className="side-bar box-space">
       {/* <Header/> */}
-      <fieldset>
+      {showProView && <fieldset>
           <label htmlFor="switch">
             <input onChange={mainStore.toggleProView} defaultChecked={mainStore.proView} type="checkbox" id="switch" name="switch" role="switch"/>
             <span>Pro View</span>
           </label>
-        </fieldset>
+        </fieldset>}
       <aside>
         <nav>
           <ul>

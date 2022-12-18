@@ -44,3 +44,6 @@ jobs:
 
     - name: deploy agave
       run: npm run build-agave && npm run deploy-agave
+
+    - name: deploy meld
+      run: npm run build-meld && npm run deploy-meld

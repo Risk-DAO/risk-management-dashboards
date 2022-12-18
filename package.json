@@ -30,10 +30,12 @@
     "build-aurigami": "REACT_APP_CONFIG=aurigami react-app-rewired build && ./generate-static.sh",
     "build-nervos": "REACT_APP_CONFIG=nervos react-app-rewired build && ./generate-static.sh",
     "build-agave": "REACT_APP_CONFIG=agave react-app-rewired build && ./generate-static.sh",
+    "build-meld": "REACT_APP_CONFIG=meld react-app-rewired build && ./generate-static.sh",
     "build-vesta": "REACT_APP_CONFIG=vesta react-app-rewired build && ./generate-static.sh",
     "deploy-aurigami": "node tomlGen.js --name aurigami-${GITHUB_REF##*/} && wrangler publish",
     "deploy-nervos": "node tomlGen.js --name nervos-${GITHUB_REF##*/} && wrangler publish",
     "deploy-agave": "node tomlGen.js --name agave-${GITHUB_REF##*/} && wrangler publish",
+    "deploy-meld": "node tomlGen.js --name meld-${GITHUB_REF##*/} && wrangler publish",
     "deploy-vesta": "node tomlGen.js --name vesta-${GITHUB_REF##*/} && wrangler publish",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
