@@ -1,4 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx'
+
 import Solver from '../risk/solver'
 import mainStore from '../stores/main.store'
 
@@ -14,6 +15,7 @@ const tweakCurrentCap = (cap) => {
 
 class RiskStore {
     data = []
+    solverData = {}
     currentData = []
     utilization = []
     loading = true
@@ -76,6 +78,7 @@ class RiskStore {
             }
             // inctanciate a solver
             this.solver = new Solver(this.rawData)
+            this.solverData = this.solver.parsedData
             this.solveFor(this.utilization)
             this.solveFor(this.currentData)
             console.log('caps', this.solver.caps)

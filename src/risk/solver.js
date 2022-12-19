@@ -67,9 +67,9 @@ export default class Solver {
             this.parsedData[long][short] = Object.assign({}, perPairResult)
         }
 
-        console.log(JSON.stringify(this.parsedData, null, 2))
-        console.log('supply caps', this.supplyCaps)
-        console.log('borrow caps', this.borrowCaps)
+        // console.log(JSON.stringify(this.parsedData, null, 2))
+        // console.log('supply caps', this.supplyCaps)
+        // console.log('borrow caps', this.borrowCaps)
     }
 
     mergeArrays(arr1, arr2) {
@@ -179,7 +179,7 @@ export default class Solver {
                     const cfs = Object.assign({}, cfg.cfs)
                     cfs[asset] = cf
                     if (this.isValidCfg(cfg.mintCaps, cfg.borrowCaps, cfs)) {
-                        console.log('improve cf', asset, 'old cf', this.cfs[asset], 'new cf', cf)
+                        // console.log('improve cf', asset, 'old cf', this.cfs[asset], 'new cf', cf)
                         return this.optimizeCfg(this.findValidCfg(cfg.mintCaps, cfg.borrowCaps, cfs))
                     }
                 }

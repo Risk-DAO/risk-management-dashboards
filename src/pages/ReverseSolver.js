@@ -3,7 +3,6 @@ import CapInput from '../components/CapInput'
 import { Component } from 'react'
 import DataTable from 'react-data-table-component'
 import { TEXTS } from '../constants'
-import Token from '../components/Token'
 import mainStore from '../stores/main.store'
 import { observer } from 'mobx-react'
 import riskStore from '../stores/risk.store'
@@ -11,8 +10,8 @@ import riskStore from '../stores/risk.store'
 const columns = [
     {
         name: 'Asset',
-        selector: (row) => row.asset,
-        format: (row) => <Token value={row.asset} />,
+        selector: (row) => row.long,
+        format: (row) => row.long,
     },
     {
         name: 'Supply Cap',
@@ -31,20 +30,68 @@ const columns = [
     },
     {
         name: `Required Liquidity`,
-        selector: (row) => riskStore.getCurrentCollateralFactor(row.asset),
-        format: (row) => 'hahaha',
+        selector: (row) => computeRecLiquidity(row.test),
+        format: (row) => row.test,
     },
 ]
+
+
+
+const computeRecLiquidity = () =>{
+
+
+}
+
+const LTfromSupplyBorrow = (displayItem, displayData) => {
+    const supply = displayItem.selectedSupply;
+    const token = displayItem.long;
+
+    let min = 1;
+    for(const short of Object.keys(displayItem.solverData)){
+    }
+
+}
+
+const findMaxDCForToken = (token, solverData) => {
+
+    for(const long of Object.keys(solverData)){
+        for(const short of Object.keys(long)){
+            if(short === token){
+                return Math.max(...Object.keys(short).map((entry) => Number(entry)))
+            }
+        }
+    }
+}
+
 
 class ReverseSolver extends Component {
     render() {
         const { loading } = riskStore
         const { json_time } = mainStore['risk_params_data'] || {}
+        const solverData = riskStore.solverData;
+        const liquidities = Object.assign({}, mainStore['usd_volume_for_slippage_data'] || {})
+        const displayData = []
+        const test = [{test: 2}]
+
+        for(const long of Object.keys(solverData)){
+            
+
+            let displayItem = {"long": long};
+            
+            displayItem['selectedSupply'] = findMaxDCForToken(long, solverData);
+            displayItem['selectedBorrow'] = findMaxDCForToken(long, solverData);
+            displayItem['selectedLT'] = 0;
+            displayItem['requiredLiquidity'] = 0;
+            displayItem['liquidities'] = liquidities[long];
+            displayItem['solverData'] = solverData[long];
+            displayData.push(displayItem);
+        }
+
 
         return (
             <div>
                 <Box loading={loading} time={json_time}>
-                    {!loading && <DataTable columns={columns} data={riskStore.data} />}
+                    {!loading && <DataTable columns={columns} data={displayData} />}
                 </Box>
             </div>
         )

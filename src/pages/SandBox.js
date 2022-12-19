@@ -99,7 +99,7 @@ class SandBox extends Component {
     render() {
         const { loading } = riskStore
         const { json_time } = mainStore['risk_params_data'] || {}
-        console.log(riskStore.data)
+        console.log(JSON.stringify(riskStore.data, null, 2))
 
         return (
             <div>
