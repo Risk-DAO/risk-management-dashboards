@@ -1,37 +1,37 @@
 name: Deploy to production
 
 on:
-  push:
-    branches: [ "vesta", "aurigami", "nervos", "agave", "meld"]
+    push:
+        branches: ['vesta', 'aurigami', 'nervos', 'agave', 'meld']
 
 env:
-  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-  ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
-  ZONE_ID: ${{ secrets.ZONE_ID }}
+    CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
+    ZONE_ID: ${{ secrets.ZONE_ID }}
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+    build:
+        runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [16.x]
-    
-    steps:
-    - uses: actions/checkout@v3
+        strategy:
+            matrix:
+                node-version: [16.x]
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
+        steps:
+            - uses: actions/checkout@v3
 
-    # - name: Extract branch name
-    #   shell: bash
-    #   run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-    #   id: extract_branch
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node-version }}
 
-    - name: Install dependencies
-      run: npm install --force
+            # - name: Extract branch name
+            #   shell: bash
+            #   run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+            #   id: extract_branch
 
-    - name: deploy ${GITHUB_REF##*/}
-      run: npm run build-${GITHUB_REF##*/} && node tomlGen.js --name ${GITHUB_REF##*/}-production && npx wrangler publish
+            - name: Install dependencies
+              run: npm install --force
+
+            - name: deploy ${GITHUB_REF##*/}
+              run: npm run build-${GITHUB_REF##*/} && node tomlGen.js --name ${GITHUB_REF##*/}-production && npx wrangler publish

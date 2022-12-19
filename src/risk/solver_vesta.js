@@ -1,10 +1,10 @@
-// TODO: change order of look ups 
+// TODO: change order of look ups
 
 class VestaSolver {
     constructor(rawDataObj) {
         this.liquidationPenalty = 0.1
         this.collaterals = []
-        this.stables = ["VST"]
+        this.stables = ['VST']
         this.shortStableLfs = [1, 1.5, 2]
         this.borrowCaps = {}
         this.supplyCaps = {}
@@ -18,7 +18,7 @@ class VestaSolver {
 
         for (const pair of Object.keys(rawDataObj)) {
             let perPairResult
-            const pairArray = pair.split("-")
+            const pairArray = pair.split('-')
             const long = pairArray[0]
             const short = pairArray[1]
 
@@ -38,10 +38,10 @@ class VestaSolver {
                     if (this.stables.includes(short)) lfs = this.shortStableLfs
                     else continue
 
-                    if (!lfs.includes(data["lf"])) continue // lf is not relevant
-                    const dc = data["dc"]
-                    const sp = data["spibr"]
-                    const bp = data["si"]
+                    if (!lfs.includes(data['lf'])) continue // lf is not relevant
+                    const dc = data['dc']
+                    const sp = data['spibr']
+                    const bp = data['si']
 
                     if (!dcs.includes(dc)) dcs.push(dc)
                     if (!(dc in perCfgResult)) perCfgResult[dc] = {}
@@ -52,9 +52,9 @@ class VestaSolver {
                     if (!(sp in perCfgResult[dc])) perCfgResult[dc][sp] = {}
 
                     if (!bps.includes(bp)) bps.push(bp)
-                    if (!(bp in perCfgResult[dc][sp])) perCfgResult[dc][sp][bp] = { "avg": 0, "mds": [] }
+                    if (!(bp in perCfgResult[dc][sp])) perCfgResult[dc][sp][bp] = { avg: 0, mds: [] }
 
-                    perCfgResult[dc][sp][bp].mds.push(data["md"] + data["li"])
+                    perCfgResult[dc][sp][bp].mds.push(data['md'] + data['li'])
                     let sum = 0
                     for (const md of perCfgResult[dc][sp][bp].mds) sum += md
                     perCfgResult[dc][sp][bp].avg = sum / perCfgResult[dc][sp][bp].mds.length
@@ -86,7 +86,7 @@ class VestaSolver {
         }
 
         for (let i = this.stabilityPoolCaps[asset].length - 1; i >= 0; i--) {
-            const sp = this.stabilityPoolCaps[asset][i] 
+            const sp = this.stabilityPoolCaps[asset][i]
             realStabilityPoolSize = sp
             if (sp <= stabilityPoolSize) break
         }
@@ -104,8 +104,8 @@ class VestaSolver {
     findValidCfg(mintCaps, borrowCaps, cfs) {
         let valid = true
         const efficientFrontier = []
-  
-        return {mintCaps, borrowCaps, cfs,  valid, efficientFrontier}
+
+        return { mintCaps, borrowCaps, cfs, valid, efficientFrontier }
     }
 
     // this is a dummy function not needed for Vesta, just preserving the API
