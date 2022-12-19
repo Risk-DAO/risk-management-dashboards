@@ -33,10 +33,10 @@ class CapInput extends React.Component {
                 <span style={{ minWidth: '50px' }}>{val}M</span>
                 <span>
                     <div style={buttonsStyle}>
-                        <div onClick={() => increaseSupplyOrBorrow(row, field)} className="plus-minus">
+                        <div onClick={() => riskStore.reverseIncrement(row.long, field)} className="plus-minus">
                             +
                         </div>
-                        <div onClick={() => riskStore.decrament(row, field)} className="plus-minus">
+                        <div onClick={() => riskStore.reverseDecrement(row.long, field)} className="plus-minus">
                             -
                         </div>
                     </div>
@@ -54,17 +54,17 @@ const columns = [
     },
     {
         name: 'Supply Cap',
-        selector: (row) => row.selectedSupply,
-        format: (row) => <CapInput row={row} field={'selectedSupply'} />,
+        selector: (row) => row.supply,
+        format: (row) => <CapInput row={row} field={'supply'} />,
     },
     {
         name: 'Borrow Cap',
-        selector: (row) => row.selectedBorrow,
-        format: (row) => <CapInput row={row} field={'selectedBorrow'} />,
+        selector: (row) => row.borrow,
+        format: (row) => <CapInput row={row} field={'borrow'} />,
     },
     {
         name: `Desired ${TEXTS.COLLATERAL_FACTOR}`,
-        selector: (row) => row.selectedLT,
+        selector: (row) => row.lt,
         format: (row) => <div
                             style={{
                                 display: 'flex',
@@ -73,7 +73,7 @@ const columns = [
                                 width: '100%',
                             }}
                         >
-                            <span style={{ minWidth: '50px' }}>{row.selectedLT.toFixed(2)}</span>
+                            <span style={{ minWidth: '50px' }}>{row.lt.toFixed(2)}</span>
                             <span>
                                 <div style={buttonsStyle}>
                                     <div /*onClick={() => riskStore.incrament(row, field)}*/ className="plus-minus">
@@ -88,14 +88,14 @@ const columns = [
     },
     {
         name: `Required Liquidity`,
-        selector: (row) => computeRecLiquidity(row.test),
-        format: (row) => "N/A",
+        selector: (row) => row.liquidityChange,
+        format: (row) => row.liquidityChange,
     },
 ]
 
-const increaseSupplyOrBorrow = (displayItem, field) => {
+// const increaseSupplyOrBorrow = (displayItem, field) => {
 
-}
+// }
 
 const computeRecLiquidity = () =>{
 
@@ -124,39 +124,39 @@ const LTfromSupplyBorrow = (displayItem, displayData) => {
     return min;
 }
 
-const findMaxDCForToken = (token, solverData) => {
-    for(const [longKey, long]  of Object.entries(solverData)){
-        for(const [shortKey, short]  of Object.entries(long)){
-            if(shortKey === token){
-                return Math.max(...Object.keys(short).map((entry) => Number(entry)))
-            }
-        }
-    }
-}
+// const findMaxDCForToken = (token, solverData) => {
+//     for(const [longKey, long]  of Object.entries(solverData)){
+//         for(const [shortKey, short]  of Object.entries(long)){
+//             if(shortKey === token){
+//                 return Math.max(...Object.keys(short).map((entry) => Number(entry)))
+//             }
+//         }
+//     }
+// }
 
 
 class ReverseSolver extends Component {
     render() {
         const { loading } = riskStore
         const { json_time } = mainStore['risk_params_data'] || {}
-        const solverData = riskStore.solverData;
-        const liquidities = Object.assign({}, mainStore['usd_volume_for_slippage_data'] || {})
-        const displayData = []
+        // const solverData = riskStore.solverData;
+        // const liquidities = Object.assign({}, mainStore['usd_volume_for_slippage_data'] || {})
+        // const displayData = []
 
-        for(const [key, long]  of Object.entries(solverData)){
-            let displayItem = {"long": key};
-            displayItem['selectedSupply'] = findMaxDCForToken(key, solverData);
-            displayItem['selectedBorrow'] = findMaxDCForToken(key, solverData);
-            displayItem['selectedLT'] = 0;
-            displayItem['requiredLiquidity'] = 0;
-            displayItem['liquidities'] = liquidities[key];
-            displayItem['solverData'] = solverData[key];
-            displayData.push(displayItem);
-        }
+        // for(const [key, long]  of Object.entries(solverData)){
+        //     let displayItem = {"long": key};
+        //     displayItem['selectedSupply'] = findMaxDCForToken(key, solverData);
+        //     displayItem['selectedBorrow'] = findMaxDCForToken(key, solverData);
+        //     displayItem['selectedLT'] = 0;
+        //     displayItem['requiredLiquidity'] = 0;
+        //     displayItem['liquidities'] = liquidities[key];
+        //     displayItem['solverData'] = solverData[key];
+        //     displayData.push(displayItem);
+        // }
 
-        displayData.forEach(displayItem => {
-            displayItem.selectedLT = LTfromSupplyBorrow(displayItem, displayData);
-        });
+        // displayData.forEach(displayItem => {
+        //     displayItem.selectedLT = LTfromSupplyBorrow(displayItem, displayData);
+        // });
 
 
 
@@ -164,7 +164,7 @@ class ReverseSolver extends Component {
         return (
             <div>
                 <Box loading={loading} time={json_time}>
-                    {!loading && <DataTable columns={columns} data={displayData} />}
+                    {!loading && <DataTable columns={columns} data={riskStore.reverseSolvedData} />}
                 </Box>
             </div>
         )
