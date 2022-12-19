@@ -1,11 +1,50 @@
+import React from 'react'
 import Box from '../components/Box'
-import CapInput from '../components/CapInput'
+import { shortCurrencyFormatter } from '../utils'
 import { Component } from 'react'
 import DataTable from 'react-data-table-component'
 import { TEXTS } from '../constants'
 import mainStore from '../stores/main.store'
 import { observer } from 'mobx-react'
 import riskStore from '../stores/risk.store'
+
+const buttonsStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    margin: '5px 20px',
+    borderRadius: 'var(--border-radius)',
+    boxShadow: 'var(--card-box-shadow)',
+}
+
+class CapInput extends React.Component {
+    render() {
+        const { row, field } = this.props
+        const val = shortCurrencyFormatter.format(row[field])
+        return (
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                }}
+            >
+                <span style={{ minWidth: '50px' }}>{val}M</span>
+                <span>
+                    <div style={buttonsStyle}>
+                        <div onClick={() => increaseSupplyOrBorrow(row, field)} className="plus-minus">
+                            +
+                        </div>
+                        <div onClick={() => riskStore.decrament(row, field)} className="plus-minus">
+                            -
+                        </div>
+                    </div>
+                </span>
+            </div>
+        )
+    }
+}
 
 const columns = [
     {
@@ -15,27 +54,48 @@ const columns = [
     },
     {
         name: 'Supply Cap',
-        selector: (row) => row.mint_cap,
-        format: (row) => <CapInput row={row} field={'mint_cap'} />,
+        selector: (row) => row.selectedSupply,
+        format: (row) => <CapInput row={row} field={'selectedSupply'} />,
     },
     {
         name: 'Borrow Cap',
-        selector: (row) => row.borrow_cap,
-        format: (row) => <CapInput row={row} field={'borrow_cap'} />,
+        selector: (row) => row.selectedBorrow,
+        format: (row) => <CapInput row={row} field={'selectedBorrow'} />,
     },
     {
         name: `Desired ${TEXTS.COLLATERAL_FACTOR}`,
-        selector: (row) => riskStore.getCurrentCollateralFactor(row.asset),
-        format: (row) => <CapInput row={row} field={'borrow_cap'} />,
+        selector: (row) => row.selectedLT,
+        format: (row) => <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                width: '100%',
+                            }}
+                        >
+                            <span style={{ minWidth: '50px' }}>{row.selectedLT.toFixed(2)}</span>
+                            <span>
+                                <div style={buttonsStyle}>
+                                    <div /*onClick={() => riskStore.incrament(row, field)}*/ className="plus-minus">
+                                        +
+                                    </div>
+                                    <div /*onClick={() => riskStore.decrament(row, field)}*/ className="plus-minus">
+                                        -
+                                    </div>
+                                </div>
+                            </span>
+                        </div>,
     },
     {
         name: `Required Liquidity`,
         selector: (row) => computeRecLiquidity(row.test),
-        format: (row) => row.test,
+        format: (row) => "N/A",
     },
 ]
 
+const increaseSupplyOrBorrow = (displayItem, field) => {
 
+}
 
 const computeRecLiquidity = () =>{
 
@@ -43,20 +103,31 @@ const computeRecLiquidity = () =>{
 }
 
 const LTfromSupplyBorrow = (displayItem, displayData) => {
-    const supply = displayItem.selectedSupply;
-    const token = displayItem.long;
+    const longSupply = displayItem.selectedSupply;
 
     let min = 1;
-    for(const short of Object.keys(displayItem.solverData)){
+    for(const [keyShort, short]  of Object.entries(displayItem.solverData)) {
+        const shortItem = displayData.find(_ => _.long === keyShort);
+        if(!shortItem) {
+            throw new Error(`Could not find ${short} in display data`);
+        }
+        else {
+            const shortBorrow = shortItem.selectedBorrow;
+            const minSupplyBorrow = Math.min(Number(longSupply), Number(shortBorrow));
+            const selectedLt = short[minSupplyBorrow.toString()]
+            if(selectedLt < min) {
+                min = selectedLt;
+            }
+        }
     }
 
+    return min;
 }
 
 const findMaxDCForToken = (token, solverData) => {
-
-    for(const long of Object.keys(solverData)){
-        for(const short of Object.keys(long)){
-            if(short === token){
+    for(const [longKey, long]  of Object.entries(solverData)){
+        for(const [shortKey, short]  of Object.entries(long)){
+            if(shortKey === token){
                 return Math.max(...Object.keys(short).map((entry) => Number(entry)))
             }
         }
@@ -71,21 +142,23 @@ class ReverseSolver extends Component {
         const solverData = riskStore.solverData;
         const liquidities = Object.assign({}, mainStore['usd_volume_for_slippage_data'] || {})
         const displayData = []
-        const test = [{test: 2}]
 
-        for(const long of Object.keys(solverData)){
-            
-
-            let displayItem = {"long": long};
-            
-            displayItem['selectedSupply'] = findMaxDCForToken(long, solverData);
-            displayItem['selectedBorrow'] = findMaxDCForToken(long, solverData);
+        for(const [key, long]  of Object.entries(solverData)){
+            let displayItem = {"long": key};
+            displayItem['selectedSupply'] = findMaxDCForToken(key, solverData);
+            displayItem['selectedBorrow'] = findMaxDCForToken(key, solverData);
             displayItem['selectedLT'] = 0;
             displayItem['requiredLiquidity'] = 0;
-            displayItem['liquidities'] = liquidities[long];
-            displayItem['solverData'] = solverData[long];
+            displayItem['liquidities'] = liquidities[key];
+            displayItem['solverData'] = solverData[key];
             displayData.push(displayItem);
         }
+
+        displayData.forEach(displayItem => {
+            displayItem.selectedLT = LTfromSupplyBorrow(displayItem, displayData);
+        });
+
+
 
 
         return (
