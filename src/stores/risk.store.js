@@ -544,9 +544,9 @@ class RiskStore {
                 const currentDataIndex = this.reverseSolvedData.findIndex(_ => _.long === token);
                 // this.reverseSolvedData[currentDataIndex].simulated = newValue;
                 const newCalculatedLiquidity = this.reverseSolvedData[currentDataIndex].liquidity[minToken].volume * mult;
-                this.reverseSolvedData[currentDataIndex].liquidityChange = `+${((mult-1)*100).toFixed(2)}% ${token}->${minToken}`;
+                this.reverseSolvedData[currentDataIndex].liquidityChange = `+${((mult-1)*100).toFixed(0)}% ${token}->${minToken}`;
                 this.reverseSolvedData[currentDataIndex].lt = this.solverData[token][minToken][newValue];
-                console.log('this.reverseSolvedData', JSON.stringify(this.reverseSolvedData, null, 2))
+                // console.log('this.reverseSolvedData', JSON.stringify(this.reverseSolvedData, null, 2))
                 // this is done because I need to reset the data to update the state
                 const oldState = JSON.parse(JSON.stringify(this.reverseSolvedData));
                 this.reverseSolvedData = [];
