@@ -16,6 +16,7 @@ const tweakCurrentCap = (cap) => {
 class RiskStore {
     data = []
     reverseSolvedData = []
+    liquidityData = {}
     solverData = {}
     currentData = []
     utilization = []
@@ -71,6 +72,9 @@ class RiskStore {
     init = async () => {
         if (true) {
             const data = await mainStore['risk_params_request']
+
+            this.liquidityData = await mainStore['usd_volume_for_slippage_request'];
+            // console.log('this.liquidityData', JSON.stringify(this.liquidityData, null, 2));
             this.utilization = await this.getUtilization()
 
             this.currentData = await this.getCurrentData()
@@ -261,117 +265,6 @@ class RiskStore {
         this.clearDiffs()
     }
 
-    // this function is called for the reverse solver sandbox
-    // it compute the LT for specified supply and borrow
-    reverseSolve = () => {
-        this.reverseSolvedData = [];
-        // console.log('solverdata', JSON.stringify(this.solverData, null, 2));
-        for(const [key, long]  of Object.entries(this.solverData)){
-            let reverseSolveItem = {
-                long: key,
-                supply: this.getReverseSupplyForToken(key),
-                borrow: this.getReverseBorrowForToken(key),
-                lt: this.LTfromSupplyBorrow(key),
-                liquidityChange: 'N/A'
-            };
-            this.reverseSolvedData.push(reverseSolveItem);
-        }
-
-        this.reverseSolvedData = this.reverseSolvedData.sort((a,b) => a.long.localeCompare(b.long));
-    }
-
-    getReverseSupplyForToken = (token) => {
-        if(this.reverseCurrentSelectedSupply[token] === undefined) {
-            this.reverseCurrentSelectedSupply[token] = this.findMaxDCForToken(token)
-        } 
-
-        return this.reverseCurrentSelectedSupply[token];
-    }
-
-    getReverseBorrowForToken = (token) => {
-        if(this.reverseCurrentSelectedBorrow[token] === undefined) {
-            this.reverseCurrentSelectedBorrow[token] = this.findMaxDCForToken(token)
-        } 
-
-        return this.reverseCurrentSelectedBorrow[token]        
-    }
-
-    findDCStepsForToken = (token) => {
-        for(const [longKey, long]  of Object.entries(this.solverData)){
-            for(const [shortKey, short]  of Object.entries(long)){
-                if(shortKey === token){
-                    return Object.keys(short).map((entry) => Number(entry))
-                }
-            }
-        }
-    }
-
-    findMaxDCForToken = (token) => {
-        return Math.max(...this.findDCStepsForToken(token));
-    }
-
-    LTfromSupplyBorrow = (token) => {
-        const longSupply = this.reverseCurrentSelectedSupply[token];
-        // console.log(token, 'longSupply', longSupply)
-    
-        let min = 1;
-        for(const [keyShort, short]  of Object.entries(this.solverData[token])) {
-            const shortBorrow = this.getReverseBorrowForToken(keyShort);
-            // console.log(keyShort, 'short borrow', shortBorrow)
-            const minSupplyBorrow = Math.min(Number(longSupply), Number(shortBorrow));
-            const selectedLt = short[minSupplyBorrow.toString()]
-            if(selectedLt < min) {
-                min = selectedLt;
-            }
-        }
-    
-        return min;
-    }
-
-    reverseIncrement = (token, field) => {
-        const currentVal = field === 'supply' ? this.getReverseSupplyForToken(token) : this.getReverseBorrowForToken(token)
-
-        const dcsForToken = this.findDCStepsForToken(token); // [0,1,5,10,15,20]
-        dcsForToken.sort((a,b) => a - b);
-        const indexOfCurrent = dcsForToken.indexOf(currentVal);
-        if(indexOfCurrent === dcsForToken.length -1) {
-            // do nothing if already max
-            console.log('reverseIncrement', field, 'already at max', currentVal);
-        } else {
-            // if not max, update value with the next
-            const newValue = dcsForToken[indexOfCurrent+1];
-            field === 'supply' ? 
-                    this.reverseCurrentSelectedSupply[token] = newValue
-                    : this.reverseCurrentSelectedBorrow[token] = newValue
-
-        }
-
-        // restart the reverse solve to recompute lt when changing supply or borrow
-        this.reverseSolve();
-    }
-    
-    reverseDecrement = (token, field) => {
-        const currentVal = field === 'supply' ? this.getReverseSupplyForToken(token) : this.getReverseBorrowForToken(token)
-
-        const dcsForToken = this.findDCStepsForToken(token); // [0,1,5,10,15,20]
-        dcsForToken.sort((a,b) => a - b);
-        const indexOfCurrent = dcsForToken.indexOf(currentVal);
-        if(indexOfCurrent === 0) {
-            // do nothing if already min
-            console.log('reverseDecrement', field, 'already at min', currentVal);
-        } else {
-            // if not max, update value with the next
-            const newValue = dcsForToken[indexOfCurrent-1];
-            field === 'supply' ? 
-                    this.reverseCurrentSelectedSupply[token] = newValue
-                    : this.reverseCurrentSelectedBorrow[token] = newValue
-
-        }
-
-        // restart the reverse solve to recompute lt when changing supply or borrow
-        this.reverseSolve();
-    }
-
     findCap = (asset, value, borrow) => {
         const caps = borrow ? this.solver.borrowCaps[asset] : this.solver.supplyCaps[asset] // this.solver.caps[asset]
         if (!caps) {
@@ -481,6 +374,191 @@ class RiskStore {
             }
         }
     }
+
+    
+    /**
+     * /////////// REVERSE SOLVER SANDBOX CODE \\\\\\\\\\\\\\\\\\\\
+     */
+
+    // this function is called for the reverse solver sandbox
+    // it compute the LT for specified supply and borrow
+    // SHOULD NOT be used when manually changing liquidation threshold
+    reverseSolve = () => {
+        this.reverseSolvedData = [];
+        // console.log('solverdata', JSON.stringify(this.solverData, null, 2));
+        for(const [key, long]  of Object.entries(this.solverData)){
+            let reverseSolveItem = {
+                long: key,
+                supply: this.getReverseSupplyForToken(key),
+                borrow: this.getReverseBorrowForToken(key),
+                lt: this.LTfromSupplyBorrow(key),
+                liquidity: this.liquidityData[key],
+                liquidityChange: 'N/A'
+            };
+            this.reverseSolvedData.push(reverseSolveItem);
+        }
+
+        this.reverseSolvedData = this.reverseSolvedData.sort((a,b) => a.long.localeCompare(b.long));
+        console.log('reverseSolvedData', JSON.stringify(this.reverseSolvedData, null, 2));
+    }
+
+    getReverseSupplyForToken = (token) => {
+        if(this.reverseCurrentSelectedSupply[token] === undefined) {
+            this.reverseCurrentSelectedSupply[token] = this.findMaxDCForToken(token)
+        } 
+
+        return this.reverseCurrentSelectedSupply[token];
+    }
+
+    getReverseBorrowForToken = (token) => {
+        if(this.reverseCurrentSelectedBorrow[token] === undefined) {
+            this.reverseCurrentSelectedBorrow[token] = this.findMaxDCForToken(token)
+        } 
+
+        return this.reverseCurrentSelectedBorrow[token]        
+    }
+
+    findDCStepsForToken = (token) => {
+        for(const [longKey, long]  of Object.entries(this.solverData)){
+            for(const [shortKey, short]  of Object.entries(long)){
+                if(shortKey === token){
+                    return Object.keys(short).map((entry) => Number(entry))
+                }
+            }
+        }
+    }
+
+    findMaxDCForToken = (token) => {
+        return Math.max(...this.findDCStepsForToken(token));
+    }
+
+    LTfromSupplyBorrow = (token) => {
+        const longSupply = this.reverseCurrentSelectedSupply[token];
+        // console.log(token, 'longSupply', longSupply)
+    
+        let min = 1;
+        for(const [keyShort, short]  of Object.entries(this.solverData[token])) {
+            const shortBorrow = this.getReverseBorrowForToken(keyShort);
+            // console.log(keyShort, 'short borrow', shortBorrow)
+            const minSupplyBorrow = Math.min(Number(longSupply), Number(shortBorrow));
+            const selectedLt = short[minSupplyBorrow.toString()]
+            if(selectedLt < min) {
+                min = selectedLt;
+            }
+        }
+    
+        return min;
+    }
+
+    reverseIncrement = (token, field) => {
+        const currentVal = field === 'supply' ? this.getReverseSupplyForToken(token) : this.getReverseBorrowForToken(token)
+
+        const dcsForToken = this.findDCStepsForToken(token); // [0,1,5,10,15,20]
+        dcsForToken.sort((a,b) => a - b);
+        const indexOfCurrent = dcsForToken.indexOf(currentVal);
+        if(indexOfCurrent === dcsForToken.length -1) {
+            // do nothing if already max
+            console.log('reverseIncrement', field, 'already at max', currentVal);
+        } else {
+            // if not max, update value with the next
+            const newValue = dcsForToken[indexOfCurrent+1];
+            field === 'supply' ? 
+                    this.reverseCurrentSelectedSupply[token] = newValue
+                    : this.reverseCurrentSelectedBorrow[token] = newValue
+
+        }
+
+        // restart the reverse solve to recompute lt when changing supply or borrow
+        this.reverseSolve();
+    }
+    
+    reverseDecrement = (token, field) => {
+        const currentVal = field === 'supply' ? this.getReverseSupplyForToken(token) : this.getReverseBorrowForToken(token)
+        const dcsForToken = this.findDCStepsForToken(token); // [0,1,5,10,15,20]
+        dcsForToken.sort((a,b) => a - b);
+        const indexOfCurrent = dcsForToken.indexOf(currentVal);
+        if(indexOfCurrent === 0) {
+            // do nothing if already min
+            console.log('reverseDecrement', field, 'already at min', currentVal);
+        } else {
+            // if not max, update value with the next
+            const newValue = dcsForToken[indexOfCurrent-1];
+            if(newValue === 0) {
+                console.log('reverseDecrement', field, 'should not go to 0 from ', currentVal);
+            }
+            else {
+                field === 'supply' ? 
+                            this.reverseCurrentSelectedSupply[token] = newValue
+                            : this.reverseCurrentSelectedBorrow[token] = newValue
+            }
+        }
+
+        // restart the reverse solve to recompute lt when changing supply or borrow
+        this.reverseSolve();
+    }
+
+    reverseIncrementLiquidationThreshold = (token) => {
+        // get min supply or borrow
+        const longSupply = this.reverseCurrentSelectedSupply[token];
+        // console.log(token, 'longSupply', longSupply)
+    
+        let minBorrow = 1;
+        let minToken = ''
+        let minLt = 1;
+        let supplyIsLower = false;
+        for(const [keyShort, short]  of Object.entries(this.solverData[token])) {
+            const shortBorrow = this.getReverseBorrowForToken(keyShort);
+            // console.log(keyShort, 'short borrow', shortBorrow)
+            const minSupplyBorrow = Math.min(Number(longSupply), Number(shortBorrow));
+            const selectedLt = short[minSupplyBorrow.toString()]
+            if(selectedLt < minLt) {
+                minLt = selectedLt;
+                minBorrow = Number(shortBorrow);
+                minToken = keyShort;
+                supplyIsLower = minBorrow > longSupply;
+            }
+        }
+    
+        console.log('minBorrow', minBorrow)
+        console.log('minToken', minToken)
+        console.log('minLt', minLt)
+        console.log('supplyIsLower', supplyIsLower)
+
+        // find the next lower DC step for the token
+        const dcsForToken = this.findDCStepsForToken(supplyIsLower ? token : minToken); // [0,1,5,10,15,20]
+        dcsForToken.sort((a,b) => a - b);
+        const currentVal = supplyIsLower ? longSupply : minBorrow;
+        const indexOfCurrent = dcsForToken.indexOf(currentVal);
+        if(indexOfCurrent === 0) {
+            // do nothing if already min
+            console.log('reverseIncrementLiquidationThreshold already at min');
+        } else {
+            // if not max, update value with the next
+            const newValue = dcsForToken[indexOfCurrent-1];
+            if(newValue === 0) {
+                console.log('reverseIncrementLiquidationThreshold should not go to 0');
+            }
+            else {
+                const mult = currentVal / newValue; // if current was 20M, next is 15M, then mult = 1.333...
+                // we should multiply the existing liquidity for this token by the mult
+                const currentDataIndex = this.reverseSolvedData.findIndex(_ => _.long === token);
+                // this.reverseSolvedData[currentDataIndex].simulated = newValue;
+                const newCalculatedLiquidity = this.reverseSolvedData[currentDataIndex].liquidity[minToken].volume * mult;
+                this.reverseSolvedData[currentDataIndex].liquidityChange = `+${((mult-1)*100).toFixed(2)}% ${token}->${minToken}`;
+                this.reverseSolvedData[currentDataIndex].lt = this.solverData[token][minToken][newValue];
+                console.log('this.reverseSolvedData', JSON.stringify(this.reverseSolvedData, null, 2))
+                // this is done because I need to reset the data to update the state
+                const oldState = JSON.parse(JSON.stringify(this.reverseSolvedData));
+                this.reverseSolvedData = [];
+                this.reverseSolvedData = oldState;
+            }
+        }
+    }
+    
+    reverseDecrementLiquidationThreshold = (token) => {
+        
+    }
+
 }
 
 export default new RiskStore()
