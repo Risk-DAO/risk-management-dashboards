@@ -406,19 +406,21 @@ class RiskStore {
             for (const [keyShort, short] of Object.entries(this.solverData[key])) {
                 const realBorrowOfShort = this.getReverseBorrowForToken(keyShort)
                 const simulatedBorrowOfShort = this.getReverseBorrowForTokenSimulated(key, keyShort)
-                const ratio = realBorrowOfShort / simulatedBorrowOfShort
-                if (ratio !== 1) {
-                    cptLiquidityChange++
-                    reverseSolveItem.liquidity[keyShort].simulatedVolume =
-                        reverseSolveItem.liquidity[keyShort].volume * ratio
-                    // if(!reverseSolveItem.liquidityChange) {
-                    //     reverseSolveItem.liquidityChange = `+${Math.round((ratio-1)*100)}% ${key}->${keyShort}`;
-                    // } else {
-                    //     reverseSolveItem.liquidityChange += ` | +${Math.round((ratio-1)*100)}% ${key}->${keyShort}`;
-                    // }
-                }
-                else{
-                    delete reverseSolveItem.liquidity[keyShort]["simulatedVolume"];
+                if(realBorrowOfShort > 0) {
+                    const ratio = realBorrowOfShort / simulatedBorrowOfShort
+                    if (ratio !== 1) {
+                        cptLiquidityChange++
+                        reverseSolveItem.liquidity[keyShort].simulatedVolume =
+                            reverseSolveItem.liquidity[keyShort].volume * ratio
+                        // if(!reverseSolveItem.liquidityChange) {
+                        //     reverseSolveItem.liquidityChange = `+${Math.round((ratio-1)*100)}% ${key}->${keyShort}`;
+                        // } else {
+                        //     reverseSolveItem.liquidityChange += ` | +${Math.round((ratio-1)*100)}% ${key}->${keyShort}`;
+                        // }
+                    }
+                    else{
+                        delete reverseSolveItem.liquidity[keyShort]["simulatedVolume"];
+                    }
                 }
             }
 
@@ -545,12 +547,16 @@ class RiskStore {
         } else {
             // if not max, update value with the next
             const newValue = dcsForToken[indexOfCurrent - 1]
-            if (newValue === 0) {
-            } else {
-                field === 'supply'
-                    ? (this.reverseCurrentSelectedSupply[token] = newValue)
-                    : (this.reverseCurrentSelectedBorrow[token] = newValue)
-            }
+            // if (newValue === 0) {
+            // } else {
+            //     field === 'supply'
+            //         ? (this.reverseCurrentSelectedSupply[token] = newValue)
+            //         : (this.reverseCurrentSelectedBorrow[token] = newValue)
+            // }
+            
+            field === 'supply'
+                ? (this.reverseCurrentSelectedSupply[token] = newValue)
+                : (this.reverseCurrentSelectedBorrow[token] = newValue)
         }
 
         // restart the reverse solve to recompute lt when changing supply or borrow
@@ -606,6 +612,7 @@ class RiskStore {
                 } else {
                     return newValue
                 }
+                // return newValue
             }
         }
     }

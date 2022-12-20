@@ -144,7 +144,7 @@ const LiquidityChanges = (props) => {
             graphItem['value'] = value['volume']
         } else {
             let ratio = Math.round((value['simulatedVolume'] / value['volume'] - 1) * 100)
-            textDisplay.push({ text: `${props.data.long} -> ${key} +${ratio}% `, ratio: ratio })
+            textDisplay.push({ text: `${props.data.long} -> ${key} ${ratio < 0 ? '' : '+'}${ratio}% `, ratio: ratio })
             graphItem['value'] = value['simulatedVolume']
         }
         displayData.push(graphItem)
