@@ -53,7 +53,6 @@ class SlippageChart extends Component {
         if (!dataSet.length) {
             return null
         }
-        console.log(JSON.stringify(dataSet, null, 2))
         let [biggest, secondBiggest] = dataSet.sort((a, b) => b.value - a.value)
         if (!secondBiggest) {
             secondBiggest = biggest

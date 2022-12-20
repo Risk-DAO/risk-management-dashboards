@@ -398,9 +398,13 @@ class RiskStore {
                 liquidity: this.liquidityData[key],
                 liquidityChange: 'N/A',
             }
+            
+            // reset simulated volume
+            for (const [keyShort, short] of Object.entries(reverseSolveItem.liquidity)) {
+                delete reverseSolveItem.liquidity[keyShort]["simulatedVolume"];
+            }
             this.reverseSolvedData.push(reverseSolveItem)
         }
-
         this.reverseSolvedData = this.reverseSolvedData.sort((a, b) => a.long.localeCompare(b.long))
         // console.log('reverseSolvedData', JSON.stringify(this.reverseSolvedData, null, 2));
     }
@@ -439,7 +443,7 @@ class RiskStore {
             }
 
             if (cptLiquidityChange > 0) {
-                reverseSolveItem.liquidityChange = cptLiquidityChange + ' liquidity change required'
+                reverseSolveItem.liquidityChange = cptLiquidityChange
             }
 
             this.reverseSolvedData.push(reverseSolveItem)

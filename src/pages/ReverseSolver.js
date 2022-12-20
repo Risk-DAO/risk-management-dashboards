@@ -103,7 +103,7 @@ const columns = [
         width: '15%',
     },
     {
-        name: `Required Liquidity Change`,
+        name: `Number of Required Liquidity Change`,
         selector: (row) => row.liquidityChange,
         format: (row) => row.liquidityChange,
         width: '35%',
@@ -133,8 +133,6 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 const LiquidityChanges = (props) => {
-    console.log(JSON.stringify(props.data, null, 2))
-
     // GRAPH DATA
     const textDisplay = []
     const displayData = []
@@ -156,9 +154,7 @@ const LiquidityChanges = (props) => {
     if (!secondBiggest) {
         secondBiggest = biggest
     }
-    const dataMax = Math.min(secondBiggest.value * 2, biggest.value) * 1.5
-    console.log('textDisplay', JSON.stringify(textDisplay, null, 2))
-    console.log('dataMax', JSON.stringify(dataMax, null, 2))
+    const dataMax = biggest.value
 
     return (
         <div
