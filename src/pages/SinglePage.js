@@ -79,19 +79,23 @@ class SinglePage extends Component {
                         </div>
                     )}
                 </section>
-                {riskStore.solverData ? <section id="reversesolver">
-                    {mainStore.sectionShow('reversesolver') && (
-                        <div>
-                            <hgroup>
-                                <h2>Reverse Solver</h2>
-                                <p className="description">{TEXTS.REVERSESOLVER_DESCRIPTION}</p>
-                            </hgroup>
-                            <Suspense fallback={<article aria-busy="true"></article>}>
-                                <ReverseSolver />
-                            </Suspense>
-                        </div>
-                    )}
-                </section> : ''}
+                {riskStore.solverData ? (
+                    <section id="reversesolver">
+                        {mainStore.sectionShow('reversesolver') && (
+                            <div>
+                                <hgroup>
+                                    <h2>Reverse Solver</h2>
+                                    <p className="description">{TEXTS.REVERSESOLVER_DESCRIPTION}</p>
+                                </hgroup>
+                                <Suspense fallback={<article aria-busy="true"></article>}>
+                                    <ReverseSolver />
+                                </Suspense>
+                            </div>
+                        )}
+                    </section>
+                ) : (
+                    ''
+                )}
                 <section id="asset-distribution">
                     {mainStore.sectionShow('asset-distribution') && (
                         <div>

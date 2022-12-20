@@ -1,11 +1,12 @@
-import React, { Component } from 'react'
-import { observer } from 'mobx-react'
-import mainStore from '../stores/main.store'
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts'
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { COLORS, TEXTS } from '../constants'
-import { removeTokenPrefix } from '../utils'
-import { whaleFriendlyFormater, WhaleFriendlyAxisTick } from '../components/WhaleFriendly'
+import { WhaleFriendlyAxisTick, whaleFriendlyFormater } from '../components/WhaleFriendly'
+
 import BoxRow from './BoxRow'
+import { Component } from 'react'
+import mainStore from '../stores/main.store'
+import { observer } from 'mobx-react'
+import { removeTokenPrefix } from '../utils'
 
 const expendedBoxStyle = {
     margin: '30px',
@@ -52,6 +53,7 @@ class SlippageChart extends Component {
         if (!dataSet.length) {
             return null
         }
+        console.log(JSON.stringify(dataSet, null, 2))
         let [biggest, secondBiggest] = dataSet.sort((a, b) => b.value - a.value)
         if (!secondBiggest) {
             secondBiggest = biggest
