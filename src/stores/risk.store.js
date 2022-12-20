@@ -421,12 +421,20 @@ class RiskStore {
 
             for(const [keyShort, short]  of Object.entries(this.solverData[key])){
                 const realBorrowOfShort = this.getReverseBorrowForToken(keyShort);
-                const simulatedBorrowOfShort =  this.getReverseBorrowForTokenSimulated(keyShort);
+                const simulatedBorrowOfShort =  this.getReverseBorrowForTokenSimulated(key, keyShort);
                 const ratio = realBorrowOfShort / simulatedBorrowOfShort;
                 if(ratio !== 1) {
                     reverseSolveItem.liquidity[keyShort].simulatedVolume = reverseSolveItem.liquidity[keyShort].volume * ratio;
-                    reverseSolveItem.liquidityChange += `+${Math.round((ratio-1)*100)}% ${key}->${keyShort} |`;
+                    if(!reverseSolveItem.liquidityChange) {
+                        reverseSolveItem.liquidityChange = `+${Math.round((ratio-1)*100)}% ${key}->${keyShort}`;
+                    } else {
+                        reverseSolveItem.liquidityChange += ` | +${Math.round((ratio-1)*100)}% ${key}->${keyShort}`;
+                    }
                 }
+            }
+
+            if(!reverseSolveItem.liquidityChange) {
+                reverseSolveItem.liquidityChange = 'N/A'
             }
 
             this.reverseSolvedData.push(reverseSolveItem);
@@ -460,12 +468,17 @@ class RiskStore {
         return this.reverseCurrentSelectedBorrow[token]        
     }
 
-    getReverseBorrowForTokenSimulated = (token) => {
-        if(this.reverseCurrentSelectedBorrowSimulated[token] === undefined) {
-            this.reverseCurrentSelectedBorrowSimulated[token] = this.getReverseBorrowForToken(token)
-        } 
+    getReverseBorrowForTokenSimulated = (long, short) => {
+        console.log(long, JSON.stringify(this.reverseCurrentSelectedBorrowSimulated[long], null, 2));
+        if(this.reverseCurrentSelectedBorrowSimulated[long] === undefined) {
+            this.reverseCurrentSelectedBorrowSimulated[long] = {};
+            this.reverseCurrentSelectedBorrowSimulated[long][short] = this.getReverseBorrowForToken(short);
+        }
+        else if(this.reverseCurrentSelectedBorrowSimulated[long][short] === undefined) {
+            this.reverseCurrentSelectedBorrowSimulated[long][short] = this.getReverseBorrowForToken(short);
+        }
 
-        return this.reverseCurrentSelectedBorrowSimulated[token]        
+        return this.reverseCurrentSelectedBorrowSimulated[long][short];
     }
 
     findDCStepsForToken = (token) => {
@@ -507,7 +520,7 @@ class RiskStore {
     
         let min = 1;
         for(const [keyShort, short]  of Object.entries(this.solverData[token])) {
-            const shortBorrow = this.getReverseBorrowForTokenSimulated(keyShort);
+            const shortBorrow = this.getReverseBorrowForTokenSimulated(token, keyShort);
             // console.log(keyShort, 'short borrow', shortBorrow)
             const minSupplyBorrow = Math.min(Number(longSupply), Number(shortBorrow));
             const selectedLt = short[minSupplyBorrow.toString()]
@@ -574,7 +587,7 @@ class RiskStore {
      * @param {boolean} isSupply true if should take supply as current value
      * @returns {number} the next LT step for the current token
      */
-    getNextLtStep = (token, increase, isSimu, isSupply) => {
+    getNextLtStep = (token, increase, isSimu, isSupply, longToken = undefined) => {
         const dcsForToken = this.findDCStepsForToken(token); // [0,1,5,10,15,20]
         dcsForToken.sort((a,b) => a - b);
         let currentValue = 0;
@@ -583,7 +596,7 @@ class RiskStore {
             if(isSupply) {
                 currentValue = this.getReverseSupplyForTokenSimulated(token);
             } else {
-                currentValue = this.getReverseBorrowForTokenSimulated(token);
+                currentValue = this.getReverseBorrowForTokenSimulated(longToken, token);
             }
         } else {
             if(isSupply) {
@@ -627,13 +640,11 @@ class RiskStore {
 
     // incr lt mean lower borrow on short tokens
     reverseIncrementLiquidationThreshold = (token) => {
-        const baseLongSupply = this.getReverseSupplyForTokenSimulated(token);
-
         // create ordered array of solver data
         const solverDataForTokenOrderedByLT = [];
         for(const [keyShort, shortValue]  of Object.entries(this.solverData[token])) {
             for(const [borrowVal, ltValue]  of Object.entries(this.solverData[token][keyShort])) {
-                const simuBorrowForShort = this.getReverseBorrowForTokenSimulated(keyShort);
+                const simuBorrowForShort = this.getReverseBorrowForTokenSimulated(token, keyShort);
                 if(simuBorrowForShort >=  Number(borrowVal) && Number(borrowVal) > 0) {
                     solverDataForTokenOrderedByLT.push({
                         lt: Number(ltValue),
@@ -653,7 +664,7 @@ class RiskStore {
         else {
             const currentLimit = solverDataForTokenOrderedByLT[0];
             // in any case, decrease 1 step from the current short token
-            this.reverseCurrentSelectedBorrowSimulated[currentLimit.symbol] = this.getNextLtStep(currentLimit.symbol, false, true, false);
+            this.reverseCurrentSelectedBorrowSimulated[token][currentLimit.symbol] = this.getNextLtStep(currentLimit.symbol, false, true, false, token);
 
             // if(solverDataForTokenOrderedByLT.length > 1) {
             //     const nextLimit = solverDataForTokenOrderedByLT[1];
@@ -666,9 +677,45 @@ class RiskStore {
 
         this.reverseSolveSimulated();
     }
-    
+
+    // decr lt mean higher borrow on short tokens
     reverseDecrementLiquidationThreshold = (token) => {
-        
+        // create ordered array of solver data
+        const solverDataForTokenOrderedByLT = [];
+        for(const [keyShort, shortValue]  of Object.entries(this.solverData[token])) {
+            for(const [borrowVal, ltValue]  of Object.entries(this.solverData[token][keyShort])) {
+                const simuBorrowForShort = this.getReverseBorrowForTokenSimulated(token, keyShort);
+                if(simuBorrowForShort < Number(borrowVal) && Number(borrowVal) > 0) {
+                    solverDataForTokenOrderedByLT.push({
+                        lt: Number(ltValue),
+                        symbol: keyShort,
+                        value: Number(borrowVal)
+                    })
+                }
+            }
+        }
+
+        solverDataForTokenOrderedByLT.sort((a,b) => b.lt - a.lt);
+        console.log('solverDataForTokenOrderedByLT', JSON.stringify(solverDataForTokenOrderedByLT, null, 2));
+
+        if(solverDataForTokenOrderedByLT.length === 0) {
+            console.log('no new steps available');
+        } 
+        else {
+            const currentLimit = solverDataForTokenOrderedByLT[0];
+            // in any case, decrease 1 step from the current short token
+            this.reverseCurrentSelectedBorrowSimulated[token][currentLimit.symbol] = this.getNextLtStep(currentLimit.symbol, true, true, false, token);
+
+            // if(solverDataForTokenOrderedByLT.length > 1) {
+            //     const nextLimit = solverDataForTokenOrderedByLT[1];
+
+            //     if(nextLimit.symbol !== currentLimit.symbol) {
+            //         this.reverseCurrentSelectedBorrowSimulated[nextLimit.symbol] = this.getNextLtStep(nextLimit.symbol, false, true, false)
+            //     }
+            // }
+        }
+
+        this.reverseSolveSimulated();
     }
 
 }

@@ -51,16 +51,19 @@ const columns = [
         name: 'Asset',
         selector: (row) => row.long,
         format: (row) => row.long,
+        width: '10%',
     },
     {
         name: 'Supply Cap',
         selector: (row) => row.supply,
         format: (row) => <CapInput row={row} field={'supply'} />,
+        width: '10%',
     },
     {
         name: 'Borrow Cap',
         selector: (row) => row.borrow,
         format: (row) => <CapInput row={row} field={'borrow'} />,
+        width: '10%',
     },
     {
         name: `Desired ${TEXTS.COLLATERAL_FACTOR}`,
@@ -85,11 +88,14 @@ const columns = [
                                 </div>
                             </span>
                         </div>,
+        width: '10%',
+
     },
     {
-        name: `Required Liquidity`,
+        name: `Required Liquidity Change`,
         selector: (row) => row.liquidityChange,
         format: (row) => row.liquidityChange,
+        width: '60%',
     },
 ]
 
