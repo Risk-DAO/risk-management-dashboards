@@ -17,6 +17,10 @@ window.APP_CONFIG = {
             defaultVisible: true,
         },
         {
+            name: 'reversesolver',
+            defaultVisible: true,
+        },
+        {
             name: 'liquidity',
             displayName: 'DEX Liquidity',
             defaultVisible: true,
@@ -32,6 +36,8 @@ window.APP_CONFIG = {
             'Recommended liquidation thresholds according to existing supply and borrow caps set by the platform.',
         SANDBOX_DESCRIPTION:
             'The sandbox lets you set different Supply and Borrow caps to get liquidation threshold recommendations according to different caps. The tool also provides optimization setting recommendations.',
+        REVERSESOLVER_DESCRIPTION:
+            'The reverse sandbox allows you to set different Supply and Borrow and then to try to change the liquidation threshold to see the required liquidity for this specified parameters. Start by specifying the desired supply and borrow parameters and then you can change (+/-) the liquidation threshold. The liquidity change are reseted every time you change supply or borrow',
         UTILIZATION: {
             CURRENT_COLLATERAL_FACTOR: 'Current Liquidation Threshold',
             RECOMMENDED_COLLATERAL_FACTOR: 'Recommended Liquidation Threshold',

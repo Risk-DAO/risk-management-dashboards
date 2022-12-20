@@ -27,6 +27,8 @@ class RiskStore {
     incrementBorrowOptions = {}
     reverseCurrentSelectedSupply = {}
     reverseCurrentSelectedBorrow = {}
+    reverseCurrentSelectedSupplySimulated = {}
+    reverseCurrentSelectedBorrowSimulated = {}
     recommendations = []
     asterixs = {
         worstDay: false,
@@ -401,6 +403,25 @@ class RiskStore {
         this.reverseSolvedData = this.reverseSolvedData.sort((a,b) => a.long.localeCompare(b.long));
         console.log('reverseSolvedData', JSON.stringify(this.reverseSolvedData, null, 2));
     }
+    
+    reverseSolveSimulated = () => {
+        this.reverseSolvedData = [];
+        // console.log('solverdata', JSON.stringify(this.solverData, null, 2));
+        for(const [key, long]  of Object.entries(this.solverData)){
+            let reverseSolveItem = {
+                long: key,
+                supply: this.getReverseSupplyForTokenSimulated(key),
+                borrow: this.getReverseBorrowForTokenSimulated(key),
+                lt: this.LTfromSupplyBorrowSimulated(key),
+                liquidity: this.liquidityData[key],
+                liquidityChange: 'N/A'
+            };
+            this.reverseSolvedData.push(reverseSolveItem);
+        }
+
+        this.reverseSolvedData = this.reverseSolvedData.sort((a,b) => a.long.localeCompare(b.long));
+        console.log('reverseSolvedData', JSON.stringify(this.reverseSolvedData, null, 2));
+    }
 
     getReverseSupplyForToken = (token) => {
         if(this.reverseCurrentSelectedSupply[token] === undefined) {
@@ -410,12 +431,28 @@ class RiskStore {
         return this.reverseCurrentSelectedSupply[token];
     }
 
+    getReverseSupplyForTokenSimulated = (token) => {
+        if(this.reverseCurrentSelectedSupplySimulated[token] === undefined) {
+            this.reverseCurrentSelectedSupplySimulated[token] = this.getReverseSupplyForToken(token);
+        } 
+
+        return this.reverseCurrentSelectedSupplySimulated[token];
+    }
+
     getReverseBorrowForToken = (token) => {
         if(this.reverseCurrentSelectedBorrow[token] === undefined) {
             this.reverseCurrentSelectedBorrow[token] = this.findMaxDCForToken(token)
         } 
 
         return this.reverseCurrentSelectedBorrow[token]        
+    }
+
+    getReverseBorrowForTokenSimulated = (token) => {
+        if(this.reverseCurrentSelectedBorrowSimulated[token] === undefined) {
+            this.reverseCurrentSelectedBorrowSimulated[token] = this.getReverseBorrowForToken(token)
+        } 
+
+        return this.reverseCurrentSelectedBorrowSimulated[token]        
     }
 
     findDCStepsForToken = (token) => {
@@ -449,6 +486,25 @@ class RiskStore {
     
         return min;
     }
+    
+
+    LTfromSupplyBorrowSimulated = (token) => {
+        const longSupply = this.reverseCurrentSelectedSupplySimulated[token];
+        // console.log(token, 'longSupply', longSupply)
+    
+        let min = 1;
+        for(const [keyShort, short]  of Object.entries(this.solverData[token])) {
+            const shortBorrow = this.getReverseBorrowForTokenSimulated(keyShort);
+            // console.log(keyShort, 'short borrow', shortBorrow)
+            const minSupplyBorrow = Math.min(Number(longSupply), Number(shortBorrow));
+            const selectedLt = short[minSupplyBorrow.toString()]
+            if(selectedLt < min) {
+                min = selectedLt;
+            }
+        }
+    
+        return min;
+    }
 
     reverseIncrement = (token, field) => {
         const currentVal = field === 'supply' ? this.getReverseSupplyForToken(token) : this.getReverseBorrowForToken(token)
@@ -471,7 +527,7 @@ class RiskStore {
         // restart the reverse solve to recompute lt when changing supply or borrow
         this.reverseSolve();
     }
-    
+
     reverseDecrement = (token, field) => {
         const currentVal = field === 'supply' ? this.getReverseSupplyForToken(token) : this.getReverseBorrowForToken(token)
         const dcsForToken = this.findDCStepsForToken(token); // [0,1,5,10,15,20]
@@ -499,7 +555,12 @@ class RiskStore {
 
     reverseIncrementLiquidationThreshold = (token) => {
         // get min supply or borrow
-        const longSupply = this.reverseCurrentSelectedSupply[token];
+        let minSupplySimulated = this.reverseCurrentSelectedSupply[token];
+        const currentDataIndex = this.reverseSolvedData.findIndex(_ => _.long === token);
+
+        if(this.reverseSolvedData[currentDataIndex].simulated) {
+            minSupplySimulated = Math.min(Number(minSupplySimulated), Number(this.reverseSolvedData[currentDataIndex].simulated));
+        }
         // console.log(token, 'longSupply', longSupply)
     
         let minBorrow = 1;
@@ -509,13 +570,13 @@ class RiskStore {
         for(const [keyShort, short]  of Object.entries(this.solverData[token])) {
             const shortBorrow = this.getReverseBorrowForToken(keyShort);
             // console.log(keyShort, 'short borrow', shortBorrow)
-            const minSupplyBorrow = Math.min(Number(longSupply), Number(shortBorrow));
+            const minSupplyBorrow = Math.min(Number(minSupplySimulated), Number(shortBorrow));
             const selectedLt = short[minSupplyBorrow.toString()]
             if(selectedLt < minLt) {
                 minLt = selectedLt;
                 minBorrow = Number(shortBorrow);
                 minToken = keyShort;
-                supplyIsLower = minBorrow > longSupply;
+                supplyIsLower = minBorrow > minSupplySimulated;
             }
         }
     
@@ -527,7 +588,7 @@ class RiskStore {
         // find the next lower DC step for the token
         const dcsForToken = this.findDCStepsForToken(supplyIsLower ? token : minToken); // [0,1,5,10,15,20]
         dcsForToken.sort((a,b) => a - b);
-        const currentVal = supplyIsLower ? longSupply : minBorrow;
+        const currentVal = supplyIsLower ? minSupplySimulated : minBorrow;
         const indexOfCurrent = dcsForToken.indexOf(currentVal);
         if(indexOfCurrent === 0) {
             // do nothing if already min
@@ -541,13 +602,21 @@ class RiskStore {
             else {
                 const mult = currentVal / newValue; // if current was 20M, next is 15M, then mult = 1.333...
                 // we should multiply the existing liquidity for this token by the mult
-                const currentDataIndex = this.reverseSolvedData.findIndex(_ => _.long === token);
                 // this.reverseSolvedData[currentDataIndex].simulated = newValue;
-                const newCalculatedLiquidity = this.reverseSolvedData[currentDataIndex].liquidity[minToken].volume * mult;
-                this.reverseSolvedData[currentDataIndex].liquidityChange = `+${((mult-1)*100).toFixed(0)}% ${token}->${minToken}`;
+                const currentSimulatedVolume = this.reverseSolvedData[currentDataIndex].liquidity[minToken].simulatedVolume;
+                const baseVolume = this.reverseSolvedData[currentDataIndex].liquidity[minToken].volume
+                const volumeToMultiply = currentSimulatedVolume || baseVolume;
+
+                const newCalculatedLiquidity = volumeToMultiply * mult;
+
+                const changeFromBaseVolume = newCalculatedLiquidity / baseVolume;
+                this.reverseSolvedData[currentDataIndex].liquidityChange = `+${(Math.round((changeFromBaseVolume-1)*100)).toFixed(0)}% ${token}->${minToken}`;
                 this.reverseSolvedData[currentDataIndex].lt = this.solverData[token][minToken][newValue];
+                this.reverseSolvedData[currentDataIndex].simulated = newValue;
+                this.reverseSolvedData[currentDataIndex].liquidity[minToken].simulatedVolume = newCalculatedLiquidity;
                 // console.log('this.reverseSolvedData', JSON.stringify(this.reverseSolvedData, null, 2))
                 // this is done because I need to reset the data to update the state
+                console.log('this.reverseSolvedData', JSON.stringify(this.reverseSolvedData[currentDataIndex], null, 2))
                 const oldState = JSON.parse(JSON.stringify(this.reverseSolvedData));
                 this.reverseSolvedData = [];
                 this.reverseSolvedData = oldState;
