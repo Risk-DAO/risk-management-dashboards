@@ -76,7 +76,6 @@ class RiskStore {
             const data = await mainStore['risk_params_request']
 
             this.liquidityData = await mainStore['usd_volume_for_slippage_request']
-            // console.log('this.liquidityData', JSON.stringify(this.liquidityData, null, 2));
             this.utilization = await this.getUtilization()
 
             this.currentData = await this.getCurrentData()
@@ -90,12 +89,10 @@ class RiskStore {
             this.solverData = this.solver.parsedData
             this.solveFor(this.utilization)
             this.solveFor(this.currentData)
-            // console.log('caps', this.solver.caps)
             runInAction(() => {
                 this.incrementationOptions = this.solver.caps
                 this.incrementSupplyOptions = this.solver.supplyCaps
                 this.incrementBorrowOptions = this.solver.borrowCaps
-                // console.log(this.incrementationOptions)
                 // const sorted = riskData.sort((a,b)=> a.asset.localeCompare(b.asset))
                 // this.data = sorted
                 this.solve()
@@ -140,22 +137,18 @@ class RiskStore {
                 ? this.incrementBorrowOptions[row.asset]
                 : this.incrementSupplyOptions[row.asset]) || []
         //  this.incrementationOptions[row.asset] || []
-        // console.log({ options }, field)
         // find the index of exisiting value
         const currentIndex = options.indexOf(Number(row[field]))
         // validate we can incrament or decrament
         if (currentIndex === -1) {
-            // console.log('cant incrament 1')
             return
         }
         if (currentIndex === options.length - 1) {
-            // console.log('cant incrament 2')
             return
         }
         // cahnge the value
         row[field] = options[currentIndex + 1]
         this.solve()
-        // console.log('incrament')
     }
 
     clearDiffs = () => {
@@ -192,15 +185,11 @@ class RiskStore {
             Object.entries(this.solver.supplyCaps).forEach(([k, v]) => {
                 let max
                 for (const row of sandBoxInitData) {
-                    //console.log(row.asset, k)
                     if (row.asset === k) {
                         max = this.findCap(row.asset, row.mint_cap, false)
-                        // console.log('found max collateral', k, { max })
                         break
                     }
                 }
-                //console.log("currdata",this.currentData[0].asset)
-                //console.log("collateral", {k},{v})
                 //const max = this.findCap(k, 9, false) //v[parseInt(v.length / 2)]
                 //max = v[parseInt(v.length / 2)]
                 if (max === undefined) {
@@ -214,13 +203,11 @@ class RiskStore {
                 collateralFactorCaps[k] = 0
             })
             Object.entries(this.solver.borrowCaps).forEach(([k, v]) => {
-                //console.log("debt", {k},{v})
                 //const max = this.findCap(k, 8, true)
                 let max
                 for (const row of sandBoxInitData) {
                     if (row.asset === k) {
                         max = this.findCap(row.asset, row.borrow_cap, true)
-                        // console.log('found max debt', k, { max }, row.borrow_cap)
 
                         break
                     }
@@ -340,21 +327,17 @@ class RiskStore {
                 : this.incrementSupplyOptions[row.asset]) || []
         //this.incrementationOptions[row.asset] || []
         // find the index of exisiting value
-        // console.log({ options }, this.incrementationOptions[row.asset])
         const currentIndex = options.indexOf(Number(row[field]))
         // validate we can incrament or decrament
         if (currentIndex === -1) {
-            // console.log('cant decrament 1', row[field])
             return
         }
         if (currentIndex === 0) {
-            // console.log('cant decrament 2')
             return
         }
         // cahnge the value
         row[field] = options[currentIndex - 1]
         this.solve()
-        // console.log('decrament')
     }
 
     getCurrentCollateralFactor = (asset) => {
@@ -388,7 +371,6 @@ class RiskStore {
         this.reverseSolvedData = []
         this.reverseCurrentSelectedBorrowSimulated = {}
         this.reverseCurrentSelectedSupplySimulated = {}
-        // console.log('solverdata', JSON.stringify(this.solverData, null, 2));
         for (const [key, long] of Object.entries(this.solverData)) {
             let reverseSolveItem = {
                 long: key,
@@ -406,12 +388,10 @@ class RiskStore {
             this.reverseSolvedData.push(reverseSolveItem)
         }
         this.reverseSolvedData = this.reverseSolvedData.sort((a, b) => a.long.localeCompare(b.long))
-        // console.log('reverseSolvedData', JSON.stringify(this.reverseSolvedData, null, 2));
     }
 
     reverseSolveSimulated = () => {
         this.reverseSolvedData = []
-        // console.log('solverdata', JSON.stringify(this.solverData, null, 2));
         for (const [key, long] of Object.entries(this.solverData)) {
             let reverseSolveItem = {
                 long: key,
@@ -450,7 +430,6 @@ class RiskStore {
         }
 
         this.reverseSolvedData = this.reverseSolvedData.sort((a, b) => a.long.localeCompare(b.long))
-        // console.log('reverseSolvedData', JSON.stringify(this.reverseSolvedData, null, 2));
     }
 
     getReverseSupplyForToken = (token) => {
@@ -478,7 +457,6 @@ class RiskStore {
     }
 
     getReverseBorrowForTokenSimulated = (long, short) => {
-        // console.log(long, JSON.stringify(this.reverseCurrentSelectedBorrowSimulated[long], null, 2));
         if (this.reverseCurrentSelectedBorrowSimulated[long] === undefined) {
             this.reverseCurrentSelectedBorrowSimulated[long] = {}
             this.reverseCurrentSelectedBorrowSimulated[long][short] = this.getReverseBorrowForToken(short)
@@ -505,12 +483,10 @@ class RiskStore {
 
     LTfromSupplyBorrow = (token) => {
         const longSupply = this.reverseCurrentSelectedSupply[token]
-        // console.log(token, 'longSupply', longSupply)
 
         let min = 1
         for (const [keyShort, short] of Object.entries(this.solverData[token])) {
             const shortBorrow = this.getReverseBorrowForToken(keyShort)
-            // console.log(keyShort, 'short borrow', shortBorrow)
             const minSupplyBorrow = Math.min(Number(longSupply), Number(shortBorrow))
             const selectedLt = short[minSupplyBorrow.toString()]
             if (selectedLt < min) {
@@ -523,12 +499,10 @@ class RiskStore {
 
     LTfromSupplyBorrowSimulated = (token) => {
         const longSupply = this.getReverseSupplyForTokenSimulated(token)
-        // console.log(token, 'longSupply', longSupply)
 
         let min = 1
         for (const [keyShort, short] of Object.entries(this.solverData[token])) {
             const shortBorrow = this.getReverseBorrowForTokenSimulated(token, keyShort)
-            // console.log(keyShort, 'short borrow', shortBorrow)
             const minSupplyBorrow = Math.min(Number(longSupply), Number(shortBorrow))
             const selectedLt = short[minSupplyBorrow.toString()]
             if (selectedLt < min) {
@@ -548,7 +522,6 @@ class RiskStore {
         const indexOfCurrent = dcsForToken.indexOf(currentVal)
         if (indexOfCurrent === dcsForToken.length - 1) {
             // do nothing if already max
-            // console.log('reverseIncrement', field, 'already at max', currentVal);
         } else {
             // if not max, update value with the next
             const newValue = dcsForToken[indexOfCurrent + 1]
@@ -569,12 +542,10 @@ class RiskStore {
         const indexOfCurrent = dcsForToken.indexOf(currentVal)
         if (indexOfCurrent === 0) {
             // do nothing if already min
-            console.log('reverseDecrement', field, 'already at min', currentVal)
         } else {
             // if not max, update value with the next
             const newValue = dcsForToken[indexOfCurrent - 1]
             if (newValue === 0) {
-                // console.log('reverseDecrement', field, 'should not go to 0 from ', currentVal);
             } else {
                 field === 'supply'
                     ? (this.reverseCurrentSelectedSupply[token] = newValue)
@@ -617,7 +588,6 @@ class RiskStore {
         if (increase) {
             if (indexOfCurrent === dcsForToken.length - 1) {
                 // do nothing if already max
-                // console.log('getNextLtStep: already at max', currentValue);
                 return currentValue
             } else {
                 // if not max, update value with the next
@@ -627,13 +597,11 @@ class RiskStore {
         } else {
             if (indexOfCurrent === 0) {
                 // do nothing if already min
-                // console.log('getNextLtStep', token, 'already at min', currentValue);
                 return currentValue
             } else {
                 // if not max, update value with the next
                 const newValue = dcsForToken[indexOfCurrent - 1]
                 if (newValue === 0) {
-                    // console.log('getNextLtStep: should not go to 0 from ', currentValue);
                     return currentValue
                 } else {
                     return newValue
@@ -660,10 +628,8 @@ class RiskStore {
         }
 
         solverDataForTokenOrderedByLT.sort((a, b) => a.lt - b.lt)
-        // console.log('solverDataForTokenOrderedByLT', JSON.stringify(solverDataForTokenOrderedByLT, null, 2));
 
         if (solverDataForTokenOrderedByLT.length === 0) {
-            // console.log('no new steps available');
         } else {
             const currentLimit = solverDataForTokenOrderedByLT[0]
             // in any case, decrease 1 step from the current short token
@@ -674,14 +640,6 @@ class RiskStore {
                 false,
                 token
             )
-
-            // if(solverDataForTokenOrderedByLT.length > 1) {
-            //     const nextLimit = solverDataForTokenOrderedByLT[1];
-
-            //     if(nextLimit.symbol !== currentLimit.symbol) {
-            //         this.reverseCurrentSelectedBorrowSimulated[nextLimit.symbol] = this.getNextLtStep(nextLimit.symbol, false, true, false)
-            //     }
-            // }
         }
 
         this.reverseSolveSimulated()
@@ -705,10 +663,8 @@ class RiskStore {
         }
 
         solverDataForTokenOrderedByLT.sort((a, b) => b.lt - a.lt)
-        // console.log('solverDataForTokenOrderedByLT', JSON.stringify(solverDataForTokenOrderedByLT, null, 2));
 
         if (solverDataForTokenOrderedByLT.length === 0) {
-            // console.log('no new steps available');
         } else {
             const currentLimit = solverDataForTokenOrderedByLT[0]
             // in any case, decrease 1 step from the current short token

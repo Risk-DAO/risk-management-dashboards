@@ -66,10 +66,6 @@ export default class Solver {
             if (!this.parsedData[long]) this.parsedData[long] = {}
             this.parsedData[long][short] = Object.assign({}, perPairResult)
         }
-
-        // console.log(JSON.stringify(this.parsedData, null, 2))
-        // console.log('supply caps', this.supplyCaps)
-        // console.log('borrow caps', this.borrowCaps)
     }
 
     mergeArrays(arr1, arr2) {
@@ -93,7 +89,6 @@ export default class Solver {
     }
 
     findValidCfg(mintCaps, borrowCaps, cfs) {
-        //console.log({cfs})
         const resultMintCaps = {}
         const resultBorrowCaps = Object.assign({}, borrowCaps)
         const resultCfs = {}
@@ -102,14 +97,11 @@ export default class Solver {
 
         for (const long of Object.keys(this.parsedData)) {
             for (const short of Object.keys(this.parsedData[long])) {
-                //console.log(long, short)
                 let prevDc = 0
                 for (let dc of this.sortArray(Object.keys(this.parsedData[long][short]))) {
                     dc = Number(dc)
                     const cf = this.parsedData[long][short][dc]
-                    //if(long === "auETH") console.log(long, short, dc, cf, cfs[long], mintCaps[long], borrowCaps[short])
                     if (cfs[long] > cf) {
-                        //console.log(long, short, " cf", cfs[long], " is violated for dc ", dc)
                         valid = false
                         break // move to next short asset
                     }
@@ -179,7 +171,6 @@ export default class Solver {
                     const cfs = Object.assign({}, cfg.cfs)
                     cfs[asset] = cf
                     if (this.isValidCfg(cfg.mintCaps, cfg.borrowCaps, cfs)) {
-                        // console.log('improve cf', asset, 'old cf', this.cfs[asset], 'new cf', cf)
                         return this.optimizeCfg(this.findValidCfg(cfg.mintCaps, cfg.borrowCaps, cfs))
                     }
                 }

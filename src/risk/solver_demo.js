@@ -61,8 +61,6 @@ export default class Solver {
             if (!this.parsedData[long]) this.parsedData[long] = {}
             this.parsedData[long][short] = Object.assign({}, perPairResult)
         }
-
-        console.log(JSON.stringify(this.parsedData, null, 2))
     }
 
     min(val1, val2) {
@@ -71,7 +69,6 @@ export default class Solver {
     }
 
     findValidCfg(mintCaps, borrowCaps, cfs) {
-        //console.log({cfs})
         const resultMintCaps = {}
         const resultBorrowCaps = Object.assign({}, borrowCaps)
         const resultCfs = {}
@@ -80,14 +77,11 @@ export default class Solver {
 
         for (const long of Object.keys(this.parsedData)) {
             for (const short of Object.keys(this.parsedData[long])) {
-                //console.log(long, short)
                 let prevDc = 0
                 for (let dc of Object.keys(this.parsedData[long][short])) {
                     dc = Number(dc)
                     const cf = this.parsedData[long][short][dc]
-                    //if(long === "auETH") console.log(long, short, dc, cf, cfs[long], mintCaps[long], borrowCaps[short])
                     if (cfs[long] > cf) {
-                        //console.log(long, short, " cf", cfs[long], " is violated for dc ", dc)
                         valid = false
                         break // move to next short asset
                     }
@@ -157,7 +151,6 @@ export default class Solver {
                     const cfs = Object.assign({}, cfg.cfs)
                     cfs[asset] = cf
                     if (this.isValidCfg(cfg.mintCaps, cfg.borrowCaps, cfs)) {
-                        console.log('improve cf', asset, 'old cf', this.cfs[asset], 'new cf', cf)
                         return this.optimizeCfg(this.findValidCfg(cfg.mintCaps, cfg.borrowCaps, cfs))
                     }
                 }
@@ -170,7 +163,6 @@ export default class Solver {
                     const tempMintCaps = Object.assign({}, cfg.mintCaps)
                     tempMintCaps[asset] = cap
                     if (this.isValidCfg(tempMintCaps, cfg.borrowCaps, cfg.cfs)) {
-                        console.log('improve mint', asset, 'old cap', cfg.mintCaps[asset], 'new cap', cap)
                         return this.optimizeCfg(this.findValidCfg(tempMintCaps, cfg.borrowCaps, cfg.cfs))
                     }
                 }
@@ -179,7 +171,6 @@ export default class Solver {
                     const tempBorrowCaps = Object.assign({}, cfg.borrowCaps)
                     tempBorrowCaps[asset] = cap
                     if (this.isValidCfg(cfg.mintCaps, tempBorrowCaps, cfg.cfs)) {
-                        console.log('improve borrow', asset, 'old cap', cfg.borrowCaps[asset], 'new cap', cap)
                         return this.optimizeCfg(this.findValidCfg(cfg.mintCaps, tempBorrowCaps, cfg.cfs))
                     }
                 }
