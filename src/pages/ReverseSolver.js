@@ -106,7 +106,7 @@ const columns = [
         name: `Required Liquidity Change`,
         selector: (row) => row.liquidityChange,
         format: (row) => row.liquidityChange,
-        width: '40%',
+        width: '35%',
     },
 ]
 
@@ -136,23 +136,22 @@ const LiquidityChanges = (props) => {
     console.log(JSON.stringify(props.data, null, 2))
 
     // GRAPH DATA
-    const  textDisplay = []
+    const textDisplay = []
     const displayData = []
     Object.entries(props.data.liquidity).forEach((entry) => {
         const [key, value] = entry
-        let graphItem = { name: key };
-        let textItem = null;
+        let graphItem = { name: key }
+        let textItem = null
         if (value['simulatedVolume'] === undefined) {
             graphItem['value'] = value['volume']
         } else {
-            let ratio = Math.round(((value['simulatedVolume'] / value['volume']) - 1 )*100)
-            textDisplay.push({text: `${props.data.long} -> ${key} +${ratio}% `,
-            ratio: ratio})
+            let ratio = Math.round((value['simulatedVolume'] / value['volume'] - 1) * 100)
+            textDisplay.push({ text: `${props.data.long} -> ${key} +${ratio}% `, ratio: ratio })
             graphItem['value'] = value['simulatedVolume']
         }
         displayData.push(graphItem)
     })
-    textDisplay.sort((a,b)=>b.ratio - a.ratio)
+    textDisplay.sort((a, b) => b.ratio - a.ratio)
     let [biggest, secondBiggest] = displayData.sort((a, b) => b.value - a.value)
     if (!secondBiggest) {
         secondBiggest = biggest
@@ -160,9 +159,6 @@ const LiquidityChanges = (props) => {
     const dataMax = Math.min(secondBiggest.value * 2, biggest.value) * 1.5
     console.log('textDisplay', JSON.stringify(textDisplay, null, 2))
     console.log('dataMax', JSON.stringify(dataMax, null, 2))
-
-
-
 
     return (
         <div
@@ -198,20 +194,21 @@ const LiquidityChanges = (props) => {
             >
                 <hgroup>
                     <p>Changes required:</p>
-                    <ul>{textDisplay.map((entry, key) =>{
-                        return <li key={key}>{entry.text}</li>
-                    })}</ul>
+                    <ul>
+                        {textDisplay.map((entry, key) => {
+                            return <li key={key}>{entry.text}</li>
+                        })}
+                    </ul>
                 </hgroup>
             </div>
         </div>
     )
 }
 
-const expandRowOnClick = (row) =>{
-    if(row["liquidityChange"] === "N/A"){
+const expandRowOnClick = (row) => {
+    if (row['liquidityChange'] === 'N/A') {
         return false
-    }
-    else{
+    } else {
         return true
     }
 }
@@ -227,7 +224,7 @@ class ReverseSolver extends Component {
                     {!loading && (
                         <DataTable
                             expandableRows
-                            expandableRowExpanded = {expandRowOnClick}
+                            expandableRowExpanded={expandRowOnClick}
                             expandableRowsComponent={LiquidityChanges}
                             columns={columns}
                             data={riskStore.reverseSolvedData}

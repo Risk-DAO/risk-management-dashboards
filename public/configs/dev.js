@@ -18,6 +18,7 @@ window.APP_CONFIG = {
         },
         {
             name: 'reversesolver',
+            displayName: 'Reverse Solver',
             defaultVisible: true,
         },
         {
