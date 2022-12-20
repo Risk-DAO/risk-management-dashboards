@@ -207,6 +207,15 @@ const LiquidityChanges = (props) => {
     )
 }
 
+const expandRowOnClick = (row) =>{
+    if(row["liquidityChange"] === "N/A"){
+        return false
+    }
+    else{
+        return true
+    }
+}
+
 class ReverseSolver extends Component {
     render() {
         const { loading } = riskStore
@@ -218,6 +227,7 @@ class ReverseSolver extends Component {
                     {!loading && (
                         <DataTable
                             expandableRows
+                            expandableRowExpanded = {expandRowOnClick}
                             expandableRowsComponent={LiquidityChanges}
                             columns={columns}
                             data={riskStore.reverseSolvedData}
