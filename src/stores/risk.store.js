@@ -416,25 +416,27 @@ class RiskStore {
                 borrow: this.getReverseBorrowForToken(key),
                 lt: this.LTfromSupplyBorrowSimulated(key),
                 liquidity: this.liquidityData[key],
-                liquidityChange: ''
+                liquidityChange: 'N/A'
             };
 
+            let cptLiquidityChange = 0;
             for(const [keyShort, short]  of Object.entries(this.solverData[key])){
                 const realBorrowOfShort = this.getReverseBorrowForToken(keyShort);
                 const simulatedBorrowOfShort =  this.getReverseBorrowForTokenSimulated(key, keyShort);
                 const ratio = realBorrowOfShort / simulatedBorrowOfShort;
                 if(ratio !== 1) {
+                    cptLiquidityChange++;
                     reverseSolveItem.liquidity[keyShort].simulatedVolume = reverseSolveItem.liquidity[keyShort].volume * ratio;
-                    if(!reverseSolveItem.liquidityChange) {
-                        reverseSolveItem.liquidityChange = `+${Math.round((ratio-1)*100)}% ${key}->${keyShort}`;
-                    } else {
-                        reverseSolveItem.liquidityChange += ` | +${Math.round((ratio-1)*100)}% ${key}->${keyShort}`;
-                    }
+                    // if(!reverseSolveItem.liquidityChange) {
+                    //     reverseSolveItem.liquidityChange = `+${Math.round((ratio-1)*100)}% ${key}->${keyShort}`;
+                    // } else {
+                    //     reverseSolveItem.liquidityChange += ` | +${Math.round((ratio-1)*100)}% ${key}->${keyShort}`;
+                    // }
                 }
             }
 
-            if(!reverseSolveItem.liquidityChange) {
-                reverseSolveItem.liquidityChange = 'N/A'
+            if(cptLiquidityChange > 0) {
+                reverseSolveItem.liquidityChange =  cptLiquidityChange + ' liquidity change required';
             }
 
             this.reverseSolvedData.push(reverseSolveItem);
