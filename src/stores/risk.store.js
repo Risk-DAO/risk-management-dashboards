@@ -372,6 +372,7 @@ class RiskStore {
     // it compute the LT for specified supply and borrow
     // SHOULD NOT be used when manually changing liquidation threshold
     reverseSolve = () => {
+        console.log('utilization', JSON.stringify(this.utilization, null, 2));
         this.reverseSolvedData = []
         this.reverseCurrentSelectedBorrowSimulated = {}
         this.reverseCurrentSelectedSupplySimulated = {}
@@ -440,7 +441,18 @@ class RiskStore {
 
     getReverseSupplyForToken = (token) => {
         if (this.reverseCurrentSelectedSupply[token] === undefined) {
-            this.reverseCurrentSelectedSupply[token] = this.findMaxDCForToken(token)
+            if (window.APP_CONFIG.feature_flags.initSandBoxFromCurrentUtilization) {
+                const utilizationForToken = this.utilization.find(_ => _.asset === token);
+                if(utilizationForToken) {
+                    this.reverseCurrentSelectedSupply[token] = utilizationForToken.debug_mc
+                }
+                else {
+                    this.reverseCurrentSelectedSupply[token] = this.findMaxDCForToken(token)
+                }
+            } 
+            else {
+                this.reverseCurrentSelectedSupply[token] = this.findMaxDCForToken(token)
+            }
         }
 
         return this.reverseCurrentSelectedSupply[token]
@@ -456,7 +468,18 @@ class RiskStore {
 
     getReverseBorrowForToken = (token) => {
         if (this.reverseCurrentSelectedBorrow[token] === undefined) {
-            this.reverseCurrentSelectedBorrow[token] = this.findMaxDCForToken(token)
+            if (window.APP_CONFIG.feature_flags.initSandBoxFromCurrentUtilization) {
+                const utilizationForToken = this.utilization.find(_ => _.asset === token);
+                if(utilizationForToken) {
+                    this.reverseCurrentSelectedBorrow[token] = utilizationForToken.debug_bc
+                }
+                else {
+                    this.reverseCurrentSelectedBorrow[token] = this.findMaxDCForToken(token)
+                }
+            } 
+            else {
+                this.reverseCurrentSelectedBorrow[token] = this.findMaxDCForToken(token)
+            }
         }
 
         return this.reverseCurrentSelectedBorrow[token]
