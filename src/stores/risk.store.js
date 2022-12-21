@@ -647,6 +647,7 @@ class RiskStore {
                 const simuBorrowForShort = this.getReverseBorrowForTokenSimulated(token, keyShort)
                 const minVal = Math.min(currentTokenSupply, simuBorrowForShort)
                 if (minVal >= Number(borrowVal) 
+                    && currentTokenSupply > Number(borrowVal)
                     && Number(borrowVal) > 0) {
                     solverDataForTokenOrderedByLT.push({
                         lt: Number(ltValue),
@@ -664,6 +665,7 @@ class RiskStore {
         } else {
             const currentLimit = solverDataForTokenOrderedByLT[0]
             // in any case, decrease 1 step from the current short token
+            // console.log(token, currentLimit.symbol, 'old step', this.reverseCurrentSelectedBorrowSimulated[token][currentLimit.symbol])
             this.reverseCurrentSelectedBorrowSimulated[token][currentLimit.symbol] = this.getNextLtStep(
                 currentLimit.symbol,
                 false,
@@ -671,6 +673,7 @@ class RiskStore {
                 false,
                 token
             )
+            // console.log(token, currentLimit.symbol, 'new step', this.reverseCurrentSelectedBorrowSimulated[token][currentLimit.symbol])
         }
 
         this.reverseSolveSimulated()
