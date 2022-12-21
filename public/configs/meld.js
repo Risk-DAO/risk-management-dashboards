@@ -19,6 +19,7 @@ window.APP_CONFIG = {
         },
         {
             name: 'reversesolver',
+            displayName: 'Dex Liquidity Sandbox',
             defaultVisible: true,
         },
         {
