@@ -73,6 +73,8 @@ class RiskStore {
 
     init = async () => {
         if (true) {
+            
+            const { computeReverseSandbox } = window.APP_CONFIG.feature_flags
             const data = await mainStore['risk_params_request']
 
             this.liquidityData = await mainStore['usd_volume_for_slippage_request']
@@ -96,7 +98,9 @@ class RiskStore {
                 // const sorted = riskData.sort((a,b)=> a.asset.localeCompare(b.asset))
                 // this.data = sorted
                 this.solve()
-                this.reverseSolve()
+                if(computeReverseSandbox) {
+                    this.reverseSolve()
+                }
                 this.loading = false
             })
         }
@@ -674,7 +678,6 @@ class RiskStore {
         }
 
         solverDataForTokenOrderedByLT.sort((a, b) => b.lt - a.lt)
-        console.log('solverDataForTokenOrderedByLT', JSON.stringify(solverDataForTokenOrderedByLT, null, 2));
         if (solverDataForTokenOrderedByLT.length === 0) {
         } else {
             const currentLimit = solverDataForTokenOrderedByLT[0]

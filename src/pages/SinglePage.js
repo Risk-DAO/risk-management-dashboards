@@ -84,7 +84,7 @@ class SinglePage extends Component {
                         {mainStore.sectionShow('reversesolver') && (
                             <div>
                                 <hgroup>
-                                    <h2>Reverse Solver</h2>
+                                    <h2>Dex Liquidity Sandbox</h2>
                                     <p className="description">{TEXTS.REVERSESOLVER_DESCRIPTION}</p>
                                 </hgroup>
                                 <Suspense fallback={<article aria-busy="true"></article>}>

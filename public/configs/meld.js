@@ -9,6 +9,7 @@ window.APP_CONFIG = {
         alerts: true,
         loopingToggle: false,
         initSandBoxFromCurrentUtilization: false,
+        computeReverseSandbox: true
     },
     apiEndpoints: ['risk_params', 'usd_volume_for_slippage'],
     SECTIONS: [

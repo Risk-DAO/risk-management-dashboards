@@ -9,6 +9,7 @@ window.APP_CONFIG = {
         alerts: true,
         loopingToggle: false,
         initSandBoxFromCurrentUtilization: true,
+        computeReverseSandbox: true
     },
     apiEndpoints: [
         'overview',
@@ -36,6 +37,9 @@ window.APP_CONFIG = {
         },
         {
             name: 'sandbox',
+        },
+        {
+            name: 'reversesolver',
         },
         {
             name: 'asset-distribution',

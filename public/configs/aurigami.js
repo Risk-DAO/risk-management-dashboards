@@ -8,6 +8,7 @@ window.APP_CONFIG = {
     feature_flags: {
         alerts: false,
         loopingToggle: true,
+        computeReverseSandbox: true
     },
     apiEndpoints: [
         'overview',
