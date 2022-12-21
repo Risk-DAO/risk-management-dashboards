@@ -366,7 +366,6 @@ class RiskStore {
     // it compute the LT for specified supply and borrow
     // SHOULD NOT be used when manually changing liquidation threshold
     reverseSolve = () => {
-        console.log('utilization', JSON.stringify(this.utilization, null, 2));
         this.reverseSolvedData = []
         this.reverseCurrentSelectedBorrowSimulated = {}
         this.reverseCurrentSelectedSupplySimulated = {}
@@ -642,10 +641,12 @@ class RiskStore {
     reverseIncrementLiquidationThreshold = (token) => {
         // create ordered array of solver data
         const solverDataForTokenOrderedByLT = []
+        const currentTokenSupply = this.getReverseSupplyForToken(token);
         for (const [keyShort, shortValue] of Object.entries(this.solverData[token])) {
             for (const [borrowVal, ltValue] of Object.entries(this.solverData[token][keyShort])) {
                 const simuBorrowForShort = this.getReverseBorrowForTokenSimulated(token, keyShort)
-                if (simuBorrowForShort >= Number(borrowVal) 
+                const minVal = Math.min(currentTokenSupply, simuBorrowForShort)
+                if (minVal >= Number(borrowVal) 
                     && Number(borrowVal) > 0) {
                     solverDataForTokenOrderedByLT.push({
                         lt: Number(ltValue),
@@ -657,7 +658,8 @@ class RiskStore {
         }
 
         solverDataForTokenOrderedByLT.sort((a, b) => a.lt - b.lt)
-
+        // console.log('this.solverData[token]', JSON.stringify(this.solverData[token], null, 2));
+        // console.log('solverDataForTokenOrderedByLT', JSON.stringify(solverDataForTokenOrderedByLT, null, 2));
         if (solverDataForTokenOrderedByLT.length === 0) {
         } else {
             const currentLimit = solverDataForTokenOrderedByLT[0]
