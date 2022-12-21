@@ -618,15 +618,14 @@ class RiskStore {
     }
 
     // incr lt mean lower borrow on short tokens
-    reverseIncrementLiquidationThreshold = (currentLt, token) => {
+    reverseIncrementLiquidationThreshold = (token) => {
         // create ordered array of solver data
         const solverDataForTokenOrderedByLT = []
         for (const [keyShort, shortValue] of Object.entries(this.solverData[token])) {
             for (const [borrowVal, ltValue] of Object.entries(this.solverData[token][keyShort])) {
                 const simuBorrowForShort = this.getReverseBorrowForTokenSimulated(token, keyShort)
                 if (simuBorrowForShort >= Number(borrowVal) 
-                    && Number(borrowVal) > 0
-                    && currentLt <= ltValue) {
+                    && Number(borrowVal) > 0) {
                     solverDataForTokenOrderedByLT.push({
                         lt: Number(ltValue),
                         symbol: keyShort,
@@ -655,7 +654,7 @@ class RiskStore {
     }
 
     // decr lt mean higher borrow on short tokens
-    reverseDecrementLiquidationThreshold = (currentLt, token) => {
+    reverseDecrementLiquidationThreshold = (token) => {
         // create ordered array of solver data
         const solverDataForTokenOrderedByLT = []
         for (const [keyShort, shortValue] of Object.entries(this.solverData[token])) {
@@ -664,8 +663,7 @@ class RiskStore {
             for (const [borrowVal, ltValue] of Object.entries(this.solverData[token][keyShort])) {
                 if (simuBorrowForShort < Number(borrowVal)
                     && borrowForShort >= Number(borrowVal)
-                    && Number(borrowVal) > 0
-                    && currentLt >= ltValue) {
+                    && Number(borrowVal) > 0) {
                     solverDataForTokenOrderedByLT.push({
                         lt: Number(ltValue),
                         symbol: keyShort,
