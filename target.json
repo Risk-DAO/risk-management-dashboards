@@ -1,0 +1,109 @@
+[
+    {
+      "long": "ADA",
+      "supply": 20,
+      "borrow": 20,
+      "simulated": 15,
+      "lt": 0.46099999999999997,
+      "liquidity": {
+        "BTC": {
+          "volume": 65372,
+          "simulatedVolume": 86944.76
+        },
+        "ETH": {
+          "volume": 130222
+        },
+        "USDC": {
+          "volume": 67280
+        },
+        "AVAX": {
+          "volume": 65372
+        }
+      },
+      "liquidityChange": "N/A"
+    },
+    {
+      "long": "AVAX",
+      "supply": 20,
+      "borrow": 20,
+      "lt": 0.42033333333333334,
+      "liquidity": {
+        "BTC": {
+          "volume": 33901
+        },
+        "ETH": {
+          "volume": 67280
+        },
+        "USDC": {
+          "volume": 67280
+        },
+        "ADA": {
+          "volume": 33901
+        }
+      },
+      "liquidityChange": "N/A"
+    },
+    {
+      "long": "BTC",
+      "supply": 20,
+      "borrow": 20,
+      "lt": 0.5786666666666668,
+      "liquidity": {
+        "USDC": {
+          "volume": 67280
+        },
+        "ETH": {
+          "volume": 130222
+        },
+        "ADA": {
+          "volume": 130222
+        },
+        "AVAX": {
+          "volume": 67280
+        }
+      },
+      "liquidityChange": "N/A"
+    },
+    {
+      "long": "ETH",
+      "supply": 20,
+      "borrow": 20,
+      "lt": 0.46299999999999997,
+      "liquidity": {
+        "USDC": {
+          "volume": 67280
+        },
+        "BTC": {
+          "volume": 65372
+        },
+        "ADA": {
+          "volume": 67280
+        },
+        "AVAX": {
+          "volume": 65372
+        }
+      },
+      "liquidityChange": "N/A"
+    },
+    {
+      "long": "USDC",
+      "supply": 20,
+      "borrow": 20,
+      "lt": 0.4833333333333333,
+      "liquidity": {
+        "BTC": {
+          "volume": 33901
+        },
+        "ETH": {
+          "volume": 67280
+        },
+        "ADA": {
+          "volume": 67280
+        },
+        "AVAX": {
+          "volume": 33901
+        }
+      },
+      "liquidityChange": "N/A"
+    }
+  ]

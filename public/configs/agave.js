@@ -74,4 +74,5 @@ window.APP_CONFIG = {
             RECOMMENDED_COLLATERAL_FACTOR: 'Recommended Liquidation Threshold',
         },
     },
+  }
 }
