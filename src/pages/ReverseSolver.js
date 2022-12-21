@@ -85,13 +85,13 @@ const columns = [
                 <span>
                     <div style={buttonsStyle}>
                         <div
-                            onClick={() => riskStore.reverseIncrementLiquidationThreshold(row.long)}
+                            onClick={() => riskStore.reverseIncrementLiquidationThreshold(row.lt, row.long)}
                             className="plus-minus"
                         >
                             +
                         </div>
                         <div
-                            onClick={() => riskStore.reverseDecrementLiquidationThreshold(row.long)}
+                            onClick={() => riskStore.reverseDecrementLiquidationThreshold(row.lt,row.long)}
                             className="plus-minus"
                         >
                             -

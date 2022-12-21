@@ -618,13 +618,15 @@ class RiskStore {
     }
 
     // incr lt mean lower borrow on short tokens
-    reverseIncrementLiquidationThreshold = (token) => {
+    reverseIncrementLiquidationThreshold = (currentLt, token) => {
         // create ordered array of solver data
         const solverDataForTokenOrderedByLT = []
         for (const [keyShort, shortValue] of Object.entries(this.solverData[token])) {
             for (const [borrowVal, ltValue] of Object.entries(this.solverData[token][keyShort])) {
                 const simuBorrowForShort = this.getReverseBorrowForTokenSimulated(token, keyShort)
-                if (simuBorrowForShort >= Number(borrowVal) && Number(borrowVal) > 0) {
+                if (simuBorrowForShort >= Number(borrowVal) 
+                    && Number(borrowVal) > 0
+                    && currentLt <= ltValue) {
                     solverDataForTokenOrderedByLT.push({
                         lt: Number(ltValue),
                         symbol: keyShort,
@@ -653,13 +655,17 @@ class RiskStore {
     }
 
     // decr lt mean higher borrow on short tokens
-    reverseDecrementLiquidationThreshold = (token) => {
+    reverseDecrementLiquidationThreshold = (currentLt, token) => {
         // create ordered array of solver data
         const solverDataForTokenOrderedByLT = []
         for (const [keyShort, shortValue] of Object.entries(this.solverData[token])) {
+            const simuBorrowForShort = this.getReverseBorrowForTokenSimulated(token, keyShort)
+            const borrowForShort = this.getReverseBorrowForToken(keyShort)
             for (const [borrowVal, ltValue] of Object.entries(this.solverData[token][keyShort])) {
-                const simuBorrowForShort = this.getReverseBorrowForTokenSimulated(token, keyShort)
-                if (simuBorrowForShort < Number(borrowVal) && Number(borrowVal) > 0) {
+                if (simuBorrowForShort < Number(borrowVal)
+                    && borrowForShort >= Number(borrowVal)
+                    && Number(borrowVal) > 0
+                    && currentLt >= ltValue) {
                     solverDataForTokenOrderedByLT.push({
                         lt: Number(ltValue),
                         symbol: keyShort,
@@ -670,7 +676,7 @@ class RiskStore {
         }
 
         solverDataForTokenOrderedByLT.sort((a, b) => b.lt - a.lt)
-
+        console.log('solverDataForTokenOrderedByLT', JSON.stringify(solverDataForTokenOrderedByLT, null, 2));
         if (solverDataForTokenOrderedByLT.length === 0) {
         } else {
             const currentLimit = solverDataForTokenOrderedByLT[0]
