@@ -75,4 +75,3 @@ window.APP_CONFIG = {
         },
     },
   }
-}
