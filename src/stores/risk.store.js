@@ -610,7 +610,7 @@ class RiskStore {
             }
 
             // IF HERE, BINGO
-            console.log('New LT is better! Using', solverData, 'as selected data');
+            console.log('New LT is better! Using', solverData, 'as selected data:', testLt, 'from:', currentLT);
             selectedSolverData = solverData;
             break;
         }
