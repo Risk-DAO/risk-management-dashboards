@@ -3,6 +3,8 @@ import {observer} from "mobx-react"
 import ScrollSpy from "react-ui-scrollspy";
 import mainStore from '../stores/main.store'
 import {TEXTS} from "../constants"
+import ReverseSolver from './ReverseSolver'
+import riskStore from '../stores/risk.store'
 
 const Overview = lazy(() => import('./Overview'))
 const Liquidity = lazy(() => import('./Liquidity'))
@@ -66,7 +68,24 @@ class SinglePage extends Component {
               <SandBox/>
             </Suspense>
           </div>}
-        </section>
+        </section>        
+        {riskStore.solverData ? (
+                    <section id="reversesolver">
+                        {mainStore.sectionShow('reversesolver') && (
+                            <div>
+                                <hgroup>
+                                    <h2>Dex Liquidity Sandbox</h2>
+                                    <p className="description">{TEXTS.REVERSESOLVER_DESCRIPTION}</p>
+                                </hgroup>
+                                <Suspense fallback={<article aria-busy="true"></article>}>
+                                    <ReverseSolver />
+                                </Suspense>
+                            </div>
+                        )}
+                    </section>
+                ) : (
+                    ''
+                )}
         <section id="asset-distribution">
           {mainStore.sectionShow("asset-distribution") && <div>
             <hgroup>

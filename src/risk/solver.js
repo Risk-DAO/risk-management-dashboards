@@ -65,11 +65,7 @@ export default class Solver {
 
           if(! this.parsedData[long]) this.parsedData[long] = {}
           this.parsedData[long][short] = Object.assign({}, perPairResult)
-      }
-
-      console.log(JSON.stringify(this.parsedData, null, 2))
-      console.log("supply caps", this.supplyCaps)
-      console.log("borrow caps", this.borrowCaps)      
+      }  
   }
 
   mergeArrays(arr1, arr2) {
@@ -92,27 +88,23 @@ export default class Solver {
       return val1 > val2 ? val2 : val1
   }
 
-  findValidCfg(mintCaps, borrowCaps, cfs) {
-      //console.log({cfs})
-      const resultMintCaps = {}
-      const resultBorrowCaps = Object.assign({}, borrowCaps)
-      const resultCfs = {}
-      let valid = true
-      const efficientFrontier = []
+    findValidCfg(mintCaps, borrowCaps, cfs) {
+        const resultMintCaps = {}
+        const resultBorrowCaps = Object.assign({}, borrowCaps)
+        const resultCfs = {}
+        let valid = true
+        const efficientFrontier = []
 
-      for(const long of Object.keys(this.parsedData)) {
-          for(const short of Object.keys(this.parsedData[long])) {
-              //console.log(long, short)
-              let prevDc = 0
-              for(let dc of this.sortArray(Object.keys(this.parsedData[long][short]))) {
-                  dc = Number(dc)
-                  const cf = this.parsedData[long][short][dc]
-                  //if(long === "auETH") console.log(long, short, dc, cf, cfs[long], mintCaps[long], borrowCaps[short])
-                  if(cfs[long] > cf) {
-                      //console.log(long, short, " cf", cfs[long], " is violated for dc ", dc)
-                      valid = false
-                      break // move to next short asset
-                  }
+        for (const long of Object.keys(this.parsedData)) {
+            for (const short of Object.keys(this.parsedData[long])) {
+                let prevDc = 0
+                for (let dc of this.sortArray(Object.keys(this.parsedData[long][short]))) {
+                    dc = Number(dc)
+                    const cf = this.parsedData[long][short][dc]
+                    if (cfs[long] > cf) {
+                        valid = false
+                        break // move to next short asset
+                    }
 
                   let match = false
                   if(dc >= mintCaps[long]) {

@@ -46,8 +46,6 @@ class VestaSolver {
                     if (!dcs.includes(dc)) dcs.push(dc)
                     if (!(dc in perCfgResult)) perCfgResult[dc] = {}
 
-                    //console.log({dc}, {sp}, {bp}, perCfgResult[dc])
-
                     if (!sps.includes(sp)) sps.push(sp)
                     if (!(sp in perCfgResult[dc])) perCfgResult[dc][sp] = {}
 
@@ -70,8 +68,6 @@ class VestaSolver {
             if (!this.parsedData[long]) this.parsedData[long] = {}
             this.parsedData[long] = Object.assign({}, perPairResult)
         }
-
-        console.log(JSON.stringify(this.parsedData, null, 2))
     }
 
     getCf(asset, borrowCap, stabilityPoolSize, bprotocolSize) {
