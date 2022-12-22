@@ -1,60 +1,31 @@
 window.APP_CONFIG = {
-    PLATFORM_ID: '4',
+    PLATFORM_ID: '5',
     API_URL: 'https://raw.githubusercontent.com/Risk-DAO/simulation-results/main/',
     TOKEN_PREFIX: '',
-    BLOCK_EXPLORER: 'https://gnosisscan.io',
-    WHITE_LOGO: 'agave.svg',
-    BLACK_LOGO: 'agave.svg',
+    BLOCK_EXPLORER: 'https://cardanoscan.io',
+    WHITE_LOGO: 'meld.svg',
+    BLACK_LOGO: 'meld-black.svg',
     feature_flags: {
         alerts: true,
         loopingToggle: false,
-        initSandBoxFromCurrentUtilization: true,
+        initSandBoxFromCurrentUtilization: false,
         computeReverseSandbox: true
     },
-    apiEndpoints: [
-        'overview',
-        'accounts',
-        'oracles',
-        'usd_volume_for_slippage',
-        'current_simulation_risk',
-        'risk_params',
-        'lending_platform_current',
-        'whale_accounts',
-        'open_liquidations',
-    ],
+    apiEndpoints: ['risk_params', 'usd_volume_for_slippage'],
     SECTIONS: [
         {
-            name: 'system-status',
-            defaultVisible: true,
-        },
-        {
-            name: 'overview',
-            defaultVisible: true,
-        },
-        {
-            name: 'collateral-factors',
-            displayName: 'Liquidation Threshold',
-        },
-        {
             name: 'sandbox',
+            defaultVisible: true,
         },
         {
             name: 'reversesolver',
             displayName: 'Dex Liquidity Sandbox',
-        },
-        {
-            name: 'asset-distribution',
             defaultVisible: true,
-        },
-        {
-            name: 'open-liquidations',
-        },
-        {
-            name: 'oracle-deviation',
         },
         {
             name: 'liquidity',
             displayName: 'DEX Liquidity',
+            defaultVisible: true,
         },
     ],
     TEXTS: {
@@ -68,10 +39,13 @@ window.APP_CONFIG = {
         SANDBOX_DESCRIPTION:
             'The sandbox lets you set different Supply and Borrow caps to get liquidation threshold recommendations according to different caps. The tool also provides optimization setting recommendations.',
         REVERSESOLVER_DESCRIPTION:
-            'The DEX Liquidity Sandbox allows you to set different Supply and Borrow and then to try to change the liquidation threshold to see the required liquidity for the specified parameters. Start by specifying the desired Supply and Borrow parameters and then you can change the liquidation threshold. The liquidity change are reset every time you change supply or borrow.',
+            'The reverse sandbox allows you to set different Supply and Borrow and then to try to change the liquidation threshold to see the required liquidity for the specified parameters. Start by specifying the desired Supply and Borrow parameters and then you can change the liquidation threshold. The liquidity change are reset every time you change supply or borrow.',
         UTILIZATION: {
             CURRENT_COLLATERAL_FACTOR: 'Current Liquidation Threshold',
             RECOMMENDED_COLLATERAL_FACTOR: 'Recommended Liquidation Threshold',
         },
     },
-  }
+    temp: {
+        iUSD_initial: 0.1,
+    },
+}

@@ -139,7 +139,6 @@ const LiquidityChanges = (props) => {
     Object.entries(props.data.liquidity).forEach((entry) => {
         const [key, value] = entry
         let graphItem = { name: key }
-        let textItem = null
         if (value['simulatedVolume'] === undefined) {
             graphItem['value'] = value['volume']
         } else {
