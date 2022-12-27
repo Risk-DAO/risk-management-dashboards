@@ -386,6 +386,29 @@ class RiskStore {
             this.reverseSolvedData.push(reverseSolveItem)
         }
         this.reverseSolvedData = this.reverseSolvedData.sort((a, b) => a.long.localeCompare(b.long))
+    }    
+    
+    reverseSolveFor = (token) => {
+        const key = token
+        let reverseSolveItem = {
+            long: key,
+            supply: this.getReverseSupplyForToken(key),
+            borrow: this.getReverseBorrowForToken(key),
+            lt: this.LTfromSupplyBorrow(key),
+            liquidity: this.liquidityData[key],
+            liquidityChange: 'N/A',
+        }
+        
+        // reset simulated volume
+        for (const [keyShort] of Object.entries(reverseSolveItem.liquidity)) {
+            delete reverseSolveItem.liquidity[keyShort]["simulatedVolume"];
+        }
+        this.reverseSolvedData = this.reverseSolvedData.map(item => {
+            if (item.long === token) {
+                return reverseSolveItem
+            }
+            return item
+        })
     }
 
     reverseSolveSimulated = () => {
@@ -741,8 +764,8 @@ class RiskStore {
                 : (this.reverseCurrentSelectedBorrow[token] = newValue)
         }
 
-        // restart the reverse solve to recompute lt when changing supply or borrow
-        this.reverseSolve()
+        // reverse solve to recompute lt when changing supply or borrow
+        this.reverseSolveFor(token)
     }
 
     reverseDecrement = (token, field) => {
@@ -768,8 +791,8 @@ class RiskStore {
                 : (this.reverseCurrentSelectedBorrow[token] = newValue)
         }
 
-        // restart the reverse solve to recompute lt when changing supply or borrow
-        this.reverseSolve()
+        // reverse solve to recompute lt when changing supply or borrow
+        this.reverseSolveFor(token)
     }
 
     /**
