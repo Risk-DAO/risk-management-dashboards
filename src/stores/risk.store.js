@@ -434,7 +434,7 @@ class RiskStore {
 
     getReverseSupplyForToken = (token) => {
         if (this.reverseCurrentSelectedSupply[token] === undefined) {
-            if (window.APP_CONFIG.feature_flags.initSandBoxFromCurrentUtilization) {
+            if (window.APP_CONFIG.feature_flags.initDexLiquiditySandBoxFromCurrentUtilization) {
                 const utilizationForToken = this.utilization.find(_ => _.asset === token);
                 if(utilizationForToken) {
                     this.reverseCurrentSelectedSupply[token] = utilizationForToken.debug_mc
@@ -461,7 +461,7 @@ class RiskStore {
 
     getReverseBorrowForToken = (token) => {
         if (this.reverseCurrentSelectedBorrow[token] === undefined) {
-            if (window.APP_CONFIG.feature_flags.initSandBoxFromCurrentUtilization) {
+            if (window.APP_CONFIG.feature_flags.initDexLiquiditySandBoxFromCurrentUtilization) {
                 const utilizationForToken = this.utilization.find(_ => _.asset === token);
                 if(utilizationForToken) {
                     this.reverseCurrentSelectedBorrow[token] = utilizationForToken.debug_bc
