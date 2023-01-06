@@ -12,7 +12,15 @@ window.APP_CONFIG = {
         computeReverseSandbox: true
     },
     apiEndpoints: ['risk_params', 'usd_volume_for_slippage'],
-    SECTIONS: [
+    SECTIONS: [     
+        {
+            name: 'overview',
+            defaultVisible: true,
+          },   
+        // {
+        // name: 'system-status',
+        // defaultVisible: true,
+        // },    
         {
             name: 'sandbox',
             defaultVisible: true,
