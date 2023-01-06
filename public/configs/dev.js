@@ -11,24 +11,35 @@ window.APP_CONFIG = {
         initSandBoxFromCurrentUtilization: false,
         computeReverseSandbox: true
     },
-    apiEndpoints: ['risk_params', 'usd_volume_for_slippage'],
+    apiEndpoints: ['overview', 'risk_params', 'usd_volume_for_slippage', 'accounts',
+                   'lending_platform_current', 'whale_accounts', 'open_liquidations'],
     SECTIONS: [     
         {
             name: 'overview',
             defaultVisible: true,
           },   
-        // {
-        // name: 'system-status',
-        // defaultVisible: true,
-        // },    
+        {
+        name: 'system-status',
+        defaultVisible: true,
+        },    
+        {
+            name: 'collateral-factors',
+        },   
         {
             name: 'sandbox',
             defaultVisible: true,
-        },
+        },  
         {
             name: 'reversesolver',
             displayName: 'Dex Liquidity Sandbox',
             defaultVisible: true,
+        },
+        {
+          name: 'asset-distribution',
+          defaultVisible: true,
+        },
+        {
+          name: 'open-liquidations',
         },
         {
             name: 'liquidity',
