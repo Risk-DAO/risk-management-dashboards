@@ -25,7 +25,7 @@
     "web3-utils": "^1.7.3"
   },
   "scripts": {
-    "start": "REACT_APP_CONFIG=dev && react-app-rewired start",
+    "start": "react-app-rewired start",
     "startwin": "react-app-rewired start",
     "build": "react-app-rewired build && ./generate-static.sh",
     "build-aurigami": "REACT_APP_CONFIG=aurigami react-app-rewired build && ./generate-static.sh",

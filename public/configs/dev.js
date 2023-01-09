@@ -12,16 +12,16 @@ window.APP_CONFIG = {
         computeReverseSandbox: true
     },
     apiEndpoints: ['overview', 'risk_params', 'usd_volume_for_slippage', 'accounts',
-                   'lending_platform_current', 'whale_accounts', 'open_liquidations'],
-    SECTIONS: [     
+                   'lending_platform_current', 'whale_accounts', 'open_liquidations', 'oracles'],
+    SECTIONS: [    
+        {
+            name: 'system-status',
+            defaultVisible: true,
+            },     
         {
             name: 'overview',
             defaultVisible: true,
           },   
-        {
-        name: 'system-status',
-        defaultVisible: true,
-        },    
         {
             name: 'collateral-factors',
         },   
@@ -41,6 +41,9 @@ window.APP_CONFIG = {
         {
           name: 'open-liquidations',
         },
+        {
+            name: 'oracle-deviation',
+          },
         {
             name: 'liquidity',
             displayName: 'DEX Liquidity',
