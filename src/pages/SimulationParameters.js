@@ -17,7 +17,6 @@ class SimulationParameters extends Component {
         const loading = mainStore['lending_platform_current_loading'];
         const data = mainStore['lending_platform_current_data']
         const json_time = data['json_time'];
-        console.log('data', data)
 
         return (
             <div>
