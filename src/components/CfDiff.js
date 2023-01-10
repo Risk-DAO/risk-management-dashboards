@@ -25,10 +25,7 @@ class CfDiff extends React.Component {
     if(!modifier){
       modifier = 0
     }
-    let cf = ((this.props.row.collateral_factor || 0) - modifier).toFixed(2);
-    if(cf <= 0){
-      cf = 0;
-    }
+    const cf = ((this.props.row.collateral_factor || 0) - modifier).toFixed(2);
     const diff = this.props.row.diff
     return (<React.Fragment>
       <abbr className={`transition ${diff ? 'highlight' : ''}`}>
