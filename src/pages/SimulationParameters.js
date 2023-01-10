@@ -4,14 +4,6 @@ import DataTable from "react-data-table-component";
 import mainStore from '../stores/main.store';
 import { observer } from "mobx-react";
 
-const boxRow = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '10px',
-    paddingBottom: '10px',
-    borderBottom: '1px solid rgba(120, 120, 120, 0.1)'
-}
-
 const columns = [
     {
         name: 'Parameter',

@@ -81,7 +81,7 @@ const columns = [
                     width: '100%',
                 }}
             >
-                <span style={{ minWidth: '50px' }}>{row.lt.toFixed(2)}</span>
+                <span style={{ minWidth: '50px' }}>{(row.lt - cardanoLtModifiers) < 0 ? 0 : (row.lt - cardanoLtModifiers).toFixed(2)}</span>
                 <span>
                     <div style={buttonsStyle}>
                         <div
@@ -207,11 +207,15 @@ const expandRowOnClick = (row) => {
         return true
     }
 }
-
+let cardanoLtModifiers = 0;
 class ReverseSolver extends Component {
     render() {
         const { loading } = riskStore
         const { json_time } = mainStore['risk_params_data'] || {}
+        const lendingPlatformData = mainStore['lending_platform_current_data'] || {}
+        if(window.APP_CONFIG.feature_flags.cardanoLtModifiers){
+          cardanoLtModifiers = Number(lendingPlatformData['protocolFees']) + Number(lendingPlatformData['magicNumber']);
+        }
 
         return (
             <div>

@@ -1,14 +1,14 @@
-import React, { Component } from "react"
-import {observer} from "mobx-react"
 import Box from "../components/Box"
-import DataTable from 'react-data-table-component'
-import mainStore from '../stores/main.store'
-import {removeTokenPrefix} from '../utils'
 import CapInput from '../components/CapInput'
 import CfDiff from '../components/CfDiff'
-import riskStore from '../stores/risk.store'
+import { Component } from "react";
+import DataTable from 'react-data-table-component'
+import { TEXTS } from "../constants"
 import Token from "../components/Token"
-import {TEXTS} from "../constants"
+import mainStore from '../stores/main.store'
+import { observer } from "mobx-react"
+import { removeTokenPrefix } from '../utils'
+import riskStore from '../stores/risk.store'
 
 const columns = [
   {
@@ -36,7 +36,7 @@ const columns = [
   {
       name: `Recommended ${TEXTS.COLLATERAL_FACTOR}`,
       selector: row => row.collateral_factor,
-      format: row => <CfDiff row={row}/>,
+      format: row => <CfDiff row={row} modifier={cardanoLtModifiers}/>,
       grow: 2
   }
 ];
@@ -71,10 +71,15 @@ const Recommendation = (props) => {
   </div>
 }
 
+let cardanoLtModifiers = 0;
 class SandBox extends Component {
   render (){
     const {loading} = riskStore
     const {json_time} = mainStore['risk_params_data'] || {}
+    const lendingPlatformData = mainStore['lending_platform_current_data'] || {}
+    if(window.APP_CONFIG.feature_flags.cardanoLtModifiers){
+      cardanoLtModifiers = Number(lendingPlatformData['protocolFees']) + Number(lendingPlatformData['magicNumber']);
+    }
     
     return (
       <div>

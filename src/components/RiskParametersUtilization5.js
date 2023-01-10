@@ -1,13 +1,14 @@
-import React, { Component } from "react"
-import {observer} from "mobx-react"
-import Box from "./Box"
-import DataTable from 'react-data-table-component'
-import mainStore from '../stores/main.store'
-import {whaleFriendlyFormater} from './WhaleFriendly'
-import riskStore from '../stores/risk.store'
-import Token from './Token'
-import Asterisk, {hasAtLeastOneAsterisk} from './Asterisk'
-import { TEXTS } from '../constants' 
+import Asterisk, { hasAtLeastOneAsterisk } from './Asterisk';
+
+import Box from "./Box";
+import { Component } from "react";
+import DataTable from 'react-data-table-component';
+import { TEXTS } from '../constants';
+import Token from './Token';
+import mainStore from '../stores/main.store';
+import { observer } from "mobx-react";
+import riskStore from '../stores/risk.store';
+import { whaleFriendlyFormater } from './WhaleFriendly';
 
 const currentColumns = [
   {
@@ -45,16 +46,22 @@ const currentColumns = [
   {
       name: `Recommended ${TEXTS.COLLATERAL_FACTOR}`,
       selector: row => row.collateral_factor,
-      format: row => <Asterisk row={row} field={"collateral_factor"}/>,
+      format: row => <Asterisk row={row} field={"collateral_factor"} modifier={cardanoLtModifiers}/>,
       grow: 2,
   },
 ];
 
+let cardanoLtModifiers = 0;
 class RiskParametersUtilization extends Component {
   render (){
     const {loading, utilization} = riskStore
-    const {json_time: currentJsonTime} = mainStore['lending_platform_current_data'] || {}
+    const lendingPlatformData = mainStore['lending_platform_current_data'] || {}
     const text = hasAtLeastOneAsterisk(utilization, "collateral_factor") ? "* if user composition will change, reduction of CF might be required to avoid bad debt." : ""
+    const currentJsonTime = lendingPlatformData['json_time'];
+    if(window.APP_CONFIG.feature_flags.cardanoLtModifiers){
+      cardanoLtModifiers = Number(lendingPlatformData['protocolFees']) + Number(lendingPlatformData['magicNumber']);
+    }
+
     return (
       <div>
         <Box loading={loading} time={currentJsonTime} text={text}>

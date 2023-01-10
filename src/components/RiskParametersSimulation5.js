@@ -1,12 +1,13 @@
-import React, { Component } from "react"
-import {observer} from "mobx-react"
-import Box from "./Box"
-import DataTable from 'react-data-table-component'
-import mainStore from '../stores/main.store'
-import {whaleFriendlyFormater} from './WhaleFriendly'
-import Token from './Token'
-import Asterisk, {hasAtLeastOneAsterisk} from './Asterisk'
-import { TEXTS } from '../constants' 
+import Asterisk, { hasAtLeastOneAsterisk } from './Asterisk';
+
+import Box from "./Box";
+import { Component } from "react";
+import DataTable from 'react-data-table-component';
+import { TEXTS } from '../constants';
+import Token from './Token';
+import mainStore from '../stores/main.store';
+import { observer } from "mobx-react";
+import { whaleFriendlyFormater } from './WhaleFriendly';
 
 const columns = [
   {
@@ -28,18 +29,24 @@ const columns = [
     sortable: true,
   },      
   {
-      name: 'Max Collateral Factor',
+      name: 'Max Liquidation Threshold',
       selector: row => row['max_collateral'],
-      format: row =>  <Asterisk row={row} field={"max_collateral"}/>,
+      format: row =>  <Asterisk row={row} field={"max_collateral"} modifier={cardanoLtModifiers} />,
       sortable: true,
   },  
 ];
 
+
+let cardanoLtModifiers = 0;
 class RiskParametersSimulation extends Component {
   render (){
     const loading = mainStore['current_simulation_risk_loading']
     const rawData = Object.assign({}, mainStore['current_simulation_risk_data'] || {})
     const {json_time} = rawData
+    const lendingPlatformData = mainStore['lending_platform_current_data'] || {}
+    if(window.APP_CONFIG.feature_flags.cardanoLtModifiers){
+      cardanoLtModifiers = Number(lendingPlatformData['protocolFees']) + Number(lendingPlatformData['magicNumber']);
+    }
     if(json_time){
       delete rawData.json_time
     }
