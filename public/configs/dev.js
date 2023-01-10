@@ -13,7 +13,8 @@ window.APP_CONFIG = {
         cardanoLtModifiers: true
     },
     apiEndpoints: ['overview', 'risk_params', 'usd_volume_for_slippage', 'accounts',
-                   'lending_platform_current', 'whale_accounts', 'open_liquidations', 'oracles'],
+                   'lending_platform_current', 'whale_accounts', 'open_liquidations', 'oracles',
+                   'current_simulation_risk'],
     SECTIONS: [    
         {
             name: 'system-status',
