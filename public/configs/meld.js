@@ -9,19 +9,47 @@ window.APP_CONFIG = {
         alerts: true,
         loopingToggle: false,
         initSandBoxFromCurrentUtilization: false,
-        computeReverseSandbox: true
+        computeReverseSandbox: true,
+        cardanoLtModifiers: true
     },
-    apiEndpoints: ['risk_params', 'usd_volume_for_slippage'],
-    SECTIONS: [
+    apiEndpoints: ['overview', 'risk_params', 'usd_volume_for_slippage', 'accounts',
+                   'lending_platform_current', 'whale_accounts', 'open_liquidations', 'oracles',
+                   'current_simulation_risk'],
+    SECTIONS: [    
+        {
+            name: 'system-status',
+            defaultVisible: true,
+            },     
+        {
+            name: 'overview',
+            defaultVisible: true,
+          },   
+          {
+            name: 'simulation-parameters',
+          },  
+        {
+            name: 'collateral-factors',
+            displayName: 'Liquidation Thresholds',
+        },   
         {
             name: 'sandbox',
             defaultVisible: true,
-        },
+        },  
         {
             name: 'reversesolver',
             displayName: 'Dex Liquidity Sandbox',
             defaultVisible: true,
         },
+        {
+          name: 'asset-distribution',
+          defaultVisible: true,
+        },
+        {
+          name: 'open-liquidations',
+        },
+        {
+            name: 'oracle-deviation',
+          },
         {
             name: 'liquidity',
             displayName: 'DEX Liquidity',
