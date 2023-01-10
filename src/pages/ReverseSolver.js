@@ -81,7 +81,7 @@ const columns = [
                     width: '100%',
                 }}
             >
-                <span style={{ minWidth: '50px' }}>{(row.lt - cardanoLtModifiers) < 0 ? 0 : (row.lt - cardanoLtModifiers).toFixed(2)}</span>
+                <span style={{ minWidth: '50px' }}>{(row.lt - cardanoLtModifiers).toFixed(2)}</span>
                 <span>
                     <div style={buttonsStyle}>
                         <div
