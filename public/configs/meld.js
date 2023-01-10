@@ -29,7 +29,7 @@ window.APP_CONFIG = {
           },  
         {
             name: 'collateral-factors',
-            displayName: 'Liquidation Threshold',
+            displayName: 'Liquidation Thresholds',
         },   
         {
             name: 'sandbox',
