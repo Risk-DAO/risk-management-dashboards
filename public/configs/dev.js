@@ -9,7 +9,8 @@ window.APP_CONFIG = {
         alerts: true,
         loopingToggle: false,
         initSandBoxFromCurrentUtilization: false,
-        computeReverseSandbox: true
+        computeReverseSandbox: true,
+        cardanoLtModifiers: true
     },
     apiEndpoints: ['overview', 'risk_params', 'usd_volume_for_slippage', 'accounts',
                    'lending_platform_current', 'whale_accounts', 'open_liquidations', 'oracles'],
@@ -22,6 +23,9 @@ window.APP_CONFIG = {
             name: 'overview',
             defaultVisible: true,
           },   
+          {
+            name: 'simulation-parameters',
+          },  
         {
             name: 'collateral-factors',
         },   

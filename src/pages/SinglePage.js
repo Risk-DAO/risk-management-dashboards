@@ -1,10 +1,12 @@
-import React, { Component, lazy, Suspense } from "react";
-import {observer} from "mobx-react"
+import { Component, Suspense, lazy } from "react";
+
+import ReverseSolver from './ReverseSolver';
 import ScrollSpy from "react-ui-scrollspy";
-import mainStore from '../stores/main.store'
-import {TEXTS} from "../constants"
-import ReverseSolver from './ReverseSolver'
-import riskStore from '../stores/risk.store'
+import SimulationParameters from "./SimulationParameters";
+import { TEXTS } from "../constants";
+import mainStore from '../stores/main.store';
+import { observer } from "mobx-react";
+import riskStore from '../stores/risk.store';
 
 const Overview = lazy(() => import('./Overview'))
 const Liquidity = lazy(() => import('./Liquidity'))
@@ -47,6 +49,14 @@ class SinglePage extends Component {
             </hgroup>
             <Suspense fallback={<article aria-busy="true"></article>}>
               <Overview/>
+            </Suspense>
+          </div>}
+        </section>
+        <section id="simulation-parameters">
+          {mainStore.sectionShow("simulation-parameters") && <div>
+            <h2>Simulation Parameters</h2>
+            <Suspense fallback={<article aria-busy="true"></article>}>
+              <SimulationParameters/>
             </Suspense>
           </div>}
         </section>
