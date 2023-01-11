@@ -177,11 +177,18 @@ class RiskStore {
         if (window.APP_CONFIG.feature_flags.initSandBoxFromCurrentUtilization) {
             sandBoxInitData = this.utilization
         }
+
+        let collateralFactorCap = 0;
+        // for MELD, we need to allow < 0 collateral factor caps, take the cap from the config
+        if (window.APP_CONFIG.feature_flags.defaultCollateralFactorCaps !== 0) {
+            collateralFactorCap = window.APP_CONFIG.feature_flags.defaultCollateralFactorCaps
+        }
+
         if (this.data.length) {
             this.data.forEach((row) => {
                 mintCaps[row.asset] = row.mint_cap
                 borrowCaps[row.asset] = row.borrow_cap
-                collateralFactorCaps[row.asset] = 0
+                collateralFactorCaps[row.asset] = collateralFactorCap
             })
         } else {
             Object.entries(this.solver.supplyCaps).forEach(([k, v]) => {
@@ -202,7 +209,7 @@ class RiskStore {
                 }
                 mintCaps[k] = max
                 //borrowCaps[k] = max
-                collateralFactorCaps[k] = 0
+                collateralFactorCaps[k] = collateralFactorCap
             })
             Object.entries(this.solver.borrowCaps).forEach(([k, v]) => {
                 //const max = this.findCap(k, 8, true)
@@ -210,16 +217,18 @@ class RiskStore {
                 for (const row of sandBoxInitData) {
                     if (row.asset === k) {
                         max = this.findCap(row.asset, row.borrow_cap, true)
-
-            break
-          }
-        }
-        if(max === undefined){
-          max = this.solver.borrowCaps[k][this.solver.borrowCaps[k].length -1]
+                        break
+                    }
+                }
+                if(max === undefined){
+                max = this.solver.borrowCaps[k][this.solver.borrowCaps[k].length -1]
         }
         borrowCaps[k] = max
       })      
     }
+    // console.log('mintCaps', JSON.stringify(mintCaps, null, 2))
+    // console.log('borrowCaps', JSON.stringify(borrowCaps, null, 2))
+    // console.log('collateralFactorCaps', JSON.stringify(collateralFactorCaps, null, 2))
     const newRiskParameters = this.solver.optimizeCfg(this.solver.findValidCfg(mintCaps, borrowCaps, collateralFactorCaps))
     
     this.recommendations = this.solver.recommendations(newRiskParameters)
