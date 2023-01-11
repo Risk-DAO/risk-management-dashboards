@@ -290,11 +290,18 @@ class RiskStore {
     const mintCaps = {}
     const borrowCaps = {}
     const collateralFactorCaps = {}
+    
+    let collateralFactorCap = 0;
+    // for MELD, we need to allow < 0 collateral factor caps, take the cap from the config
+    if (window.APP_CONFIG.feature_flags.defaultCollateralFactorCaps !== 0) {
+        collateralFactorCap = window.APP_CONFIG.feature_flags.defaultCollateralFactorCaps
+    }
+
     if(dataSet.length){
       dataSet.forEach(row => {
         mintCaps[row.asset] = this.findCap(row.asset, row.mint_cap, false)
         borrowCaps[row.asset] = this.findCap(row.asset, row.borrow_cap, true)
-        collateralFactorCaps[row.asset] = 0
+        collateralFactorCaps[row.asset] = collateralFactorCap
       })
     }
     const newRiskParameters = this.solver.optimizeCfg(this.solver.findValidCfg(mintCaps, borrowCaps, collateralFactorCaps))
