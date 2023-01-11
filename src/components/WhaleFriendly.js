@@ -1,12 +1,15 @@
-import React, { Component, Fragment, PureComponent } from "react";
-import {observer} from "mobx-react"
+import { Component, Fragment, PureComponent } from "react";
+
+import { observer } from "mobx-react";
+
 const tenth = 100
 
 export const whaleFriendlyFormater = num => {
   if (isNaN(num)){
     // not a numerical string
-    return num
-  } else {
+    return "N/A"
+  } 
+  else {
     num = parseFloat(num)
   }
   let wfn
