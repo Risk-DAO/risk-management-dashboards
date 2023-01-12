@@ -56,7 +56,7 @@ class RiskParametersUtilization extends Component {
   render (){
     const {loading, utilization} = riskStore
     const lendingPlatformData = mainStore['lending_platform_current_data'] || {}
-    const text = hasAtLeastOneAsterisk(utilization, "collateral_factor") ? "* if user composition will change, reduction of CF might be required to avoid bad debt." : ""
+    const text = hasAtLeastOneAsterisk(utilization, "collateral_factor") ? "* if user composition will change, reduction of LT might be required to avoid bad debt." : ""
     const currentJsonTime = lendingPlatformData['json_time'];
     if(window.APP_CONFIG.feature_flags.cardanoLtModifiers){
       cardanoLtModifiers = Number(lendingPlatformData['protocolFees']) + Number(lendingPlatformData['magicNumber']);
