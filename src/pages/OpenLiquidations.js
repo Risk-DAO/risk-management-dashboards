@@ -34,6 +34,9 @@ class OpenLiquidations extends Component {
       delete rawData.json_time
     }
     const {data} = rawData
+    if(!data) {
+      return null;
+    }
     const totalDebt = data.reduce((acc, val) => acc + Number(val.user_debt_wo_looping), 0)
     const smallLiquidations = totalDebt < 1000
     return (
