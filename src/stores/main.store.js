@@ -10,7 +10,7 @@ class MainStore {
   blackMode =  true
   loading = {}
   apiData = {}
-  proView = false
+  proView = true
   apiUrl = API_URL
   stagingLoader = 0
 

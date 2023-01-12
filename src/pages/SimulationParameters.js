@@ -21,6 +21,9 @@ const columns = [
 class SimulationParameters extends Component {
     render() {
         const loading = mainStore['lending_platform_current_loading'];
+        if(loading) {
+            return null
+        }
         const data = mainStore['lending_platform_current_data']
         const json_time = data['json_time'];
         const tableData = [];

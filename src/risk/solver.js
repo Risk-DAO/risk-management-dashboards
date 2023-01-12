@@ -1,7 +1,6 @@
 // class Solver {
 export default class Solver {
   constructor(rawDataObj) {
-      this.liquidationPenalty = 0.1
       this.collaterals = []
       this.stables = ["auUSDC", "auUSDT", "USDT.e", "USDC.e", "USDC", "WXDAI", "iUSD", "USDT"]
       this.shortStableLfs = [1, 1.5, 2]
@@ -28,6 +27,7 @@ export default class Solver {
               perPairResult = {} // reset results, so only last results count
               const perDcResult = {}
               const dcs = []
+              let li = 0.0;
               const cfs = []
               const result = {}
               for(const data of rawDataObj[pair][liquidity]) {
@@ -41,6 +41,7 @@ export default class Solver {
                   const dc = data["dc"]
                   if(! dcs.includes(dc)) {
                       dcs.push(dc)
+                      li = data["li"]
                       perDcResult[dc] = []
                   }
 
@@ -55,7 +56,7 @@ export default class Solver {
                   for(const md of perDcResult[dc]) sum += md
                   const avg = sum / perDcResult[dc].length
 
-                  const cf = result[dc] = 1 - avg - this.liquidationPenalty
+                  const cf = result[dc] = 1 - avg - li
                   if(! cfs.includes(cf)) cfs.push(cf)
               }
 
