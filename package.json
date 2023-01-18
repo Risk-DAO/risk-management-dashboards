@@ -15,7 +15,6 @@
     "react": "^18.1.0",
     "react-data-table-component": "^7.5.2",
     "react-dom": "^18.1.0",
-    "react-grid-heatmap": "^1.2.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
     "react-tooltip": "^4.2.21",
@@ -27,11 +26,17 @@
   },
   "scripts": {
     "start": "REACT_APP_CONFIG=dev && react-app-rewired start",
-    "build": "react-app-rewired build",
-    "build-staging": "REACT_APP_API_URL=https://api-staging.riskdao.org react-app-rewired build",
-    "build-aurigami": "REACT_APP_CONFIG=aurigami react-app-rewired build",
-    "build-nervos": "REACT_APP_CONFIG=nervos react-app-rewired build",
-    "build-vesta": "REACT_APP_CONFIG=vesta react-app-rewired build",
+    "build": "react-app-rewired build && ./generate-static.sh",
+    "build-aurigami": "REACT_APP_CONFIG=aurigami react-app-rewired build && ./generate-static.sh",
+    "build-nervos": "REACT_APP_CONFIG=nervos react-app-rewired build && ./generate-static.sh",
+    "build-agave": "REACT_APP_CONFIG=agave react-app-rewired build && ./generate-static.sh",
+    "build-meld": "REACT_APP_CONFIG=meld react-app-rewired build && ./generate-static.sh",
+    "build-vesta": "REACT_APP_CONFIG=vesta react-app-rewired build && ./generate-static.sh",
+    "deploy-aurigami": "node tomlGen.js --name aurigami-${GITHUB_REF##*/} && wrangler publish",
+    "deploy-nervos": "node tomlGen.js --name nervos-${GITHUB_REF##*/} && wrangler publish",
+    "deploy-agave": "node tomlGen.js --name agave-${GITHUB_REF##*/} && wrangler publish",
+    "deploy-meld": "node tomlGen.js --name meld-${GITHUB_REF##*/} && wrangler publish",
+    "deploy-vesta": "node tomlGen.js --name vesta-${GITHUB_REF##*/} && wrangler publish",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
   },
@@ -58,11 +63,14 @@
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
     "https-browserify": "^1.0.0",
+    "json2toml": "^3.0.1",
     "os-browserify": "^0.3.0",
     "process": "^0.11.10",
     "react-app-rewired": "^2.2.1",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
-    "url": "^0.11.0"
+    "toml": "^3.0.0",
+    "url": "^0.11.0",
+    "wrangler": "^2.1.11"
   }
 }

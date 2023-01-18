@@ -1,5 +1,6 @@
-import { makeAutoObservable, runInAction } from "mobx"
-import Solver from "../risk/solver"
+import { makeAutoObservable, runInAction } from 'mobx'
+
+import Solver from '../risk/solver'
 import mainStore from '../stores/main.store'
 
 const tweakCurrentCap = cap => {
@@ -13,73 +14,95 @@ const tweakCurrentCap = cap => {
 }
 
 class RiskStore {
-  data = [] 
-  currentData = []
-  utilization = []
-  loading = true
-  looping = false
-  incrementationOptions = {}
-  recommendations = []
-  asterixs = {
-    worstDay: false,
-    usage: false,
-    caps: false,
-  }
+    data = []
+    reverseSolvedData = []
+    liquidityData = {}
+    solverData = {}
+    currentData = []
+    utilization = []
+    loading = true
+    looping = false
+    incrementationOptions = {}
+    incrementSupplyOptions = {}
+    incrementBorrowOptions = {}
+    reverseCurrentSelectedSupply = {}
+    reverseCurrentSelectedBorrow = {}
+    reverseCurrentSelectedSupplySimulated = {}
+    reverseCurrentSelectedBorrowSimulated = {}
+    recommendations = []
+    asterixs = {
+        worstDay: false,
+        usage: false,
+        caps: false,
+    }
 
   constructor (){
     this.initPromise = this.init()
     makeAutoObservable(this)
   }
 
-  init = async ()=> {
-    if(true) {
-      const data = await mainStore['risk_params_request']
-      this.utilization = await mainStore['accounts_request']
-      .then(u=> {
-        return Object.entries(u)
-        .map(([k, v])=> {
-          if(k == 'json_time'){
-            return null
-          }
-          return { 
-            asset: k,
-            mint_cap: this.looping ? v.total_collateral : v.nl_total_collateral,
-            borrow_cap: this.looping ? v.total_debt : v.nl_total_debt,            
-          }
-        })
-        .filter(o=> o)
-      })
-      this.currentData = await mainStore['lending_platform_current_request']
-        .then(d => {
-          const clean = {}
-          for (let asset in d.borrow_caps) {
-            clean[asset] = { asset }
-            clean[asset].borrow_cap = tweakCurrentCap(d.borrow_caps[asset])
-            clean[asset].mint_cap = tweakCurrentCap(d.collateral_caps[asset])
-            clean[asset].current_collateral_factor = d.collateral_factors[asset]
-          }
-          return Object.values(clean)
-        })
-      this.rawData = Object.assign({}, data || {})
-      const {json_time} = this.rawData
-      if(json_time){
-        delete this.rawData.json_time
-      }
-      // inctanciate a solver
-      this.solver = new Solver(this.rawData)
-      this.solveFor(this.utilization)
-      this.solveFor(this.currentData)
-      console.log("caps", this.solver.caps)
-      runInAction(()=> {
-        this.incrementationOptions = this.solver.caps
-        console.log(this.incrementationOptions)
-        // const sorted = riskData.sort((a,b)=> a.asset.localeCompare(b.asset))
-        // this.data = sorted
-        this.solve()
-        this.loading = false
-      })
+  getCurrentData = async () => {
+    const d = mainStore['lending_platform_current_request'] ? await mainStore['lending_platform_current_request'] : await Promise.resolve({})
+    const clean = {}
+    for (let asset in d.borrow_caps) {
+      clean[asset] = { asset }
+      clean[asset].borrow_cap = tweakCurrentCap(d.borrow_caps[asset])
+      clean[asset].mint_cap = tweakCurrentCap(d.collateral_caps[asset])
+      clean[asset].current_collateral_factor = d.collateral_factors[asset]
     }
+    return Object.values(clean)
   }
+
+  getUtilization = async () => {
+    const u = mainStore['accounts_request'] ? await mainStore['accounts_request'] : await Promise.resolve({})
+    return Object.entries(u)
+    .map(([k, v])=> {
+      if(k === 'json_time'){
+        return null
+      }
+      return { 
+        asset: k,
+        mint_cap: this.looping ? v.total_collateral : v.nl_total_collateral,
+        borrow_cap: this.looping ? v.total_debt : v.nl_total_debt,            
+      }
+    })
+    .filter(o=> o)
+  }
+
+    init = async () => {
+        if (true) {
+            
+            const { computeReverseSandbox } = window.APP_CONFIG.feature_flags
+            const data = await mainStore['risk_params_request']
+
+            this.liquidityData = await mainStore['usd_volume_for_slippage_request']
+            this.utilization = await this.getUtilization()
+
+            this.currentData = await this.getCurrentData()
+            this.rawData = Object.assign({}, data || {})
+            const { json_time } = this.rawData
+            if (json_time) {
+                delete this.rawData.json_time
+            }
+            // inctanciate a solver
+            this.solver = new Solver(this.rawData)
+            this.solverData = this.solver.parsedData
+            this.solveFor(this.utilization)
+            this.solveFor(this.currentData)
+            runInAction(() => {
+                this.incrementationOptions = this.solver.caps
+                this.incrementSupplyOptions = this.solver.supplyCaps
+                this.incrementBorrowOptions = this.solver.borrowCaps
+                // const sorted = riskData.sort((a,b)=> a.asset.localeCompare(b.asset))
+                // this.data = sorted
+                this.solve()
+                if(computeReverseSandbox) {
+                    this.reverseSolve()
+                }
+                this.loading = false
+            })
+        }
+    }
 
   toggleLooping = async () => {
     this.looping = !this.looping
@@ -87,7 +110,7 @@ class RiskStore {
       .then(u=> {
         return Object.entries(u)
         .map(([k, v])=> {
-          if(k == 'json_time'){
+          if(k === 'json_time'){
             return null
           }
           return { 
@@ -109,26 +132,26 @@ class RiskStore {
     return [this.utilization, this.currentData, simulation]
   }
 
-  incrament = (row, field) => {
-    // find the options
-    const options = this.incrementationOptions[row.asset] || []
-    console.log({options})
-    // find the index of exisiting value
-    const currentIndex = options.indexOf(row[field])
-    // validate we can incrament or decrament
-    if(currentIndex == -1 ){
-      console.log('cant incrament 1')
-      return
+    incrament = (row, field) => {
+        // find the options
+        const options =
+            (field === 'borrow_cap'
+                ? this.incrementBorrowOptions[row.asset]
+                : this.incrementSupplyOptions[row.asset]) || []
+        //  this.incrementationOptions[row.asset] || []
+        // find the index of exisiting value
+        const currentIndex = options.indexOf(Number(row[field]))
+        // validate we can incrament or decrament
+        if (currentIndex === -1) {
+            return
+        }
+        if (currentIndex === options.length - 1) {
+            return
+        }
+        // cahnge the value
+        row[field] = options[currentIndex + 1]
+        this.solve()
     }
-    if(currentIndex === options.length - 1){
-      console.log('cant incrament 2')
-      return
-    }
-    // cahnge the value
-    row[field] = options[currentIndex+1]
-    this.solve()
-    console.log('incrament')
-  }
 
   clearDiffs = () => {
     if(this.timeOutId){
@@ -145,25 +168,67 @@ class RiskStore {
     }, 5000)
   }
 
-  solve = () => {
-    // generate mintCaps, borrowCaps & collateralFactorCaps objects
-    const mintCaps = {}
-    const borrowCaps = {}
-    const collateralFactorCaps = {}
-    if(this.data.length){
-      this.data.forEach(row => {
-        mintCaps[row.asset] = row.mint_cap
-        borrowCaps[row.asset] = row.borrow_cap
-        collateralFactorCaps[row.asset] = 0
-      })
-    } else {
-      Object.entries(this.solver.caps).forEach(([k, v])=> {
-        const max = v[v.length - 1]
-        mintCaps[k] = max
+    solve = () => {
+        // generate mintCaps, borrowCaps & collateralFactorCaps objects
+        const mintCaps = {}
+        const borrowCaps = {}
+        const collateralFactorCaps = {}
+        let sandBoxInitData = this.currentData
+        if (window.APP_CONFIG.feature_flags.initSandBoxFromCurrentUtilization) {
+            sandBoxInitData = this.utilization
+        }
+
+        let collateralFactorCap = 0;
+        // for MELD, we need to allow < 0 collateral factor caps, take the cap from the config
+        if (window.APP_CONFIG.feature_flags.defaultCollateralFactorCaps !== 0) {
+            collateralFactorCap = window.APP_CONFIG.feature_flags.defaultCollateralFactorCaps
+        }
+
+        if (this.data.length) {
+            this.data.forEach((row) => {
+                mintCaps[row.asset] = row.mint_cap
+                borrowCaps[row.asset] = row.borrow_cap
+                collateralFactorCaps[row.asset] = collateralFactorCap
+            })
+        } else {
+            Object.entries(this.solver.supplyCaps).forEach(([k, v]) => {
+                let max
+                for (const row of sandBoxInitData) {
+                    if (row.asset === k) {
+                        max = this.findCap(row.asset, row.mint_cap, false)
+                        break
+                    }
+                }
+                //const max = this.findCap(k, 9, false) //v[parseInt(v.length / 2)]
+                //max = v[parseInt(v.length / 2)]
+                if (max === undefined) {
+                    max = this.solver.supplyCaps[k][this.solver.supplyCaps[k].length - 1]
+                    if (window.APP_CONFIG.temp.iUSD_initial && k === 'iUSD') {
+                        max = window.APP_CONFIG.temp.iUSD_initial
+                    }
+                }
+                mintCaps[k] = max
+                //borrowCaps[k] = max
+                collateralFactorCaps[k] = collateralFactorCap
+            })
+            Object.entries(this.solver.borrowCaps).forEach(([k, v]) => {
+                //const max = this.findCap(k, 8, true)
+                let max
+                for (const row of sandBoxInitData) {
+                    if (row.asset === k) {
+                        max = this.findCap(row.asset, row.borrow_cap, true)
+                        break
+                    }
+                }
+                if(max === undefined){
+                max = this.solver.borrowCaps[k][this.solver.borrowCaps[k].length -1]
+        }
         borrowCaps[k] = max
-        collateralFactorCaps[k] = 0
-      })
+      })      
     }
+    // console.log('mintCaps', JSON.stringify(mintCaps, null, 2))
+    // console.log('borrowCaps', JSON.stringify(borrowCaps, null, 2))
+    // console.log('collateralFactorCaps', JSON.stringify(collateralFactorCaps, null, 2))
     const newRiskParameters = this.solver.optimizeCfg(this.solver.findValidCfg(mintCaps, borrowCaps, collateralFactorCaps))
     
     this.recommendations = this.solver.recommendations(newRiskParameters)
@@ -198,8 +263,16 @@ class RiskStore {
     this.clearDiffs()
   }
 
-  findCap = (asset, value) => {
-    const caps = this.solver.caps[asset]
+  findCap = (asset, value, borrow) => {
+    const caps = borrow ? this.solver.borrowCaps[asset] : this.solver.supplyCaps[asset]// this.solver.caps[asset]
+    if(!caps) {
+      console.warn("findCap fn: No caps found for asset " + asset)
+      return 0
+    }
+    if(value === undefined) {
+      console.warn("findCap fn: No value provided for asset " + asset)
+      return caps[0]
+    }
     if(value === Infinity){
       return caps[caps.length - 1]
     }
@@ -208,6 +281,8 @@ class RiskStore {
         return cap
       }
     }
+    // if nothing catches return the highest cap
+    return caps[caps.length - 1]
   }
 
   solveFor = (dataSet) => {
@@ -215,11 +290,18 @@ class RiskStore {
     const mintCaps = {}
     const borrowCaps = {}
     const collateralFactorCaps = {}
+    
+    let collateralFactorCap = 0;
+    // for MELD, we need to allow < 0 collateral factor caps, take the cap from the config
+    if (window.APP_CONFIG.feature_flags.defaultCollateralFactorCaps !== 0) {
+        collateralFactorCap = window.APP_CONFIG.feature_flags.defaultCollateralFactorCaps
+    }
+
     if(dataSet.length){
       dataSet.forEach(row => {
-        mintCaps[row.asset] = this.findCap(row.asset, row.mint_cap)
-        borrowCaps[row.asset] = this.findCap(row.asset, row.borrow_cap)
-        collateralFactorCaps[row.asset] = 0
+        mintCaps[row.asset] = this.findCap(row.asset, row.mint_cap, false)
+        borrowCaps[row.asset] = this.findCap(row.asset, row.borrow_cap, true)
+        collateralFactorCaps[row.asset] = collateralFactorCap
       })
     }
     const newRiskParameters = this.solver.optimizeCfg(this.solver.findValidCfg(mintCaps, borrowCaps, collateralFactorCaps))
@@ -251,42 +333,514 @@ class RiskStore {
     })
   }
 
-  decrament = (row, field) => {
-    // find the options
-    const options = this.incrementationOptions[row.asset] || []
-    // find the index of exisiting value
-    const currentIndex = options.indexOf(row[field])
-    // validate we can incrament or decrament
-    if(currentIndex == -1 ){
-      console.log('cant decrament 1')
-      return
+    decrament = (row, field) => {
+        // find the options
+        const options =
+            (field === 'borrow_cap'
+                ? this.incrementBorrowOptions[row.asset]
+                : this.incrementSupplyOptions[row.asset]) || []
+        //this.incrementationOptions[row.asset] || []
+        // find the index of exisiting value
+        const currentIndex = options.indexOf(Number(row[field]))
+        // validate we can incrament or decrament
+        if (currentIndex === -1) {
+            return
+        }
+        if (currentIndex === 0) {
+            return
+        }
+        // cahnge the value
+        row[field] = options[currentIndex - 1]
+        this.solve()
     }
-    if(currentIndex === 0){
-      console.log('cant decrament 2')
-      return
-    }
-    // cahnge the value
-    row[field] = options[currentIndex-1]
-    this.solve()
-    console.log('decrament')
-  }
 
   getCurrentCollateralFactor = (asset) => {
-    const [{current_collateral_factor }] = this.currentData.filter(r => r.asset === asset)
+    if(asset === window.APP_CONFIG.STABLE || this.currentData.length === 0){
+      return 0
+    }
+    const [{current_collateral_factor}] = this.currentData.filter(r => r.asset === asset)
     return current_collateral_factor
   }
 
-  preformRecommendation = (recommendation) => {
-    // decrease ADA.e mint cap to 40
-    const [operation, asset, type, , , amount] = recommendation.split(' ')
-    for (let row of this.data) {
-      if(row.asset === asset){
-        row[`${type}_cap`] = amount
-        this.solve()
-        break;
-      }
+    preformRecommendation = (recommendation) => {
+        // decrease ADA.e mint cap to 40
+        const [, asset, type, , , amount] = recommendation.split(' ')
+        for (let row of this.data) {
+            if (row.asset === asset) {
+                row[`${type}_cap`] = amount
+                this.solve()
+                break
+            }
+        }
     }
-  }
+
+    /**
+     * /////////// REVERSE SOLVER SANDBOX CODE \\\\\\\\\\\\\\\\\\\\
+     */
+
+    // this function is called for the reverse solver sandbox
+    // it compute the LT for specified supply and borrow
+    // SHOULD NOT be used when manually changing liquidation threshold
+    reverseSolve = () => {
+        this.reverseSolvedData = []
+        this.reverseCurrentSelectedBorrowSimulated = {}
+        this.reverseCurrentSelectedSupplySimulated = {}
+        for (const [key] of Object.entries(this.solverData)) {
+            let reverseSolveItem = {
+                long: key,
+                supply: this.getReverseSupplyForToken(key),
+                borrow: this.getReverseBorrowForToken(key),
+                lt: this.LTfromSupplyBorrow(key),
+                liquidity: this.liquidityData[key],
+                liquidityChange: 'N/A',
+            }
+            
+            // reset simulated volume
+            for (const [keyShort] of Object.entries(reverseSolveItem.liquidity)) {
+                delete reverseSolveItem.liquidity[keyShort]["simulatedVolume"];
+            }
+            this.reverseSolvedData.push(reverseSolveItem)
+        }
+        this.reverseSolvedData = this.reverseSolvedData.sort((a, b) => a.long.localeCompare(b.long))
+    }
+
+    reverseSolveSimulated = () => {
+        this.reverseSolvedData = []
+        for (const [key] of Object.entries(this.solverData)) {
+            let reverseSolveItem = {
+                long: key,
+                supply: this.getReverseSupplyForToken(key),
+                borrow: this.getReverseBorrowForToken(key),
+                lt: this.LTfromSupplyBorrowSimulated(key),
+                liquidity: this.liquidityData[key],
+                liquidityChange: 'N/A',
+            }
+
+            let cptLiquidityChange = 0
+            for (const [keyShort] of Object.entries(this.solverData[key])) {
+                const realBorrowOfShort = this.getReverseBorrowForToken(keyShort)
+                const simulatedBorrowOfShort = this.getReverseBorrowForTokenSimulated(key, keyShort)
+                if(realBorrowOfShort > 0) {
+                    const ratio = realBorrowOfShort / simulatedBorrowOfShort
+                    if (ratio !== 1) {
+                        cptLiquidityChange++
+                        reverseSolveItem.liquidity[keyShort].simulatedVolume =
+                            reverseSolveItem.liquidity[keyShort].volume * ratio
+                        // if(!reverseSolveItem.liquidityChange) {
+                        //     reverseSolveItem.liquidityChange = `+${Math.round((ratio-1)*100)}% ${key}->${keyShort}`;
+                        // } else {
+                        //     reverseSolveItem.liquidityChange += ` | +${Math.round((ratio-1)*100)}% ${key}->${keyShort}`;
+                        // }
+                    }
+                    else{
+                        delete reverseSolveItem.liquidity[keyShort]["simulatedVolume"];
+                    }
+                }
+            }
+
+            if (cptLiquidityChange > 0) {
+                reverseSolveItem.liquidityChange = cptLiquidityChange
+            }
+
+            this.reverseSolvedData.push(reverseSolveItem)
+        }
+
+        this.reverseSolvedData = this.reverseSolvedData.sort((a, b) => a.long.localeCompare(b.long))
+    }
+
+    getReverseSupplyForToken = (token) => {
+        if (this.reverseCurrentSelectedSupply[token] === undefined) {
+            if (window.APP_CONFIG.feature_flags.initDexLiquiditySandBoxFromCurrentUtilization) {
+                const utilizationForToken = this.utilization.find(_ => _.asset === token);
+                if(utilizationForToken) {
+                    this.reverseCurrentSelectedSupply[token] = utilizationForToken.debug_mc
+                }
+                else {
+                    this.reverseCurrentSelectedSupply[token] = this.findMaxDCForToken(token)
+                }
+            } 
+            else {
+                this.reverseCurrentSelectedSupply[token] = this.findMaxDCForToken(token)
+            }
+        }
+
+        return this.reverseCurrentSelectedSupply[token]
+    }
+
+    getReverseSupplyForTokenSimulated = (token) => {
+        if (this.reverseCurrentSelectedSupplySimulated[token] === undefined) {
+            this.reverseCurrentSelectedSupplySimulated[token] = this.getReverseSupplyForToken(token)
+        }
+
+        return this.reverseCurrentSelectedSupplySimulated[token]
+    }
+
+    getReverseBorrowForToken = (token) => {
+        if (this.reverseCurrentSelectedBorrow[token] === undefined) {
+            if (window.APP_CONFIG.feature_flags.initDexLiquiditySandBoxFromCurrentUtilization) {
+                const utilizationForToken = this.utilization.find(_ => _.asset === token);
+                if(utilizationForToken) {
+                    this.reverseCurrentSelectedBorrow[token] = utilizationForToken.debug_bc
+                }
+                else {
+                    this.reverseCurrentSelectedBorrow[token] = this.findMaxDCForToken(token)
+                }
+            } 
+            else {
+                this.reverseCurrentSelectedBorrow[token] = this.findMaxDCForToken(token)
+            }
+        }
+
+        return this.reverseCurrentSelectedBorrow[token]
+    }
+
+    getReverseBorrowForTokenSimulated = (long, short) => {
+        if (this.reverseCurrentSelectedBorrowSimulated[long] === undefined) {
+            this.reverseCurrentSelectedBorrowSimulated[long] = {}
+            this.reverseCurrentSelectedBorrowSimulated[long][short] = this.getReverseBorrowForToken(short)
+        } else if (this.reverseCurrentSelectedBorrowSimulated[long][short] === undefined) {
+            this.reverseCurrentSelectedBorrowSimulated[long][short] = this.getReverseBorrowForToken(short)
+        }
+
+        return this.reverseCurrentSelectedBorrowSimulated[long][short]
+    }
+
+    findDCStepsForToken = (token) => {
+        for (const [longKey] of Object.entries(this.solverData)) {
+            for (const [shortKey, short] of Object.entries(this.solverData[longKey])) {
+                if (shortKey === token) {
+                    return Object.keys(short).map((entry) => Number(entry))
+                }
+            }
+        }
+    }
+
+    findMaxDCForToken = (token) => {
+        return Math.max(...this.findDCStepsForToken(token))
+    }
+
+    LTfromSupplyBorrow = (token) => {
+        const longSupply = this.reverseCurrentSelectedSupply[token]
+
+        let min = 1
+        for (const [keyShort, short] of Object.entries(this.solverData[token])) {
+            const shortBorrow = this.getReverseBorrowForToken(keyShort)
+            const minSupplyBorrow = Math.min(Number(longSupply), Number(shortBorrow))
+            const selectedLt = short[minSupplyBorrow.toString()]
+            if (selectedLt < min) {
+                min = selectedLt
+            }
+        }
+
+        return min
+    }
+
+    LTfromSupplyBorrowSimulated = (token) => {
+        const longSupply = this.getReverseSupplyForTokenSimulated(token)
+
+        let min = 1
+        for (const [keyShort, short] of Object.entries(this.solverData[token])) {
+            const shortBorrow = this.getReverseBorrowForTokenSimulated(token, keyShort)
+            const minSupplyBorrow = Math.min(Number(longSupply), Number(shortBorrow))
+            const selectedLt = short[minSupplyBorrow.toString()]
+            if (selectedLt < min) {
+                min = selectedLt
+            }
+        }
+
+        return min
+    }
+
+    calculateLTFromSuppliesAndBorrows = (token, longSupply, shortBorrows) => {
+        let min = 1
+        for (const [keyShort, short] of Object.entries(this.solverData[token])) {
+            const shortBorrow = shortBorrows[keyShort]
+            const minSupplyBorrow = Math.min(Number(longSupply), Number(shortBorrow))
+            const selectedLt = short[minSupplyBorrow.toString()]
+            if (selectedLt < min) {
+                min = selectedLt
+            }
+        }
+
+        return min
+    }
+
+    newReverseIncrementLT = (token) => {
+        console.log('====================================');
+        // calculate current LT
+        console.log('working on', token);
+        const currentTokenSupply = this.reverseCurrentSelectedSupply[token];
+        console.log('currentTokenSupply', currentTokenSupply);
+        const borrows = {};
+        for (const [keyShort] of Object.entries(this.solverData[token])) {
+            borrows[keyShort] = this.getReverseBorrowForTokenSimulated(token, keyShort);
+        }
+
+        console.log('borrows', borrows);
+        const currentLT = this.calculateLTFromSuppliesAndBorrows(token, currentTokenSupply, borrows);
+        console.log('currentLT:', currentLT);
+
+        // generate array of steps from the solver data
+        const solverDataArray = []
+        for (const [keyShort] of Object.entries(this.solverData[token])) {
+            for (const [borrowVal, ltValue] of Object.entries(this.solverData[token][keyShort])) {
+                solverDataArray.push({
+                    lt: Number(ltValue),
+                    symbol: keyShort,
+                    value: Number(borrowVal),
+                })
+            }
+        }
+        // sort the array from lower LT to highest lt
+        solverDataArray.sort((a, b) => a.lt - b.lt)
+
+        // we will now step through the solver data array and find the first value that 
+        // could give a smallest higher LT than the current one
+        let selectedSolverData = undefined;
+        for(let i = 0; i < solverDataArray.length; i++) {
+            const solverData = solverDataArray[i];
+            console.log('solverData:', solverData);
+
+            if(solverData.value === 0) {
+                console.log('ignoring', solverData, 'because value = 0');
+                continue;
+            }
+
+            if(solverData.lt <= currentLT) {
+                console.log('ignoring', solverData, 'because lt:', solverData.lt, `<= to currentLt:`, currentLT);
+                continue;
+            }
+
+            // the solver data must have lower borrow value than the current borrow for the token
+            if(solverData.value >= borrows[solverData.symbol]) {
+                console.log('ignoring', solverData, 'because value:', solverData.value, `equals borrows[${solverData.symbol}]:`, borrows[solverData.symbol]);
+                continue;
+            }
+
+            borrows[solverData.symbol] = solverData.value;
+            const testLt = this.calculateLTFromSuppliesAndBorrows(token, currentTokenSupply, borrows);
+
+            if(testLt <= currentLT) {
+                console.log('ignoring', solverData, 'because calculated lt:', testLt, 'is lower than current lt:', currentLT);
+                continue;
+            }
+
+            // IF HERE, BINGO
+            console.log('New LT is better! Using', solverData, 'as selected data:', testLt, 'from:', currentLT);
+            selectedSolverData = solverData;
+            break;
+        }
+
+        if(selectedSolverData) {
+            console.log('previous borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
+            this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol] = selectedSolverData.value;
+            console.log('new borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
+            this.reverseSolveSimulated();
+        } else {
+            console.log('could not find better LT for', token);
+        }
+    }
+
+    newReverseDecrementLT = (token) => {
+        console.log('====================================');
+        // calculate current LT
+        console.log('working on', token);
+        const currentTokenSupply = this.reverseCurrentSelectedSupply[token];
+        console.log('currentTokenSupply', currentTokenSupply);
+        const borrows = {};
+        for (const [keyShort] of Object.entries(this.solverData[token])) {
+            borrows[keyShort] = this.getReverseBorrowForTokenSimulated(token, keyShort);
+        }
+
+        console.log('borrows', borrows);
+        const currentLT = this.calculateLTFromSuppliesAndBorrows(token, currentTokenSupply, borrows);
+        console.log('currentLT:', currentLT);
+
+        // generate array of steps from the solver data
+        const solverDataArray = []
+        for (const [keyShort] of Object.entries(this.solverData[token])) {
+            for (const [borrowVal, ltValue] of Object.entries(this.solverData[token][keyShort])) {
+                solverDataArray.push({
+                    lt: Number(ltValue),
+                    symbol: keyShort,
+                    value: Number(borrowVal),
+                })
+            }
+        }
+        // sort the array from highest LT to lowest lt
+        solverDataArray.sort((a, b) => b.lt - a.lt)
+
+        // we will now step through the solver data array and find the best value that 
+        // could give a biggest smaller LT than the current one
+        let selectedSolverData = undefined;
+        for(let i = 0; i < solverDataArray.length; i++) {
+            const solverData = solverDataArray[i];
+            console.log('solverData:', solverData);
+            
+
+            const userSetBorrowOfAsset = this.getReverseBorrowForToken(solverData.symbol);
+
+            if(userSetBorrowOfAsset < solverData.value) {
+                console.log('ignoring', solverData, 'because it would accrue borrow to', solverData.value , 'from user setup borrow:', userSetBorrowOfAsset);
+                continue;
+            }
+
+            if(selectedSolverData && selectedSolverData.symbol !== solverData.symbol) {
+                console.log('ignoring', solverData, 'because already found solver data on symbol', selectedSolverData.symbol);
+                continue;                
+            } 
+            
+            if(solverData.value === 0) {
+                // console.log('ignoring', solverData, 'because value = 0');
+                continue;
+            }
+
+            if(solverData.lt > currentLT) {
+                console.log('ignoring', solverData, 'because lt:', solverData.lt, `> to currentLt:`, currentLT);
+                continue;
+            }
+
+            // the solver data must have a strictly higher borrow value than the current borrow for the token
+            if(solverData.value <= borrows[solverData.symbol]) {
+                console.log('ignoring', solverData, 'because value:', solverData.value, `equals borrows[${solverData.symbol}]:`, borrows[solverData.symbol]);
+                continue;
+            }
+
+            const oldBorrowValue = borrows[solverData.symbol];
+            borrows[solverData.symbol] = solverData.value;
+            const testLt = this.calculateLTFromSuppliesAndBorrows(token, currentTokenSupply, borrows);
+            borrows[solverData.symbol] = oldBorrowValue;
+            
+            if(testLt > currentLT) {
+                console.log('ignoring', solverData, 'because calculated lt:', testLt, 'is higher than current lt:', currentLT);
+                continue;
+            }
+            if(selectedSolverData) {
+                console.log('calcLT', selectedSolverData.calcLT, 'testLT', testLt);
+                // check if same lt as current, if yes, update
+                if(selectedSolverData.calcLT === testLt) {
+                    selectedSolverData = solverData;
+                    selectedSolverData.calcLT = testLt;
+                }
+            }
+            else {
+                console.log('New LT is better! Using', solverData, 'as selected data');
+                selectedSolverData = solverData;
+                selectedSolverData.calcLT = testLt;
+            }
+        }
+
+        if(selectedSolverData) {
+            console.log('previous borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
+            this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol] = selectedSolverData.value;
+            console.log('new borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
+            this.reverseSolveSimulated();
+        } else {
+            console.log('could not find lower LT for', token);
+        }
+    }
+
+    reverseIncrement = (token, field) => {
+        const currentVal =
+            field === 'supply' ? this.getReverseSupplyForToken(token) : this.getReverseBorrowForToken(token)
+
+        const dcsForToken = this.findDCStepsForToken(token) // [0,1,5,10,15,20]
+        dcsForToken.sort((a, b) => a - b)
+        const indexOfCurrent = dcsForToken.indexOf(currentVal)
+        if (indexOfCurrent === dcsForToken.length - 1) {
+            // do nothing if already max
+        } else {
+            // if not max, update value with the next
+            const newValue = dcsForToken[indexOfCurrent + 1]
+            field === 'supply'
+                ? (this.reverseCurrentSelectedSupply[token] = newValue)
+                : (this.reverseCurrentSelectedBorrow[token] = newValue)
+        }
+
+        // restart the reverse solve to recompute lt when changing supply or borrow
+        this.reverseSolve()
+    }
+
+    reverseDecrement = (token, field) => {
+        const currentVal =
+            field === 'supply' ? this.getReverseSupplyForToken(token) : this.getReverseBorrowForToken(token)
+        const dcsForToken = this.findDCStepsForToken(token) // [0,1,5,10,15,20]
+        dcsForToken.sort((a, b) => a - b)
+        const indexOfCurrent = dcsForToken.indexOf(currentVal)
+        if (indexOfCurrent === 0) {
+            // do nothing if already min
+        } else {
+            // if not max, update value with the next
+            const newValue = dcsForToken[indexOfCurrent - 1]
+            // if (newValue === 0) {
+            // } else {
+            //     field === 'supply'
+            //         ? (this.reverseCurrentSelectedSupply[token] = newValue)
+            //         : (this.reverseCurrentSelectedBorrow[token] = newValue)
+            // }
+            
+            field === 'supply'
+                ? (this.reverseCurrentSelectedSupply[token] = newValue)
+                : (this.reverseCurrentSelectedBorrow[token] = newValue)
+        }
+
+        // restart the reverse solve to recompute lt when changing supply or borrow
+        this.reverseSolve()
+    }
+
+    /**
+     *
+     * @param {string} token symbol
+     * @param {boolean} increase if true, else decrease
+     * @param {boolean} isSimu true if should take the simulated value as current vale
+     * @param {boolean} isSupply true if should take supply as current value
+     * @returns {number} the next LT step for the current token
+     */
+    getNextLtStep = (token, increase, isSimu, isSupply, longToken = undefined) => {
+        const dcsForToken = this.findDCStepsForToken(token) // [0,1,5,10,15,20]
+        dcsForToken.sort((a, b) => a - b)
+        let currentValue = 0
+
+        if (isSimu) {
+            if (isSupply) {
+                currentValue = this.getReverseSupplyForTokenSimulated(token)
+            } else {
+                currentValue = this.getReverseBorrowForTokenSimulated(longToken, token)
+            }
+        } else {
+            if (isSupply) {
+                currentValue = this.getReverseSupplyForToken(token)
+            } else {
+                currentValue = this.getReverseBorrowForToken(token)
+            }
+        }
+
+        const indexOfCurrent = dcsForToken.indexOf(currentValue)
+        if (increase) {
+            if (indexOfCurrent === dcsForToken.length - 1) {
+                // do nothing if already max
+                return currentValue
+            } else {
+                // if not max, update value with the next
+                const newValue = dcsForToken[indexOfCurrent + 1]
+                return newValue
+            }
+        } else {
+            if (indexOfCurrent === 0) {
+                // do nothing if already min
+                return currentValue
+            } else {
+                // if not max, update value with the next
+                const newValue = dcsForToken[indexOfCurrent - 1]
+                if (newValue === 0) {
+                    return currentValue
+                } else {
+                    return newValue
+                }
+                // return newValue
+            }
+        }
+    }
 }
 
 export default new RiskStore()

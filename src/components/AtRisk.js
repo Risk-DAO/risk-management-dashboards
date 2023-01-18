@@ -4,9 +4,11 @@ import alertStore from '../stores/alert.store'
 import Box from "../components/Box"
 import BoxRow from "../components/BoxRow"
 import BoxGrid from "../components/BoxGrid"
+import StableLiquidity from "../components/StableLiquidity"
 
 const AtRisk = props => {
-  return <BoxGrid>
+  return <>
+  <BoxGrid>
     <Box time={alertStore.varLarJsonTime}>
       <BoxRow>
         <h5 style={{margin: 0}}>Value at Risk on Worst Day Simulation</h5>
@@ -33,6 +35,8 @@ const AtRisk = props => {
       </hgroup>
     </Box>
   </BoxGrid>
+  {window.APP_CONFIG.feature_flags.systemStatusStableLiquidity && <StableLiquidity/>}
+  </>
 }
 
 export default observer(AtRisk)

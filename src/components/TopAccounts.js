@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 import {observer} from 'mobx-react'
 import {whaleFriendlyFormater} from '../components/WhaleFriendly'
 import {precentFormatter} from '../utils'
@@ -6,33 +6,45 @@ import BlockExplorerLink from '../components/BlockExplorerLink'
 
 export const usersMinWidth = '180px'
 
-export const TopTenAccounts = observer(props => {
-  const {accounts, value} = props
-  let hasWhales = false
-  for (const account of accounts) {
-    if(!!account.whale_flag){
-      hasWhales = true
-      break
-    }
+class Top10Accounts extends Component {
+
+
+  toggle = (e) => {
+    this.props.toggleTopTen(this.props.row, this.props.name )
+    e.preventDefault()
   }
-  return (
-    <div style={{display: 'flex', width: '100%'}}>
-      <details open={props.row.expanded} style={{padding: '1rem 0', border: 'none', marginBottom: '0', width: usersMinWidth, overflow: 'auto', overflowX: 'hidden'}}>
-        <summary>{value} {hasWhales &&<span>*</span>}</summary>
-        <div style={{display: 'flex', flexDirection: 'column', width: '100%', overflow: 'none', }}>
-          {accounts.map(account=> {
-            return <div key={account.id} style={{display: 'flex',width: '100%', justifyContent: 'space-between'}}>
-              <div style={{maxWidth: '45%'}}>
-                <BlockExplorerLink  address={account.id}/>
+
+  render() {
+    const {props} = this
+    const { accounts, value } = props
+    let hasWhales = false
+    for (const account of accounts) {
+      if (!!account.whale_flag) {
+        hasWhales = true
+        break
+      }
+    }
+    return (
+      <div style={{ display: 'flex', width: '100%' }}>
+        <details onClick={this.toggle} open={props.row[props.name]} style={{ padding: '1rem 0', border: 'none', marginBottom: '0', width: usersMinWidth, overflow: 'auto', overflowX: 'hidden' }}>
+          <summary>{value} {hasWhales && <span>*</span>}</summary>
+          <div style={{ display: 'flex', flexDirection: 'column', width: '100%', overflow: 'none', }}>
+            {accounts.map(account => {
+              return <div key={account.id} style={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
+                <div style={{ maxWidth: '45%' }}>
+                  <BlockExplorerLink address={account.id.split('_')[0]} />
+                </div>
+                <div>{whaleFriendlyFormater(account.size)} </div>
               </div>
-              <div>{whaleFriendlyFormater(account.size)} </div>
-            </div>
-          })}
-        </div>
-      </details>
-    </div>
-  )
-})
+            })}
+          </div>
+        </details>
+      </div>
+    )
+  }
+}
+
+export const TopTenAccounts = observer(Top10Accounts)
 
 const TopAccounts = props => {
   const {row} = props
