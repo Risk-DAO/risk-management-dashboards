@@ -11,3 +11,10 @@ export const precentFormatter = (num) => {
   }
   return (num*100).toFixed(2) + '%'
 }
+
+export const shortCurrencyFormatter = new Intl.NumberFormat('en-US', { 
+  style: 'currency', 
+  currency: 'USD',   
+  notation: "compact", 
+  compactDisplay: "short" 
+})

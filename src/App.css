@@ -55,3 +55,35 @@
     right: calc(var(--spacing) + var(--scrollbar-width, 0px));
   }
 }
+
+.staging-btn {
+  width: 140px; 
+  height: 45px; 
+  position: fixed;
+  bottom: 0; 
+  left: 0; 
+  opacity: 0;
+  display: flex;
+  padding: 10px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.staging-btn:hover{
+  transition: all 0.3s ease-in-out;
+  transition-delay: 3s;
+  background-color: var(--contrast);
+  opacity: 1;
+}
+
+.staging-btn div{
+  position: fixed;
+  bottom: -50px;
+  left: 40;
+  width: 120px;
+}
+
+.staging-btn:hover div{
+  transition: all 5s ease-in-out;
+  bottom: 10px;
+}

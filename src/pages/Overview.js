@@ -29,7 +29,9 @@ class Overview extends Component {
     }
     
     const loading = mainStore['overview_loading']
-    const data = Object.entries(rawData).filter(([k, v])=> k.indexOf('nl_') === -1)
+    const data = Object.entries(rawData)
+      .filter(([k, v])=> k.indexOf('nl_') === -1)
+      .filter(([k, v])=> k.indexOf('median') === -1)
     const firstHalf = !loading ? data
       .filter(([k, v])=>{
         return k.indexOf('collateral') > -1

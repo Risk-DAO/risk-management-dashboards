@@ -1,13 +1,14 @@
-import React, { Component } from "react"
-import {observer} from "mobx-react"
 import Box from "../components/Box"
-import DataTable from 'react-data-table-component'
-import mainStore from '../stores/main.store'
-import {removeTokenPrefix} from '../utils'
 import CapInput from '../components/CapInput'
 import CfDiff from '../components/CfDiff'
-import riskStore from '../stores/risk.store'
+import { Component } from "react";
+import DataTable from 'react-data-table-component'
+import { TEXTS } from "../constants"
 import Token from "../components/Token"
+import mainStore from '../stores/main.store'
+import { observer } from "mobx-react"
+import { removeTokenPrefix } from '../utils'
+import riskStore from '../stores/risk.store'
 
 const columns = [
   {
@@ -28,14 +29,14 @@ const columns = [
       grow: 2
   }, 
   {
-      name: 'Current Collateral Factor',
+      name: `Current ${TEXTS.COLLATERAL_FACTOR}`,
       selector: row => riskStore.getCurrentCollateralFactor(row.asset),
       width: '260px'
   },    
   {
-      name: 'Recommended Collateral Factor',
+      name: `Recommended ${TEXTS.COLLATERAL_FACTOR}`,
       selector: row => row.collateral_factor,
-      format: row => <CfDiff row={row}/>,
+      format: row => <CfDiff row={row} modifier={cardanoLtModifiers}/>,
       grow: 2
   }
 ];
@@ -57,27 +58,32 @@ const Recommendation = (props) => {
       recommendations.push(r.recommendation)
     }
   })
-  recommendations = [... new Set(recommendations)]
+  recommendations = [...new Set(recommendations)]
   return <div style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
     <article style={expendedBoxStyle}>
       <h6>to improve collateral factor</h6>
       {recommendations.map(r=> <div key={r}>
-        <a onClick={()=>riskStore.preformRecommendation(r)}>
+        <button className="outline" style={{border: 'none', display: 'inline', padding: '5px', width: 'auto'}} onClick={()=>riskStore.preformRecommendation(r)}>
           {humanizeRecommendation(r)}
-        </a>
+        </button>
       </div>)}
     </article>
   </div>
 }
 
-class Simulation extends Component {
+let cardanoLtModifiers = 0;
+class SandBox extends Component {
   render (){
     const {loading} = riskStore
     const {json_time} = mainStore['risk_params_data'] || {}
+    const lendingPlatformData = mainStore['lending_platform_current_data'] || {}
+    if(window.APP_CONFIG.feature_flags.cardanoLtModifiers){
+      cardanoLtModifiers = Number(lendingPlatformData['protocolFees']) + Number(lendingPlatformData['magicNumber']);
+    }
+    
     return (
       <div>
         <Box loading={loading} time={json_time}>
-          {/* <h6>Risk Parameters Recommendations</h6> */}
           {!loading && <DataTable
               expandableRows
               columns={columns}
@@ -90,4 +96,4 @@ class Simulation extends Component {
   }
 }
 
-export default observer(Simulation)
+export default observer(SandBox)

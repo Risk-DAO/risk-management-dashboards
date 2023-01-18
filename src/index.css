@@ -115,7 +115,7 @@
 }
 
 text {
-  font-size: var(--data-font-size);
+  font-size: calc(var(--data-font-size) - 2px);
   color: var(--color);
 }
 .data-text {
@@ -144,9 +144,10 @@ text {
   padding-bottom: 10px;
   border-bottom: 1px solid rgba(120, 120, 120, 0.1);
   color: var(--color);
+  flex-wrap: wrap;
 }
 
-.box-row:last-child{
+.box-row:last-of-type{
   border-bottom: none;
   margin-bottom: 0;
   padding-bottom: 0;

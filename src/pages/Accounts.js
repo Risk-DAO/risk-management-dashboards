@@ -5,15 +5,19 @@ import DataTable from 'react-data-table-component'
 import mainStore from '../stores/main.store'
 import LiquidationsGraph from '../components/LiquidationsGraph'
 import {whaleFriendlyFormater} from '../components/WhaleFriendly'
-import { makeAutoObservable, runInAction } from "mobx"
+import { makeAutoObservable } from "mobx"
 import Token from "../components/Token"
 import {TopTenAccounts, usersMinWidth} from "../components/TopAccounts"
+import {TEXTS} from "../constants"
 
 
 class LocalStore {
   looping = true
 
   constructor (){
+    if(window.APP_CONFIG.feature_flags.loopingToggle  === false){
+      this.looping = false
+    }
     makeAutoObservable(this)
   }
 
@@ -37,6 +41,18 @@ const rowPreExpanded = row => row.defaultExpanded
 class Accounts extends Component {
   render (){
     const {prefixLooping} = localStore
+
+    const onRowExpandToggled = (expanded, row) => {
+      if(expanded === false){
+        row.top10Coll = false
+        row.top10Debt = false
+      }
+      row.expanded = expanded
+    }
+
+    const toggleTopTen = (row, name) => {
+      row[name] = !row[name]
+    }
     const columns = [
       {
           name: 'Asset',
@@ -53,7 +69,7 @@ class Accounts extends Component {
           minWidth: '140px'
       },
       {
-          name: 'Total Debt',
+          name: TEXTS.TOTAL_DEBT,
           selector: row => Number(row[prefixLooping('total_debt')]),
           format: row => whaleFriendlyFormater(row[prefixLooping('total_debt')]),
           sortable: true,
@@ -76,14 +92,14 @@ class Accounts extends Component {
       {
           name: 'Top 10 Accounts Collateral',
           selector: row =>  Number(row[prefixLooping('top_10_collateral')]),
-          format: row => < TopTenAccounts row={row} accounts={row.whales.big_collateral} value={whaleFriendlyFormater(row[prefixLooping('top_10_collateral')])}/>,
+          format: row => < TopTenAccounts row={row} name={"top10Coll"} toggleTopTen={toggleTopTen} accounts={row.whales.big_collateral} value={whaleFriendlyFormater(row[prefixLooping('top_10_collateral')])}/>,
           sortable: true,
           minWidth: usersMinWidth
       },
       {
           name: 'Top 10 Accounts Debt',
           selector: row =>  Number(row[prefixLooping('top_10_debt')]),
-          format: row => <TopTenAccounts row={row} accounts={row.whales.big_debt} value={whaleFriendlyFormater(row[prefixLooping('top_10_debt')])}/>,
+          format: row => <TopTenAccounts row={row} name={"top10Debt"} toggleTopTen={toggleTopTen} accounts={row.whales.big_debt} value={whaleFriendlyFormater(row[prefixLooping('top_10_debt')])}/>,
           sortable: true,
           minWidth: usersMinWidth
       },
@@ -112,36 +128,33 @@ class Accounts extends Component {
       delete rawData.json_time
     }
     const data = !loading ? Object.entries(rawData)
+    .filter(([k, v])=> k !== window.APP_CONFIG.STABLE || "")
     .map(([k, v])=> {
       v.key = k
       v.whales = whaleData[k]
       return v
     })
-    .sort((a, b)=> {
-      return b.total_collateral - a.total_collateral
-    }) : []
+    : []
 
     if(data.length){
       data[0].defaultExpanded = true  
     }
 
     const text = "* Big account included in the list"
-    const onRowExpandToggled = (expanded, row) => row.expanded = expanded
-    
     return (
       <div>
         <Box loading={loading} time={json_time} text={text}>
-        <fieldset>
+        {window.APP_CONFIG.feature_flags.loopingToggle && <fieldset>
           <label htmlFor="switch">
             <input onChange={localStore.toggleLooping} defaultChecked={localStore.looping} type="checkbox" id="switch" name="switch" role="switch"/>
             <span>Ignore correlated debt and collateral, and assets not in market</span>
           </label>
-        </fieldset>
+        </fieldset>}
           {!loading && <DataTable
               expandableRows
               columns={columns}
               defaultSortFieldId={2}
-              defaultSortAsc={false}
+              defaultSortAsc={true}
               data={data}
               expandableRowsComponent={LiquidationsGraph}
               expandableRowExpanded={rowPreExpanded}

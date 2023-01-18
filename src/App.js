@@ -7,13 +7,9 @@ import SinglePage from "./pages/SinglePage"
 import './themeSwitcher'
 import './App.css'
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import React from "react";
+import React, {lazy, Suspense} from "react";
 
-function renderPage (props, PageComponent) {
-  return (
-    <PageComponent {...props}/> 
-  )
-}
+const AlertsJson = lazy(() => import('./API/AlertsJson'))
 
 class App extends React.Component {
 
@@ -32,7 +28,13 @@ class App extends React.Component {
             <h1>Risk Management Dashboard</h1>
             <main>
               <Routes>
-                <Route exact path="/"  element={<SinglePage scrollContainer={this.scrollContainer}/>}/>
+                <Route exact strict path="/"  element={<SinglePage scrollContainer={this.scrollContainer}/>}/>
+                <Route exact strict path="/staging"  element={<SinglePage scrollContainer={this.scrollContainer}/>}/>
+                <Route exact strict path="/api/alerts"  element={
+                  <Suspense fallback={<article aria-busy="true"></article>}>
+                    <AlertsJson/>
+                  </Suspense>
+                }/>
               </Routes>
             </main>
             <Footer/>

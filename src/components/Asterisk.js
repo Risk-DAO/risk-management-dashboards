@@ -1,5 +1,4 @@
-import React from 'react'
-import {observer} from 'mobx-react'
+import { observer } from 'mobx-react'
 import riskStore from '../stores/risk.store'
 
 export const hasAtLeastOneAsterisk = (rows, field) => {
@@ -19,12 +18,19 @@ const showAsterisk = (row, field) => {
 }
 
 const Asterisk = props => {
-  const {row, field} = props
-  const recommendedCF = row[field]
+  let {row, field, CR, modifier} = props
+  if(!modifier){
+    modifier = 0;
+  }
+  let recommendedCF = row[field]
   const asterisk = showAsterisk(row, field)
+  if(CR){
+    recommendedCF = 100 / recommendedCF
+  }
   return (
     <>
-      <span>{recommendedCF.toFixed(2)}</span>
+      <span>{(recommendedCF - modifier).toFixed(2)}</span>
+      {CR && <span>%</span>}
       {asterisk && <span> *</span>}
     </>
   )
