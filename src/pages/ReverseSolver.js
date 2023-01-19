@@ -69,18 +69,18 @@ const columns = [
         format: (row) => <CapInput row={row} field={'borrow'} />,
         width: '15%',
     },
-    {
-        name: 'Borrow Cap Simu',
-        selector: (row) => row.simuBorrows,
-        format: (row) => (
-            <ul>
-                {row.simuBorrows.map((entry, key) => {
-                            return <li key={key}>{entry}</li>
-                        })}
-            </ul>
-        ),
-        width: '15%',
-    },
+    // {
+    //     name: 'Borrow Cap Simu',
+    //     selector: (row) => row.simuBorrows,
+    //     format: (row) => (
+    //         <ul>
+    //             {row.simuBorrows.map((entry, key) => {
+    //                         return <li key={key}>{entry}</li>
+    //                     })}
+    //         </ul>
+    //     ),
+    //     width: '15%',
+    // },
     {
         name: `Desired ${TEXTS.COLLATERAL_FACTOR}`,
         selector: (row) => row.lt,
@@ -93,7 +93,7 @@ const columns = [
                     width: '100%',
                 }}
             >
-                <span style={{ minWidth: '50px' }}>{(row.lt - cardanoLtModifiers)/*.toFixed(2)*/}</span>
+                <span style={{ minWidth: '50px' }}>{(row.lt - cardanoLtModifiers).toFixed(2)}</span>
                 <span>
                     <div style={buttonsStyle}>
                         <div
