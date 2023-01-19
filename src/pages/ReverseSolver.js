@@ -69,6 +69,18 @@ const columns = [
         format: (row) => <CapInput row={row} field={'borrow'} />,
         width: '15%',
     },
+    // {
+    //     name: 'Borrow Cap Simu',
+    //     selector: (row) => row.simuBorrows,
+    //     format: (row) => (
+    //         <ul>
+    //             {row.simuBorrows.map((entry, key) => {
+    //                         return <li key={key}>{entry}</li>
+    //                     })}
+    //         </ul>
+    //     ),
+    //     width: '15%',
+    // },
     {
         name: `Desired ${TEXTS.COLLATERAL_FACTOR}`,
         selector: (row) => row.lt,
@@ -106,7 +118,7 @@ const columns = [
         name: `Number of Required Liquidity Change`,
         selector: (row) => row.liquidityChange,
         format: (row) => row.liquidityChange,
-        width: '35%',
+        width: '20%',
     },
 ]
 
@@ -200,13 +212,13 @@ const LiquidityChanges = (props) => {
     )
 }
 
-const expandRowOnClick = (row) => {
-    if (row['liquidityChange'] === 'N/A') {
-        return false
-    } else {
-        return true
-    }
-}
+// const expandRowOnClick = (row) => {
+//     if (row['liquidityChange'] === 'N/A') {
+//         return false
+//     } else {
+//         return true
+//     }
+// }
 let cardanoLtModifiers = 0;
 class ReverseSolver extends Component {
     render() {
@@ -214,8 +226,10 @@ class ReverseSolver extends Component {
         const { json_time } = mainStore['risk_params_data'] || {}
         const lendingPlatformData = mainStore['lending_platform_current_data'] || {}
         if(window.APP_CONFIG.feature_flags.cardanoLtModifiers){
-          cardanoLtModifiers = Number(lendingPlatformData['protocolFees']) + Number(lendingPlatformData['magicNumber']);
+            cardanoLtModifiers = Number(lendingPlatformData['protocolFees']) + Number(lendingPlatformData['magicNumber']);
         }
+
+        // console.log('riskStore.reverseSolvedData', JSON.stringify(riskStore.reverseSolvedData, null, 2))
 
         return (
             <div>
@@ -223,7 +237,7 @@ class ReverseSolver extends Component {
                     {!loading && (
                         <DataTable
                             expandableRows
-                            expandableRowExpanded={expandRowOnClick}
+                            /*expandableRowExpanded={expandRowOnClick}*/
                             expandableRowsComponent={LiquidityChanges}
                             columns={columns}
                             data={riskStore.reverseSolvedData}

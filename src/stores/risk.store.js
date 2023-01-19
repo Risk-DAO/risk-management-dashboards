@@ -27,7 +27,6 @@ class RiskStore {
     incrementBorrowOptions = {}
     reverseCurrentSelectedSupply = {}
     reverseCurrentSelectedBorrow = {}
-    reverseCurrentSelectedSupplySimulated = {}
     reverseCurrentSelectedBorrowSimulated = {}
     recommendations = []
     asterixs = {
@@ -97,7 +96,7 @@ class RiskStore {
                 // this.data = sorted
                 this.solve()
                 if(computeReverseSandbox) {
-                    this.reverseSolve()
+                    this.reverseSolveSimulated()
                 }
                 this.loading = false
             })
@@ -378,32 +377,6 @@ class RiskStore {
      * /////////// REVERSE SOLVER SANDBOX CODE \\\\\\\\\\\\\\\\\\\\
      */
 
-    // this function is called for the reverse solver sandbox
-    // it compute the LT for specified supply and borrow
-    // SHOULD NOT be used when manually changing liquidation threshold
-    reverseSolve = () => {
-        this.reverseSolvedData = []
-        this.reverseCurrentSelectedBorrowSimulated = {}
-        this.reverseCurrentSelectedSupplySimulated = {}
-        for (const [key] of Object.entries(this.solverData)) {
-            let reverseSolveItem = {
-                long: key,
-                supply: this.getReverseSupplyForToken(key),
-                borrow: this.getReverseBorrowForToken(key),
-                lt: this.LTfromSupplyBorrow(key),
-                liquidity: this.liquidityData[key],
-                liquidityChange: 'N/A',
-            }
-            
-            // reset simulated volume
-            for (const [keyShort] of Object.entries(reverseSolveItem.liquidity)) {
-                delete reverseSolveItem.liquidity[keyShort]["simulatedVolume"];
-            }
-            this.reverseSolvedData.push(reverseSolveItem)
-        }
-        this.reverseSolvedData = this.reverseSolvedData.sort((a, b) => a.long.localeCompare(b.long))
-    }
-
     reverseSolveSimulated = () => {
         this.reverseSolvedData = []
         for (const [key] of Object.entries(this.solverData)) {
@@ -413,28 +386,37 @@ class RiskStore {
                 borrow: this.getReverseBorrowForToken(key),
                 lt: this.LTfromSupplyBorrowSimulated(key),
                 liquidity: this.liquidityData[key],
-                liquidityChange: 'N/A',
+                liquidityChange: 'N/A',                
             }
+
+
+            const simuBorrows = [];
+            for (const [borrowSimuKey] of Object.entries(this.reverseCurrentSelectedBorrowSimulated[key])) {
+                simuBorrows.push(`${borrowSimuKey}: ${this.reverseCurrentSelectedBorrowSimulated[key][borrowSimuKey]}`);
+            }
+            reverseSolveItem.simuBorrows = simuBorrows;
+
+            // console.log(this.reverseCurrentSelectedBorrowSimulated);
 
             let cptLiquidityChange = 0
             for (const [keyShort] of Object.entries(this.solverData[key])) {
+                delete reverseSolveItem.liquidity[keyShort]["simulatedVolume"];
                 const realBorrowOfShort = this.getReverseBorrowForToken(keyShort)
                 const simulatedBorrowOfShort = this.getReverseBorrowForTokenSimulated(key, keyShort)
                 if(realBorrowOfShort > 0) {
+                    // real borrow = simulated borrow, do not display volume change for short
+                    if (realBorrowOfShort === simulatedBorrowOfShort) {
+                        continue;
+                    }
+
+                    if(reverseSolveItem.supply <= Math.min(realBorrowOfShort, simulatedBorrowOfShort)) {
+                        continue;
+                    }
+
                     const ratio = realBorrowOfShort / simulatedBorrowOfShort
-                    if (ratio !== 1) {
-                        cptLiquidityChange++
-                        reverseSolveItem.liquidity[keyShort].simulatedVolume =
-                            reverseSolveItem.liquidity[keyShort].volume * ratio
-                        // if(!reverseSolveItem.liquidityChange) {
-                        //     reverseSolveItem.liquidityChange = `+${Math.round((ratio-1)*100)}% ${key}->${keyShort}`;
-                        // } else {
-                        //     reverseSolveItem.liquidityChange += ` | +${Math.round((ratio-1)*100)}% ${key}->${keyShort}`;
-                        // }
-                    }
-                    else{
-                        delete reverseSolveItem.liquidity[keyShort]["simulatedVolume"];
-                    }
+                    cptLiquidityChange++
+                    reverseSolveItem.liquidity[keyShort].simulatedVolume =
+                        reverseSolveItem.liquidity[keyShort].volume * ratio
                 }
             }
 
@@ -465,14 +447,6 @@ class RiskStore {
         }
 
         return this.reverseCurrentSelectedSupply[token]
-    }
-
-    getReverseSupplyForTokenSimulated = (token) => {
-        if (this.reverseCurrentSelectedSupplySimulated[token] === undefined) {
-            this.reverseCurrentSelectedSupplySimulated[token] = this.getReverseSupplyForToken(token)
-        }
-
-        return this.reverseCurrentSelectedSupplySimulated[token]
     }
 
     getReverseBorrowForToken = (token) => {
@@ -519,24 +493,8 @@ class RiskStore {
         return Math.max(...this.findDCStepsForToken(token))
     }
 
-    LTfromSupplyBorrow = (token) => {
-        const longSupply = this.reverseCurrentSelectedSupply[token]
-
-        let min = 1
-        for (const [keyShort, short] of Object.entries(this.solverData[token])) {
-            const shortBorrow = this.getReverseBorrowForToken(keyShort)
-            const minSupplyBorrow = Math.min(Number(longSupply), Number(shortBorrow))
-            const selectedLt = short[minSupplyBorrow.toString()]
-            if (selectedLt < min) {
-                min = selectedLt
-            }
-        }
-
-        return min
-    }
-
     LTfromSupplyBorrowSimulated = (token) => {
-        const longSupply = this.getReverseSupplyForTokenSimulated(token)
+        const longSupply = this.getReverseSupplyForToken(token)
 
         let min = 1
         for (const [keyShort, short] of Object.entries(this.solverData[token])) {
@@ -566,19 +524,19 @@ class RiskStore {
     }
 
     newReverseIncrementLT = (token) => {
-        console.log('====================================');
+        // console.log('====================================');
         // calculate current LT
-        console.log('working on', token);
+        // console.log('working on', token);
         const currentTokenSupply = this.reverseCurrentSelectedSupply[token];
-        console.log('currentTokenSupply', currentTokenSupply);
+        // console.log('currentTokenSupply', currentTokenSupply);
         const borrows = {};
         for (const [keyShort] of Object.entries(this.solverData[token])) {
             borrows[keyShort] = this.getReverseBorrowForTokenSimulated(token, keyShort);
         }
 
-        console.log('borrows', borrows);
+        // console.log('borrows', borrows);
         const currentLT = this.calculateLTFromSuppliesAndBorrows(token, currentTokenSupply, borrows);
-        console.log('currentLT:', currentLT);
+        // console.log('currentLT:', currentLT);
 
         // generate array of steps from the solver data
         const solverDataArray = []
@@ -599,21 +557,21 @@ class RiskStore {
         let selectedSolverData = undefined;
         for(let i = 0; i < solverDataArray.length; i++) {
             const solverData = solverDataArray[i];
-            console.log('solverData:', solverData);
+            // console.log('solverData:', solverData);
 
             if(solverData.value === 0) {
-                console.log('ignoring', solverData, 'because value = 0');
+                // console.log('ignoring', solverData, 'because value = 0');
                 continue;
             }
 
             if(solverData.lt <= currentLT) {
-                console.log('ignoring', solverData, 'because lt:', solverData.lt, `<= to currentLt:`, currentLT);
+                // console.log('ignoring', solverData, 'because lt:', solverData.lt, `<= to currentLt:`, currentLT);
                 continue;
             }
 
             // the solver data must have lower borrow value than the current borrow for the token
             if(solverData.value >= borrows[solverData.symbol]) {
-                console.log('ignoring', solverData, 'because value:', solverData.value, `equals borrows[${solverData.symbol}]:`, borrows[solverData.symbol]);
+                // console.log('ignoring', solverData, 'because value:', solverData.value, `equals borrows[${solverData.symbol}]:`, borrows[solverData.symbol]);
                 continue;
             }
 
@@ -621,20 +579,20 @@ class RiskStore {
             const testLt = this.calculateLTFromSuppliesAndBorrows(token, currentTokenSupply, borrows);
 
             if(testLt <= currentLT) {
-                console.log('ignoring', solverData, 'because calculated lt:', testLt, 'is lower than current lt:', currentLT);
+                // console.log('ignoring', solverData, 'because calculated lt:', testLt, 'is lower than current lt:', currentLT);
                 continue;
             }
 
             // IF HERE, BINGO
-            console.log('New LT is better! Using', solverData, 'as selected data:', testLt, 'from:', currentLT);
+            // console.log('New LT is better! Using', solverData, 'as selected data:', testLt, 'from:', currentLT);
             selectedSolverData = solverData;
             break;
         }
 
         if(selectedSolverData) {
-            console.log('previous borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
+            // console.log('previous borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
             this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol] = selectedSolverData.value;
-            console.log('new borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
+            // console.log('new borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
             this.reverseSolveSimulated();
         } else {
             console.log('could not find better LT for', token);
@@ -642,19 +600,19 @@ class RiskStore {
     }
 
     newReverseDecrementLT = (token) => {
-        console.log('====================================');
+        // console.log('====================================');
         // calculate current LT
-        console.log('working on', token);
+        // console.log('working on', token);
         const currentTokenSupply = this.reverseCurrentSelectedSupply[token];
-        console.log('currentTokenSupply', currentTokenSupply);
+        // console.log('currentTokenSupply', currentTokenSupply);
         const borrows = {};
         for (const [keyShort] of Object.entries(this.solverData[token])) {
             borrows[keyShort] = this.getReverseBorrowForTokenSimulated(token, keyShort);
         }
 
-        console.log('borrows', borrows);
+        // console.log('borrows', borrows);
         const currentLT = this.calculateLTFromSuppliesAndBorrows(token, currentTokenSupply, borrows);
-        console.log('currentLT:', currentLT);
+        // console.log('currentLT:', currentLT);
 
         // generate array of steps from the solver data
         const solverDataArray = []
@@ -675,18 +633,15 @@ class RiskStore {
         let selectedSolverData = undefined;
         for(let i = 0; i < solverDataArray.length; i++) {
             const solverData = solverDataArray[i];
-            console.log('solverData:', solverData);
+            // console.log('solverData:', solverData);
             
-
-            const userSetBorrowOfAsset = this.getReverseBorrowForToken(solverData.symbol);
-
-            if(userSetBorrowOfAsset < solverData.value) {
-                console.log('ignoring', solverData, 'because it would accrue borrow to', solverData.value , 'from user setup borrow:', userSetBorrowOfAsset);
-                continue;
-            }
+            // if(this.getReverseBorrowForToken(solverData.symbol) < solverData.value) {
+            //     console.log('ignoring', solverData, 'because it would accrue borrow to', solverData.value , 'from user setup borrow:', userSetBorrowOfAsset);
+            //     continue;
+            // }
 
             if(selectedSolverData && selectedSolverData.symbol !== solverData.symbol) {
-                console.log('ignoring', solverData, 'because already found solver data on symbol', selectedSolverData.symbol);
+                // console.log('ignoring', solverData, 'because already found solver data on symbol', selectedSolverData.symbol);
                 continue;                
             } 
             
@@ -696,13 +651,13 @@ class RiskStore {
             }
 
             if(solverData.lt > currentLT) {
-                console.log('ignoring', solverData, 'because lt:', solverData.lt, `> to currentLt:`, currentLT);
+                // console.log('ignoring', solverData, 'because lt:', solverData.lt, `> to currentLt:`, currentLT);
                 continue;
             }
 
             // the solver data must have a strictly higher borrow value than the current borrow for the token
             if(solverData.value <= borrows[solverData.symbol]) {
-                console.log('ignoring', solverData, 'because value:', solverData.value, `equals borrows[${solverData.symbol}]:`, borrows[solverData.symbol]);
+                // console.log('ignoring', solverData, 'because value:', solverData.value, `equals borrows[${solverData.symbol}]:`, borrows[solverData.symbol]);
                 continue;
             }
 
@@ -712,11 +667,11 @@ class RiskStore {
             borrows[solverData.symbol] = oldBorrowValue;
             
             if(testLt > currentLT) {
-                console.log('ignoring', solverData, 'because calculated lt:', testLt, 'is higher than current lt:', currentLT);
+                // console.log('ignoring', solverData, 'because calculated lt:', testLt, 'is higher than current lt:', currentLT);
                 continue;
             }
             if(selectedSolverData) {
-                console.log('calcLT', selectedSolverData.calcLT, 'testLT', testLt);
+                // console.log('calcLT', selectedSolverData.calcLT, 'testLT', testLt);
                 // check if same lt as current, if yes, update
                 if(selectedSolverData.calcLT === testLt) {
                     selectedSolverData = solverData;
@@ -724,16 +679,16 @@ class RiskStore {
                 }
             }
             else {
-                console.log('New LT is better! Using', solverData, 'as selected data');
+                // console.log('New LT is better! Using', solverData, 'as selected data. newLT:', testLt);
                 selectedSolverData = solverData;
                 selectedSolverData.calcLT = testLt;
             }
         }
 
         if(selectedSolverData) {
-            console.log('previous borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
+            // console.log('previous borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
             this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol] = selectedSolverData.value;
-            console.log('new borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
+            // console.log('new borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
             this.reverseSolveSimulated();
         } else {
             console.log('could not find lower LT for', token);
@@ -757,8 +712,15 @@ class RiskStore {
                 : (this.reverseCurrentSelectedBorrow[token] = newValue)
         }
 
+        // when changing borrow, set simulated to borrow to be the same
+        // if (field === 'borrow') {
+        //     for (const [longKey] of Object.entries(this.reverseCurrentSelectedBorrowSimulated)) {
+        //         this.reverseCurrentSelectedBorrowSimulated[longKey][token] = this.getReverseBorrowForToken(token)
+        //     }
+        // }
+
         // restart the reverse solve to recompute lt when changing supply or borrow
-        this.reverseSolve()
+        this.reverseSolveSimulated()
     }
 
     reverseDecrement = (token, field) => {
@@ -772,74 +734,32 @@ class RiskStore {
         } else {
             // if not max, update value with the next
             const newValue = dcsForToken[indexOfCurrent - 1]
-            // if (newValue === 0) {
-            // } else {
-            //     field === 'supply'
-            //         ? (this.reverseCurrentSelectedSupply[token] = newValue)
-            //         : (this.reverseCurrentSelectedBorrow[token] = newValue)
-            // }
-            
-            field === 'supply'
-                ? (this.reverseCurrentSelectedSupply[token] = newValue)
-                : (this.reverseCurrentSelectedBorrow[token] = newValue)
+            if (newValue > 0) {
+                field === 'supply'
+                    ? (this.reverseCurrentSelectedSupply[token] = newValue)
+                    : (this.reverseCurrentSelectedBorrow[token] = newValue)
+            }
         }
+
+        // when decreasing supply, if any simulated borrow is higher than the current supply, reset simu borrow = real borrow
+        if (field === 'supply') {
+            for (const [borrowSimuKey] of Object.entries(this.reverseCurrentSelectedBorrowSimulated[token])) {
+                const simuBorrow = this.reverseCurrentSelectedBorrowSimulated[token][borrowSimuKey];
+                if(simuBorrow >= this.reverseCurrentSelectedSupply[token]) {
+                    this.reverseCurrentSelectedBorrowSimulated[token][borrowSimuKey] = this.getReverseBorrowForToken(borrowSimuKey)
+                }
+            }
+        }
+
+        // when changing borrow, set simulated to borrow to be the same
+        // if (field === 'borrow') {
+        //     for (const [longKey] of Object.entries(this.reverseCurrentSelectedBorrowSimulated)) {
+        //         this.reverseCurrentSelectedBorrowSimulated[longKey][token] = this.getReverseBorrowForToken(token)
+        //     }
+        // }
 
         // restart the reverse solve to recompute lt when changing supply or borrow
-        this.reverseSolve()
-    }
-
-    /**
-     *
-     * @param {string} token symbol
-     * @param {boolean} increase if true, else decrease
-     * @param {boolean} isSimu true if should take the simulated value as current vale
-     * @param {boolean} isSupply true if should take supply as current value
-     * @returns {number} the next LT step for the current token
-     */
-    getNextLtStep = (token, increase, isSimu, isSupply, longToken = undefined) => {
-        const dcsForToken = this.findDCStepsForToken(token) // [0,1,5,10,15,20]
-        dcsForToken.sort((a, b) => a - b)
-        let currentValue = 0
-
-        if (isSimu) {
-            if (isSupply) {
-                currentValue = this.getReverseSupplyForTokenSimulated(token)
-            } else {
-                currentValue = this.getReverseBorrowForTokenSimulated(longToken, token)
-            }
-        } else {
-            if (isSupply) {
-                currentValue = this.getReverseSupplyForToken(token)
-            } else {
-                currentValue = this.getReverseBorrowForToken(token)
-            }
-        }
-
-        const indexOfCurrent = dcsForToken.indexOf(currentValue)
-        if (increase) {
-            if (indexOfCurrent === dcsForToken.length - 1) {
-                // do nothing if already max
-                return currentValue
-            } else {
-                // if not max, update value with the next
-                const newValue = dcsForToken[indexOfCurrent + 1]
-                return newValue
-            }
-        } else {
-            if (indexOfCurrent === 0) {
-                // do nothing if already min
-                return currentValue
-            } else {
-                // if not max, update value with the next
-                const newValue = dcsForToken[indexOfCurrent - 1]
-                if (newValue === 0) {
-                    return currentValue
-                } else {
-                    return newValue
-                }
-                // return newValue
-            }
-        }
+        this.reverseSolveSimulated()
     }
 }
 
