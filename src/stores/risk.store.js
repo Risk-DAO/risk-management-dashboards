@@ -409,6 +409,10 @@ class RiskStore {
                         continue;
                     }
 
+                    if(reverseSolveItem.supply <= Math.min(realBorrowOfShort, simulatedBorrowOfShort)) {
+                        continue;
+                    }
+
                     const ratio = realBorrowOfShort / simulatedBorrowOfShort
                     cptLiquidityChange++
                     reverseSolveItem.liquidity[keyShort].simulatedVolume =
@@ -675,7 +679,7 @@ class RiskStore {
                 }
             }
             else {
-                console.log('New LT is better! Using', solverData, 'as selected data');
+                console.log('New LT is better! Using', solverData, 'as selected data. newLT:', testLt);
                 selectedSolverData = solverData;
                 selectedSolverData.calcLT = testLt;
             }
@@ -708,6 +712,13 @@ class RiskStore {
                 : (this.reverseCurrentSelectedBorrow[token] = newValue)
         }
 
+        // when changing borrow, set simulated to borrow to be the same
+        if (field === 'borrow') {
+            for (const [longKey] of Object.entries(this.reverseCurrentSelectedBorrowSimulated)) {
+                this.reverseCurrentSelectedBorrowSimulated[longKey][token] = this.getReverseBorrowForToken(token)
+            }
+        }
+
         // restart the reverse solve to recompute lt when changing supply or borrow
         this.reverseSolveSimulated()
     }
@@ -737,6 +748,13 @@ class RiskStore {
                 if(simuBorrow >= this.reverseCurrentSelectedSupply[token]) {
                     this.reverseCurrentSelectedBorrowSimulated[token][borrowSimuKey] = this.getReverseBorrowForToken(borrowSimuKey)
                 }
+            }
+        }
+
+        // when changing borrow, set simulated to borrow to be the same
+        if (field === 'borrow') {
+            for (const [longKey] of Object.entries(this.reverseCurrentSelectedBorrowSimulated)) {
+                this.reverseCurrentSelectedBorrowSimulated[longKey][token] = this.getReverseBorrowForToken(token)
             }
         }
 

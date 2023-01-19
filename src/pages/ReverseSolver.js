@@ -226,10 +226,10 @@ class ReverseSolver extends Component {
         const { json_time } = mainStore['risk_params_data'] || {}
         const lendingPlatformData = mainStore['lending_platform_current_data'] || {}
         if(window.APP_CONFIG.feature_flags.cardanoLtModifiers){
-          cardanoLtModifiers = Number(lendingPlatformData['protocolFees']) + Number(lendingPlatformData['magicNumber']);
+            cardanoLtModifiers = Number(lendingPlatformData['protocolFees']) + Number(lendingPlatformData['magicNumber']);
         }
 
-        console.log('riskStore.reverseSolvedData', JSON.stringify(riskStore.reverseSolvedData, null, 2))
+        // console.log('riskStore.reverseSolvedData', JSON.stringify(riskStore.reverseSolvedData, null, 2))
 
         return (
             <div>
