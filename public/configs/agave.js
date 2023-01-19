@@ -69,7 +69,7 @@ window.APP_CONFIG = {
         SANDBOX_DESCRIPTION:
             'The sandbox lets you set different Supply and Borrow caps to get liquidation threshold recommendations according to different caps. The tool also provides optimization setting recommendations.',
         REVERSESOLVER_DESCRIPTION:
-            'The DEX Liquidity Sandbox allows you to set different Supply and Borrow and then to try to change the liquidation threshold to see the required liquidity for the specified parameters. Start by specifying the desired Supply and Borrow parameters and then you can change the liquidation threshold. The liquidity change are reset every time you change supply or borrow.',
+            'The DEX Liquidity Sandbox allows you to set different Supply and Borrow and then to try to change the liquidation threshold to see the required liquidity for the specified parameters.',
         UTILIZATION: {
             CURRENT_COLLATERAL_FACTOR: 'Current Liquidation Threshold',
             RECOMMENDED_COLLATERAL_FACTOR: 'Recommended Liquidation Threshold',
