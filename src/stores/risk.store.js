@@ -713,11 +713,11 @@ class RiskStore {
         }
 
         // when changing borrow, set simulated to borrow to be the same
-        if (field === 'borrow') {
-            for (const [longKey] of Object.entries(this.reverseCurrentSelectedBorrowSimulated)) {
-                this.reverseCurrentSelectedBorrowSimulated[longKey][token] = this.getReverseBorrowForToken(token)
-            }
-        }
+        // if (field === 'borrow') {
+        //     for (const [longKey] of Object.entries(this.reverseCurrentSelectedBorrowSimulated)) {
+        //         this.reverseCurrentSelectedBorrowSimulated[longKey][token] = this.getReverseBorrowForToken(token)
+        //     }
+        // }
 
         // restart the reverse solve to recompute lt when changing supply or borrow
         this.reverseSolveSimulated()
@@ -752,11 +752,11 @@ class RiskStore {
         }
 
         // when changing borrow, set simulated to borrow to be the same
-        if (field === 'borrow') {
-            for (const [longKey] of Object.entries(this.reverseCurrentSelectedBorrowSimulated)) {
-                this.reverseCurrentSelectedBorrowSimulated[longKey][token] = this.getReverseBorrowForToken(token)
-            }
-        }
+        // if (field === 'borrow') {
+        //     for (const [longKey] of Object.entries(this.reverseCurrentSelectedBorrowSimulated)) {
+        //         this.reverseCurrentSelectedBorrowSimulated[longKey][token] = this.getReverseBorrowForToken(token)
+        //     }
+        // }
 
         // restart the reverse solve to recompute lt when changing supply or borrow
         this.reverseSolveSimulated()
