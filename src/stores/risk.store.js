@@ -524,19 +524,19 @@ class RiskStore {
     }
 
     newReverseIncrementLT = (token) => {
-        console.log('====================================');
+        // console.log('====================================');
         // calculate current LT
-        console.log('working on', token);
+        // console.log('working on', token);
         const currentTokenSupply = this.reverseCurrentSelectedSupply[token];
-        console.log('currentTokenSupply', currentTokenSupply);
+        // console.log('currentTokenSupply', currentTokenSupply);
         const borrows = {};
         for (const [keyShort] of Object.entries(this.solverData[token])) {
             borrows[keyShort] = this.getReverseBorrowForTokenSimulated(token, keyShort);
         }
 
-        console.log('borrows', borrows);
+        // console.log('borrows', borrows);
         const currentLT = this.calculateLTFromSuppliesAndBorrows(token, currentTokenSupply, borrows);
-        console.log('currentLT:', currentLT);
+        // console.log('currentLT:', currentLT);
 
         // generate array of steps from the solver data
         const solverDataArray = []
@@ -557,21 +557,21 @@ class RiskStore {
         let selectedSolverData = undefined;
         for(let i = 0; i < solverDataArray.length; i++) {
             const solverData = solverDataArray[i];
-            console.log('solverData:', solverData);
+            // console.log('solverData:', solverData);
 
             if(solverData.value === 0) {
-                console.log('ignoring', solverData, 'because value = 0');
+                // console.log('ignoring', solverData, 'because value = 0');
                 continue;
             }
 
             if(solverData.lt <= currentLT) {
-                console.log('ignoring', solverData, 'because lt:', solverData.lt, `<= to currentLt:`, currentLT);
+                // console.log('ignoring', solverData, 'because lt:', solverData.lt, `<= to currentLt:`, currentLT);
                 continue;
             }
 
             // the solver data must have lower borrow value than the current borrow for the token
             if(solverData.value >= borrows[solverData.symbol]) {
-                console.log('ignoring', solverData, 'because value:', solverData.value, `equals borrows[${solverData.symbol}]:`, borrows[solverData.symbol]);
+                // console.log('ignoring', solverData, 'because value:', solverData.value, `equals borrows[${solverData.symbol}]:`, borrows[solverData.symbol]);
                 continue;
             }
 
@@ -579,20 +579,20 @@ class RiskStore {
             const testLt = this.calculateLTFromSuppliesAndBorrows(token, currentTokenSupply, borrows);
 
             if(testLt <= currentLT) {
-                console.log('ignoring', solverData, 'because calculated lt:', testLt, 'is lower than current lt:', currentLT);
+                // console.log('ignoring', solverData, 'because calculated lt:', testLt, 'is lower than current lt:', currentLT);
                 continue;
             }
 
             // IF HERE, BINGO
-            console.log('New LT is better! Using', solverData, 'as selected data:', testLt, 'from:', currentLT);
+            // console.log('New LT is better! Using', solverData, 'as selected data:', testLt, 'from:', currentLT);
             selectedSolverData = solverData;
             break;
         }
 
         if(selectedSolverData) {
-            console.log('previous borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
+            // console.log('previous borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
             this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol] = selectedSolverData.value;
-            console.log('new borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
+            // console.log('new borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
             this.reverseSolveSimulated();
         } else {
             console.log('could not find better LT for', token);
@@ -600,19 +600,19 @@ class RiskStore {
     }
 
     newReverseDecrementLT = (token) => {
-        console.log('====================================');
+        // console.log('====================================');
         // calculate current LT
-        console.log('working on', token);
+        // console.log('working on', token);
         const currentTokenSupply = this.reverseCurrentSelectedSupply[token];
-        console.log('currentTokenSupply', currentTokenSupply);
+        // console.log('currentTokenSupply', currentTokenSupply);
         const borrows = {};
         for (const [keyShort] of Object.entries(this.solverData[token])) {
             borrows[keyShort] = this.getReverseBorrowForTokenSimulated(token, keyShort);
         }
 
-        console.log('borrows', borrows);
+        // console.log('borrows', borrows);
         const currentLT = this.calculateLTFromSuppliesAndBorrows(token, currentTokenSupply, borrows);
-        console.log('currentLT:', currentLT);
+        // console.log('currentLT:', currentLT);
 
         // generate array of steps from the solver data
         const solverDataArray = []
@@ -633,7 +633,7 @@ class RiskStore {
         let selectedSolverData = undefined;
         for(let i = 0; i < solverDataArray.length; i++) {
             const solverData = solverDataArray[i];
-            console.log('solverData:', solverData);
+            // console.log('solverData:', solverData);
             
             // if(this.getReverseBorrowForToken(solverData.symbol) < solverData.value) {
             //     console.log('ignoring', solverData, 'because it would accrue borrow to', solverData.value , 'from user setup borrow:', userSetBorrowOfAsset);
@@ -641,7 +641,7 @@ class RiskStore {
             // }
 
             if(selectedSolverData && selectedSolverData.symbol !== solverData.symbol) {
-                console.log('ignoring', solverData, 'because already found solver data on symbol', selectedSolverData.symbol);
+                // console.log('ignoring', solverData, 'because already found solver data on symbol', selectedSolverData.symbol);
                 continue;                
             } 
             
@@ -651,13 +651,13 @@ class RiskStore {
             }
 
             if(solverData.lt > currentLT) {
-                console.log('ignoring', solverData, 'because lt:', solverData.lt, `> to currentLt:`, currentLT);
+                // console.log('ignoring', solverData, 'because lt:', solverData.lt, `> to currentLt:`, currentLT);
                 continue;
             }
 
             // the solver data must have a strictly higher borrow value than the current borrow for the token
             if(solverData.value <= borrows[solverData.symbol]) {
-                console.log('ignoring', solverData, 'because value:', solverData.value, `equals borrows[${solverData.symbol}]:`, borrows[solverData.symbol]);
+                // console.log('ignoring', solverData, 'because value:', solverData.value, `equals borrows[${solverData.symbol}]:`, borrows[solverData.symbol]);
                 continue;
             }
 
@@ -667,11 +667,11 @@ class RiskStore {
             borrows[solverData.symbol] = oldBorrowValue;
             
             if(testLt > currentLT) {
-                console.log('ignoring', solverData, 'because calculated lt:', testLt, 'is higher than current lt:', currentLT);
+                // console.log('ignoring', solverData, 'because calculated lt:', testLt, 'is higher than current lt:', currentLT);
                 continue;
             }
             if(selectedSolverData) {
-                console.log('calcLT', selectedSolverData.calcLT, 'testLT', testLt);
+                // console.log('calcLT', selectedSolverData.calcLT, 'testLT', testLt);
                 // check if same lt as current, if yes, update
                 if(selectedSolverData.calcLT === testLt) {
                     selectedSolverData = solverData;
@@ -679,16 +679,16 @@ class RiskStore {
                 }
             }
             else {
-                console.log('New LT is better! Using', solverData, 'as selected data. newLT:', testLt);
+                // console.log('New LT is better! Using', solverData, 'as selected data. newLT:', testLt);
                 selectedSolverData = solverData;
                 selectedSolverData.calcLT = testLt;
             }
         }
 
         if(selectedSolverData) {
-            console.log('previous borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
+            // console.log('previous borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
             this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol] = selectedSolverData.value;
-            console.log('new borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
+            // console.log('new borrow for', selectedSolverData.symbol, ':', this.reverseCurrentSelectedBorrowSimulated[token][selectedSolverData.symbol]);
             this.reverseSolveSimulated();
         } else {
             console.log('could not find lower LT for', token);
