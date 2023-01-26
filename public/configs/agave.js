@@ -9,7 +9,7 @@ window.APP_CONFIG = {
         alerts: true,
         loopingToggle: false,
         initSandBoxFromCurrentUtilization: true,
-        initDexLiquiditySandBoxFromCurrentUtilization: false,
+        initDexLiquiditySandBoxFromCurrentUtilization: true,
         computeReverseSandbox: true
     },
     apiEndpoints: [
