@@ -1,8 +1,8 @@
+// class Solver {
 export default class Solver {
   constructor(rawDataObj) {
-      this.liquidationPenalty = 0.1
       this.collaterals = []
-      this.stables = ["auUSDC", "auUSDT", "USDT.e", "USDC.e", "USDC", "WXDAI"]
+      this.stables = ["auUSDC", "auUSDT", "USDT.e", "USDC.e", "USDC", "WXDAI", "iUSD", "USDT"]
       this.shortStableLfs = [1, 1.5, 2]
       this.longStableLfs = [0.25, 0.5, 1]
       this.otherLfs = [0.5, 1, 1.5]
@@ -27,6 +27,7 @@ export default class Solver {
               perPairResult = {} // reset results, so only last results count
               const perDcResult = {}
               const dcs = []
+              let li = 0.0;
               const cfs = []
               const result = {}
               for(const data of rawDataObj[pair][liquidity]) {
@@ -40,6 +41,7 @@ export default class Solver {
                   const dc = data["dc"]
                   if(! dcs.includes(dc)) {
                       dcs.push(dc)
+                      li = data["li"]
                       perDcResult[dc] = []
                   }
 
@@ -54,7 +56,7 @@ export default class Solver {
                   for(const md of perDcResult[dc]) sum += md
                   const avg = sum / perDcResult[dc].length
 
-                  const cf = result[dc] = 1 - avg - this.liquidationPenalty
+                  const cf = result[dc] = 1 - avg - li
                   if(! cfs.includes(cf)) cfs.push(cf)
               }
 
@@ -66,10 +68,8 @@ export default class Solver {
           if(! this.parsedData[long]) this.parsedData[long] = {}
           this.parsedData[long][short] = Object.assign({}, perPairResult)
       }
-
-      console.log(JSON.stringify(this.parsedData, null, 2))
-      console.log("supply caps", this.supplyCaps)
-      console.log("borrow caps", this.borrowCaps)      
+      
+    //   console.log('this.parsedData', JSON.stringify(this.parsedData, null, 2));
   }
 
   mergeArrays(arr1, arr2) {
@@ -84,7 +84,7 @@ export default class Solver {
   }
 
   sortArray(arr) {
-    return arr.sort((a,b) => Number(a)- Number(b))
+    return arr.sort((a,b) => Number(a) - Number(b))
   }
 
   min(val1, val2) {
@@ -92,27 +92,23 @@ export default class Solver {
       return val1 > val2 ? val2 : val1
   }
 
-  findValidCfg(mintCaps, borrowCaps, cfs) {
-      //console.log({cfs})
-      const resultMintCaps = {}
-      const resultBorrowCaps = Object.assign({}, borrowCaps)
-      const resultCfs = {}
-      let valid = true
-      const efficientFrontier = []
+    findValidCfg(mintCaps, borrowCaps, cfs) {
+        const resultMintCaps = {}
+        const resultBorrowCaps = Object.assign({}, borrowCaps)
+        const resultCfs = {}
+        let valid = true
+        const efficientFrontier = []
 
-      for(const long of Object.keys(this.parsedData)) {
-          for(const short of Object.keys(this.parsedData[long])) {
-              //console.log(long, short)
-              let prevDc = 0
-              for(let dc of this.sortArray(Object.keys(this.parsedData[long][short]))) {
-                  dc = Number(dc)
-                  const cf = this.parsedData[long][short][dc]
-                  //if(long === "auETH") console.log(long, short, dc, cf, cfs[long], mintCaps[long], borrowCaps[short])
-                  if(cfs[long] > cf) {
-                      //console.log(long, short, " cf", cfs[long], " is violated for dc ", dc)
-                      valid = false
-                      break // move to next short asset
-                  }
+        for (const long of Object.keys(this.parsedData)) {
+            for (const short of Object.keys(this.parsedData[long])) {
+                let prevDc = 0
+                for (let dc of this.sortArray(Object.keys(this.parsedData[long][short]))) {
+                    dc = Number(dc)
+                    const cf = this.parsedData[long][short][dc]
+                    if (cfs[long] > cf) {
+                        valid = false
+                        break // move to next short asset
+                    }
 
                   let match = false
                   if(dc >= mintCaps[long]) {
@@ -246,29 +242,54 @@ export default class Solver {
       return this.findValidCfg(cfg.mintCaps, cfg.borrowCaps, cfg.cfs).efficientFrontier
   }
 }
+
 // const rawData = require("./risk_params.json")
 // const s = new Solver(rawData)
-// console.log(s.caps)
+// console.log(s.parsedData)
 
-// const caps = {
-//   "auUSDC" : 0,
-//   "auUSDT" : 0,
-//   "auWNEAR" : 45,
-//   "auSTNEAR" : 49,
-//   "auWBTC" : 45,
-//   "auETH" : 45
+// const supplyCaps = {
+//   "ADA" : 0.1,
+//   "C3" : 0.2,
+//   "COPI" : 0.1,
+//   "HOSKY" : 20,
+//   "iBTC" : 20,
+//   "iUSD" : 0.1,
+//   "MELD" : 0.1,
+//   "MIN" : 0.1,
+//   "WMT" : 0.1,
+//   "WRT" : 0.1,
 // }
 
+
+// const borrowCaps = {
+//     "ADA" : 0.1,
+//     "C3" : 0.2,
+//     "COPI" : 0.1,
+//     "HOSKY" : 20,
+//     "iBTC" : 20,
+//     "iUSD" : 0.1,
+//     "MELD" : 0.1,
+//     "MIN" : 0.1,
+//     "WMT" : 0.1,
+//     "WRT" : 0.1,
+//   }
+
+  
 // const cfs = {
-//   "auUSDC" : 0,
-//   "auUSDT" : 0,
-//   "auWNEAR" : 0,
-//   "auSTNEAR" : 0,
-//   "auWBTC" : 0,
-//   "auETH" : 0    
-// }
+//     "ADA" : -10,
+//     "C3" :  -10,
+//     "COPI" :  -10,
+//     "HOSKY" :  -10,
+//     "iBTC" :  -10,
+//     "iUSD" :  -10,
+//     "MELD" : -10,
+//     "MIN" :  -10,
+//     "WMT" :  -10,
+//     "WRT" :  -10
+//   }
 
-// const cfg = s.findValidCfg(caps, caps, cfs)
+// const cfg = s.findValidCfg(supplyCaps, borrowCaps, cfs)
+// console.log(cfg)
 // //console.log({caps})
 // console.log({cfg})
 // console.log("try to optimize")
