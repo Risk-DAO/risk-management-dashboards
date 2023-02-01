@@ -1,12 +1,18 @@
-import React, { Component } from "react"
-import {observer} from "mobx-react"
-import Box from "../components/Box"
-import DataTable from 'react-data-table-component'
-import mainStore from '../stores/main.store'
-import Ramzor from '../components/Ramzor'
-import Token from '../components/Token'
+import Box from "../components/Box";
+import { Component } from "react";
+import DataTable from 'react-data-table-component';
+import Ramzor from '../components/Ramzor';
+import Token from '../components/Token';
+import mainStore from '../stores/main.store';
+import { observer } from "mobx-react";
 
 const percentFrom = (base, num) => {
+  if (base <= 0 || num <= 0) {
+    return "N/A";
+  }
+  if(base ==="NaN" || num === "NaN"){
+    return "N/A";
+  }
   const percent = ((num / base) * 100) - 100
   return <Ramzor 
     yellow={percent > 2 || percent < -2} 

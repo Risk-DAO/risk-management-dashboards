@@ -1,8 +1,12 @@
-import React, { Component, lazy, Suspense } from "react";
-import {observer} from "mobx-react"
+import { Component, Suspense, lazy } from "react";
+
+import ReverseSolver from './ReverseSolver';
 import ScrollSpy from "react-ui-scrollspy";
-import mainStore from '../stores/main.store'
-import {TEXTS} from "../constants"
+import SimulationParameters from "./SimulationParameters";
+import { TEXTS } from "../constants";
+import mainStore from '../stores/main.store';
+import { observer } from "mobx-react";
+import riskStore from '../stores/risk.store';
 
 const Overview = lazy(() => import('./Overview'))
 const Liquidity = lazy(() => import('./Liquidity'))
@@ -48,6 +52,14 @@ class SinglePage extends Component {
             </Suspense>
           </div>}
         </section>
+        <section id="simulation-parameters">
+          {mainStore.sectionShow("simulation-parameters") && <div>
+            <h2>Simulation Parameters</h2>
+            <Suspense fallback={<article aria-busy="true"></article>}>
+              <SimulationParameters/>
+            </Suspense>
+          </div>}
+        </section>
         <section id="collateral-factors">
           {mainStore.sectionShow("collateral-factors") && <div>
             <h2>{TEXTS.COLLATERAL_FACTOR} Recommendations</h2>
@@ -66,7 +78,24 @@ class SinglePage extends Component {
               <SandBox/>
             </Suspense>
           </div>}
-        </section>
+        </section>        
+        {riskStore.solverData ? (
+                    <section id="reversesolver">
+                        {mainStore.sectionShow('reversesolver') && (
+                            <div>
+                                <hgroup>
+                                    <h2>Dex Liquidity Sandbox</h2>
+                                    <p className="description">{TEXTS.REVERSESOLVER_DESCRIPTION}</p>
+                                </hgroup>
+                                <Suspense fallback={<article aria-busy="true"></article>}>
+                                    <ReverseSolver />
+                                </Suspense>
+                            </div>
+                        )}
+                    </section>
+                ) : (
+                    ''
+                )}
         <section id="asset-distribution">
           {mainStore.sectionShow("asset-distribution") && <div>
             <hgroup>
