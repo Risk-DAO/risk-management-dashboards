@@ -167,9 +167,10 @@ const LiquidityChanges = (props) => {
                 const currentSlippage = Math.round(Math.max(slippageAvsADA, slippageADAvsB) * 100);
                 const requiredLiquidityValue = SolveLiquidityIncrease(tokenA, liquidityData[tokenA]['ADA'].volume, tokenB, liquidityData['ADA'][tokenB].volume , increaseFactor, currentSlippage);
                 liquidityToolTip = ``
+                + `Required liquidities:\n`
                 // + `Required increase for +${roundTo((increaseFactor-1)*100)}% on ${tokenA}->${tokenB}:\n`
-                + `- ${tokenA}->ADA: +${roundTo((requiredLiquidityValue.tokenAIncreaseRatio-1)*100)}%\n`
-                + `- ADA->${tokenB}: +${roundTo((requiredLiquidityValue.tokenBIncreaseRatio -1)*100)}%`
+                + `- ${tokenA}->ADA: ${whaleFriendlyFormater(requiredLiquidityValue.liquidityAvsADA)} (+${roundTo((requiredLiquidityValue.tokenAIncreaseRatio-1)*100)}%)\n`
+                + `- ADA->${tokenB}: ${whaleFriendlyFormater(requiredLiquidityValue.liquidityADAvsB)} (+${roundTo((requiredLiquidityValue.tokenBIncreaseRatio -1)*100)}%)`
 
             }
             textDisplay.push({ text: `${props.data.long} -> ${key} ${ratio < 0 ? '' : '+'}${ratio}% `, ratio: ratio, toolTip: liquidityToolTip })

@@ -94,7 +94,9 @@ function SolveLiquidityIncrease(tokenA, liquidityAvsADA, tokenB, liquidityADAvsB
     
     return {
         tokenAIncreaseRatio: increaseRatioOfLiquidityAvsADA,
+        liquidityAvsADA: simulatedLiquidityA,
         tokenBIncreaseRatio: increaseRatioOfLiquidityADAvsB,
+        liquidityADAvsB: simulatedLiquidityB,
     };
 }
 
