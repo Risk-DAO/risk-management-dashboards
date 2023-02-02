@@ -1,7 +1,6 @@
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { COLORS, TEXTS } from '../constants'
 import { WhaleFriendlyAxisTick, whaleFriendlyFormater } from '../components/WhaleFriendly'
-
 import Box from '../components/Box'
 import BoxRow from '../components/BoxRow'
 import { Component } from 'react'
@@ -12,6 +11,7 @@ import { observer } from 'mobx-react'
 import riskStore from '../stores/risk.store'
 import { shortCurrencyFormatter } from '../utils'
 import { roundTo, SolveLiquidityIncrease } from '../risk/meld_liquidity_solver'
+const {PLATFORM_ID} = window.APP_CONFIG
 
 const buttonsStyle = {
     display: 'flex',
@@ -145,6 +145,18 @@ const CustomTooltip = ({ active, payload, label }) => {
     }
 }
 
+
+function getSolvedLiquidityTooltip(ratio, tokenA, tokenB, liquidityData) {
+    const increaseFactor = ratio / 100 + 1
+    const slippageAvsADA = liquidityData[tokenA]['ADA'].llc - 1
+    const slippageADAvsB = liquidityData['ADA'][tokenB].llc - 1
+    const currentSlippage = Math.round(Math.max(slippageAvsADA, slippageADAvsB) * 100)
+    const requiredLiquidityValue = SolveLiquidityIncrease(tokenA, liquidityData[tokenA]['ADA'].volume, tokenB, liquidityData['ADA'][tokenB].volume, increaseFactor, currentSlippage)
+    return `Required liquidities:\n`
+        + `- ${tokenA}->ADA: ${whaleFriendlyFormater(requiredLiquidityValue.liquidityAvsADA)} (+${roundTo((requiredLiquidityValue.tokenAIncreaseRatio - 1) * 100)}%)\n`
+        + `- ADA->${tokenB}: ${whaleFriendlyFormater(requiredLiquidityValue.liquidityADAvsB)} (+${roundTo((requiredLiquidityValue.tokenBIncreaseRatio - 1) * 100)}%)`
+}
+
 const LiquidityChanges = (props) => {
     // GRAPH DATA
     const textDisplay = []
@@ -158,20 +170,12 @@ const LiquidityChanges = (props) => {
         } else {
             let ratio = Math.round((value['simulatedVolume'] / value['volume'] - 1) * 100);
             let liquidityToolTip = null;
-            if(props.data.long !== 'ADA' && key !== 'ADA') {
-                const increaseFactor = ratio / 100 + 1;
-                const tokenA = props.data.long;
-                const tokenB = key;
-                const slippageAvsADA = liquidityData[tokenA]['ADA'].llc - 1;
-                const slippageADAvsB = liquidityData['ADA'][tokenB].llc - 1;
-                const currentSlippage = Math.round(Math.max(slippageAvsADA, slippageADAvsB) * 100);
-                const requiredLiquidityValue = SolveLiquidityIncrease(tokenA, liquidityData[tokenA]['ADA'].volume, tokenB, liquidityData['ADA'][tokenB].volume , increaseFactor, currentSlippage);
-                liquidityToolTip = ``
-                + `Required liquidities:\n`
-                // + `Required increase for +${roundTo((increaseFactor-1)*100)}% on ${tokenA}->${tokenB}:\n`
-                + `- ${tokenA}->ADA: ${whaleFriendlyFormater(requiredLiquidityValue.liquidityAvsADA)} (+${roundTo((requiredLiquidityValue.tokenAIncreaseRatio-1)*100)}%)\n`
-                + `- ADA->${tokenB}: ${whaleFriendlyFormater(requiredLiquidityValue.liquidityADAvsB)} (+${roundTo((requiredLiquidityValue.tokenBIncreaseRatio -1)*100)}%)`
-
+            // add tooltip on liquidity requirement only for MELD, platform = 5
+            if(PLATFORM_ID === '5') {
+                // add tooltip on liquidity requirement only for tokens other than ADA
+                if(props.data.long !== 'ADA' && key !== 'ADA') {
+                    liquidityToolTip = getSolvedLiquidityTooltip(ratio, props.data.long, key, liquidityData)
+                }
             }
             textDisplay.push({ text: `${props.data.long} -> ${key} ${ratio < 0 ? '' : '+'}${ratio}% `, ratio: ratio, toolTip: liquidityToolTip })
             graphItem['value'] = value['simulatedVolume']
@@ -268,3 +272,4 @@ class ReverseSolver extends Component {
 }
 
 export default observer(ReverseSolver)
+
