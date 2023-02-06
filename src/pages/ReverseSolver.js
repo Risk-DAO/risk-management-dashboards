@@ -11,6 +11,13 @@ import { observer } from 'mobx-react'
 import riskStore from '../stores/risk.store'
 import { shortCurrencyFormatter } from '../utils'
 import { roundTo, SolveLiquidityIncrease } from '../risk/meld_liquidity_solver'
+import {
+    Accordion,
+    AccordionItem,
+    AccordionItemHeading,
+    AccordionItemButton,
+    AccordionItemPanel,
+} from 'react-accessible-accordion';
 const {PLATFORM_ID} = window.APP_CONFIG
 
 const buttonsStyle = {
@@ -152,9 +159,8 @@ function getSolvedLiquidityTooltip(ratio, tokenA, tokenB, liquidityData) {
     const slippageADAvsB = liquidityData['ADA'][tokenB].llc - 1
     const currentSlippage = Math.round(Math.max(slippageAvsADA, slippageADAvsB) * 100)
     const requiredLiquidityValue = SolveLiquidityIncrease(tokenA, liquidityData[tokenA]['ADA'].volume, tokenB, liquidityData['ADA'][tokenB].volume, increaseFactor, currentSlippage)
-    return `Required liquidities:\n`
-        + `- ${tokenA}->ADA: ${whaleFriendlyFormater(requiredLiquidityValue.liquidityAvsADA)} (+${roundTo((requiredLiquidityValue.tokenAIncreaseRatio - 1) * 100)}%)\n`
-        + `- ADA->${tokenB}: ${whaleFriendlyFormater(requiredLiquidityValue.liquidityADAvsB)} (+${roundTo((requiredLiquidityValue.tokenBIncreaseRatio - 1) * 100)}%)`
+    return [`${tokenA}->ADA: ${whaleFriendlyFormater(requiredLiquidityValue.liquidityAvsADA)} (+${roundTo((requiredLiquidityValue.tokenAIncreaseRatio - 1) * 100)}%)`,
+            `ADA->${tokenB}: ${whaleFriendlyFormater(requiredLiquidityValue.liquidityADAvsB)} (+${roundTo((requiredLiquidityValue.tokenBIncreaseRatio - 1) * 100)}%)`]
 }
 
 const LiquidityChanges = (props) => {
@@ -169,15 +175,15 @@ const LiquidityChanges = (props) => {
             graphItem['value'] = value['volume']
         } else {
             let ratio = Math.round((value['simulatedVolume'] / value['volume'] - 1) * 100);
-            let liquidityToolTip = null;
+            let decomposedLiquidity = null;
             // add tooltip on liquidity requirement only for MELD, platform = 5
             if(PLATFORM_ID === '5') {
                 // add tooltip on liquidity requirement only for tokens other than ADA
                 if(props.data.long !== 'ADA' && key !== 'ADA') {
-                    liquidityToolTip = getSolvedLiquidityTooltip(ratio, props.data.long, key, liquidityData)
+                    decomposedLiquidity = getSolvedLiquidityTooltip(ratio, props.data.long, key, liquidityData)
                 }
             }
-            textDisplay.push({ text: `${props.data.long} -> ${key} ${ratio < 0 ? '' : '+'}${ratio}% `, ratio: ratio, toolTip: liquidityToolTip })
+            textDisplay.push({ text: `${props.data.long} -> ${key} ${ratio < 0 ? '' : '+'}${ratio}% `, ratio: ratio, decomposedLiquidity: decomposedLiquidity })
             graphItem['value'] = value['simulatedVolume']
         }
         displayData.push(graphItem)
@@ -215,7 +221,7 @@ const LiquidityChanges = (props) => {
             <div
                 className="box-space"
                 style={{
-                    width: '50%',
+                    width: '100%',
                     display: 'flex',
                     justifyContent: 'space-between',
                     flexDirection: 'column',
@@ -223,11 +229,35 @@ const LiquidityChanges = (props) => {
             >
                 <hgroup>
                     <p>Changes required:</p>
-                    <ul>
-                        {textDisplay.map((entry, key) => {
-                            return <li title={entry.toolTip} key={key}>{entry.text}</li>
-                        })}
-                    </ul>
+                    {PLATFORM_ID === '5' ? 
+                        <Accordion allowZeroExpanded={true}>
+                            {textDisplay.map((entry, key) => {
+                                    return <AccordionItem>
+                                                <AccordionItemHeading>
+                                                    <AccordionItemButton>
+                                                        {entry.text}
+                                                    </AccordionItemButton>
+                                                </AccordionItemHeading>
+                                                {entry.decomposedLiquidity ? 
+                                                    <AccordionItemPanel>
+                                                        <article className='accordion-article'>
+                                                            <ul>
+                                                                {entry.decomposedLiquidity.map((dl, keyDl) => {return <li key={keyDl}>{dl}</li>})}
+                                                            </ul>
+                                                        </article>
+                                                    </AccordionItemPanel>
+                                                    :
+                                                    ''
+                                                }
+                                            </AccordionItem>                                
+                            })}
+                        </Accordion> 
+                        :  
+                        <ul>
+                            {textDisplay.map((entry, key) => { return <li key={key}>{entry.text}</li>})}
+                            </ul>
+                    }
+                    
                 </hgroup>
             </div>
         </div>
