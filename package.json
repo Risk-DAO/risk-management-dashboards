@@ -13,6 +13,7 @@
     "mobx-react": "^7.4.0",
     "moment": "^2.29.4",
     "react": "^18.1.0",
+    "react-accessible-accordion": "^5.0.0",
     "react-data-table-component": "^7.5.2",
     "react-dom": "^18.1.0",
     "react-router-dom": "^6.3.0",
@@ -25,7 +26,7 @@
     "web3-utils": "^1.7.3"
   },
   "scripts": {
-    "start": "REACT_APP_CONFIG=dev && react-app-rewired start",
+    "start": "react-app-rewired start",
     "build": "react-app-rewired build && ./generate-static.sh",
     "build-aurigami": "REACT_APP_CONFIG=aurigami react-app-rewired build && ./generate-static.sh",
     "build-nervos": "REACT_APP_CONFIG=nervos react-app-rewired build && ./generate-static.sh",
