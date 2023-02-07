@@ -29,6 +29,12 @@ const buttonsStyle = {
     boxShadow: 'var(--card-box-shadow)',
 }
 
+const accordionButtonStyle = {
+    width: '100%',
+    // marginTop: '1px',
+    padding: '1px',
+}
+
 class CapInput extends React.Component {
     render() {
         const { row, field } = this.props
@@ -153,7 +159,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 
-function getSolvedLiquidityTooltip(ratio, tokenA, tokenB, liquidityData) {
+function getSolvedLiquidity(ratio, tokenA, tokenB, liquidityData) {
     const increaseFactor = ratio / 100 + 1
     const slippageAvsADA = liquidityData[tokenA]['ADA'].llc - 1
     const slippageADAvsB = liquidityData['ADA'][tokenB].llc - 1
@@ -178,9 +184,13 @@ const LiquidityChanges = (props) => {
             let decomposedLiquidity = null;
             // add tooltip on liquidity requirement only for MELD, platform = 5
             if(PLATFORM_ID === '5') {
-                // add tooltip on liquidity requirement only for tokens other than ADA
-                if(props.data.long !== 'ADA' && key !== 'ADA') {
-                    decomposedLiquidity = getSolvedLiquidityTooltip(ratio, props.data.long, key, liquidityData)
+                if(props.data.long === 'ADA') {
+                    decomposedLiquidity = [`ADA->${key}: ${whaleFriendlyFormater(value['simulatedVolume'])} (${ratio < 0 ? '' : '+'}${ratio}%)`]
+                } else if(key === 'ADA') {
+                    decomposedLiquidity = [`${props.data.long}->ADA: ${whaleFriendlyFormater(value['simulatedVolume'])} (${ratio < 0 ? '' : '+'}${ratio}%)`]
+                }
+                else {
+                    decomposedLiquidity = getSolvedLiquidity(ratio, props.data.long, key, liquidityData)
                 }
             }
             textDisplay.push({ text: `${props.data.long} -> ${key} ${ratio < 0 ? '' : '+'}${ratio}% `, ratio: ratio, decomposedLiquidity: decomposedLiquidity })
@@ -194,6 +204,7 @@ const LiquidityChanges = (props) => {
         secondBiggest = biggest
     }
     const dataMax = biggest.value
+
 
     return (
         <div
@@ -221,7 +232,7 @@ const LiquidityChanges = (props) => {
             <div
                 className="box-space"
                 style={{
-                    width: '100%',
+                    width: '50%',
                     display: 'flex',
                     justifyContent: 'space-between',
                     flexDirection: 'column',
@@ -234,21 +245,17 @@ const LiquidityChanges = (props) => {
                             {textDisplay.map((entry, key) => {
                                     return <AccordionItem>
                                                 <AccordionItemHeading>
-                                                    <AccordionItemButton>
+                                                    <AccordionItemButton style={accordionButtonStyle}>
                                                         {entry.text}
                                                     </AccordionItemButton>
                                                 </AccordionItemHeading>
-                                                {entry.decomposedLiquidity ? 
-                                                    <AccordionItemPanel>
-                                                        <article className='accordion-article'>
-                                                            <ul>
-                                                                {entry.decomposedLiquidity.map((dl, keyDl) => {return <li key={keyDl}>{dl}</li>})}
-                                                            </ul>
-                                                        </article>
-                                                    </AccordionItemPanel>
-                                                    :
-                                                    ''
-                                                }
+                                                <AccordionItemPanel>
+                                                    <article className='accordion-article'>
+                                                        <ul className='accordion-ul'>
+                                                            {entry.decomposedLiquidity.map((dl, keyDl) => {return <li key={keyDl}>{dl}</li>})}
+                                                        </ul>
+                                                    </article>
+                                                </AccordionItemPanel>
                                             </AccordionItem>                                
                             })}
                         </Accordion> 

@@ -251,40 +251,28 @@ h2{
 /* ------------------ ACCORDION --------------------- */
 /* -------------------------------------------------- */
 
-.accordion {
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 2px;
-}
-
-.accordion__item + .accordion__item {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-}
-
 .accordion-article {
   width: 100%;
-  /* min-height: '200px'; */
-  margin-top: 0;
-  margin-bottom: 0;
-  padding: 10px 2px 2px 2px;
+  margin: 0;
+  padding: 0;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  /* border-radius: 10px; */
-  /* border: 30px; */
-  /* margin-bottom: 'var(--spacing)'; */
-  /* height: props.height; */
-  /* display: 'flex'; */
-  /* flex-direction: 'column'; */
-  /* justify-content: 'space-between'; */
+  /* border-radius: 0; */
 }
 
-.accordion__button {
+.accordion-ul {
+  margin: 2px 2px 2px 10px;
+  font-size: smaller;
+  /* text-align: center; */
+}
+
+/* .accordion__button {
   background-color: var(--background-color);
   color: var(--color);
   cursor: pointer;
-  /* padding: 18px; */
   width: 100%;
   text-align: left;
   border: none;
-}
+} */
 
 /* .accordion__button:hover {
   background-color: #ddd;
@@ -311,7 +299,6 @@ h2{
 }
 
 .accordion__panel {
-  /* padding: 20px; */
   animation: fadein 0.35s ease-in;
 }
 
