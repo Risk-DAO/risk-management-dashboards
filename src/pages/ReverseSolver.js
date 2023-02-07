@@ -165,8 +165,8 @@ function getSolvedLiquidity(ratio, tokenA, tokenB, liquidityData) {
     const slippageADAvsB = liquidityData['ADA'][tokenB].llc - 1
     const currentSlippage = Math.round(Math.max(slippageAvsADA, slippageADAvsB) * 100)
     const requiredLiquidityValue = SolveLiquidityIncrease(tokenA, liquidityData[tokenA]['ADA'].volume, tokenB, liquidityData['ADA'][tokenB].volume, increaseFactor, currentSlippage)
-    return [`${tokenA}->ADA: ${whaleFriendlyFormater(requiredLiquidityValue.liquidityAvsADA)} (+${roundTo((requiredLiquidityValue.tokenAIncreaseRatio - 1) * 100)}%)`,
-            `ADA->${tokenB}: ${whaleFriendlyFormater(requiredLiquidityValue.liquidityADAvsB)} (+${roundTo((requiredLiquidityValue.tokenBIncreaseRatio - 1) * 100)}%)`]
+    return [`${tokenA}->ADA: +${roundTo((requiredLiquidityValue.tokenAIncreaseRatio - 1) * 100)}%`,
+            `ADA->${tokenB}: +${roundTo((requiredLiquidityValue.tokenBIncreaseRatio - 1) * 100)}%`]
 }
 
 const LiquidityChanges = (props) => {
@@ -183,14 +183,18 @@ const LiquidityChanges = (props) => {
             let ratio = Math.round((value['simulatedVolume'] / value['volume'] - 1) * 100);
             let decomposedLiquidity = null;
             // add tooltip on liquidity requirement only for MELD, platform = 5
-            if(PLATFORM_ID === '5') {
-                if(props.data.long === 'ADA') {
-                    decomposedLiquidity = [`ADA->${key}: ${whaleFriendlyFormater(value['simulatedVolume'])} (${ratio < 0 ? '' : '+'}${ratio}%)`]
-                } else if(key === 'ADA') {
-                    decomposedLiquidity = [`${props.data.long}->ADA: ${whaleFriendlyFormater(value['simulatedVolume'])} (${ratio < 0 ? '' : '+'}${ratio}%)`]
-                }
-                else {
-                    decomposedLiquidity = getSolvedLiquidity(ratio, props.data.long, key, liquidityData)
+            if(PLATFORM_ID === '5' ) {
+                if(ratio < 0) {
+                    decomposedLiquidity = ['N/A'];
+                } else {
+                    if(props.data.long === 'ADA') {
+                        decomposedLiquidity = [`ADA->${key}: +${ratio}%`]
+                    } else if(key === 'ADA') {
+                        decomposedLiquidity = [`${props.data.long}->ADA: +${ratio}%`]
+                    }
+                    else {
+                        decomposedLiquidity = getSolvedLiquidity(ratio, props.data.long, key, liquidityData)
+                    }
                 }
             }
             textDisplay.push({ text: `${props.data.long} -> ${key} ${ratio < 0 ? '' : '+'}${ratio}% `, ratio: ratio, decomposedLiquidity: decomposedLiquidity })
@@ -241,7 +245,7 @@ const LiquidityChanges = (props) => {
                 <hgroup>
                     <p>Changes required:</p>
                     {PLATFORM_ID === '5' ? 
-                        <Accordion allowZeroExpanded={true}>
+                        <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>
                             {textDisplay.map((entry, key) => {
                                     return <AccordionItem>
                                                 <AccordionItemHeading>
