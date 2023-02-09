@@ -8,8 +8,8 @@ window.APP_CONFIG = {
     feature_flags: {
         alerts: true,
         loopingToggle: false,
-        initSandBoxFromCurrentUtilization: true,
-        initDexLiquiditySandBoxFromCurrentUtilization: true,
+        initSandBoxFromCurrentUtilization: false,
+        initDexLiquiditySandBoxFromCurrentUtilization: false,
         computeReverseSandbox: true
     },
     apiEndpoints: [
