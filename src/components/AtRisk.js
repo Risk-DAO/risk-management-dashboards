@@ -17,7 +17,7 @@ const AtRisk = props => {
       <hgroup style={{margin: 0}}>
         <p style={{margin: 0}}>
           Value at Risk reflects bad debt the platform might accrued in a Worst Day simulation.
-          Worst Day simulates the current state of the platform during the biggest price drop in ETH history, noramlizing other assets according to their volatility w.r.t ETH.
+          Worst Day simulates the current state of the platform during the biggest price drop in ETH history, normalizing other assets according to their volatility w.r.t ETH.
         </p>
       </hgroup>
 
@@ -30,7 +30,7 @@ const AtRisk = props => {
       <hgroup style={{margin: 0}}>
         <p style={{margin: 0}}>
           Liquidation at Risk reflects liquidated positions the platform would process in a Worst Day simulation. 
-          Worst Day simulates the current state of the platform during the biggest price drop in ETH history, noramlizing other assets according to their volatility w.r.t ETH.
+          Worst Day simulates the current state of the platform during the biggest price drop in ETH history, normalizing other assets according to their volatility w.r.t ETH.
         </p>
       </hgroup>
     </Box>
