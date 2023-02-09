@@ -1,7 +1,6 @@
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { COLORS, TEXTS } from '../constants'
 import { WhaleFriendlyAxisTick, whaleFriendlyFormater } from '../components/WhaleFriendly'
-
 import Box from '../components/Box'
 import BoxRow from '../components/BoxRow'
 import { Component } from 'react'
@@ -11,6 +10,15 @@ import mainStore from '../stores/main.store'
 import { observer } from 'mobx-react'
 import riskStore from '../stores/risk.store'
 import { shortCurrencyFormatter } from '../utils'
+import { roundTo, SolveLiquidityIncrease } from '../risk/meld_liquidity_solver'
+import {
+    Accordion,
+    AccordionItem,
+    AccordionItemHeading,
+    AccordionItemButton,
+    AccordionItemPanel,
+} from 'react-accessible-accordion';
+const {PLATFORM_ID} = window.APP_CONFIG
 
 const buttonsStyle = {
     display: 'flex',
@@ -19,6 +27,12 @@ const buttonsStyle = {
     margin: '5px 20px',
     borderRadius: 'var(--border-radius)',
     boxShadow: 'var(--card-box-shadow)',
+}
+
+const accordionButtonStyle = {
+    width: '100%',
+    // marginTop: '1px',
+    padding: '1px',
 }
 
 class CapInput extends React.Component {
@@ -144,18 +158,46 @@ const CustomTooltip = ({ active, payload, label }) => {
     }
 }
 
+
+function getSolvedLiquidity(ratio, tokenA, tokenB, liquidityData) {
+    const increaseFactor = ratio / 100 + 1
+    const slippageAvsADA = liquidityData[tokenA]['ADA'].llc - 1
+    const slippageADAvsB = liquidityData['ADA'][tokenB].llc - 1
+    const currentSlippage = Math.round(Math.max(slippageAvsADA, slippageADAvsB) * 100)
+    const requiredLiquidityValue = SolveLiquidityIncrease(tokenA, liquidityData[tokenA]['ADA'].volume, tokenB, liquidityData['ADA'][tokenB].volume, increaseFactor, currentSlippage)
+    return [`${tokenA}->ADA: +${roundTo((requiredLiquidityValue.tokenAIncreaseRatio - 1) * 100)}%`,
+            `ADA->${tokenB}: +${roundTo((requiredLiquidityValue.tokenBIncreaseRatio - 1) * 100)}%`]
+}
+
 const LiquidityChanges = (props) => {
     // GRAPH DATA
     const textDisplay = []
     const displayData = []
+    const liquidityData = Object.assign({}, mainStore['usd_volume_for_slippage_data'] || {})
     Object.entries(props.data.liquidity).forEach((entry) => {
         const [key, value] = entry
         let graphItem = { name: key }
         if (value['simulatedVolume'] === undefined) {
             graphItem['value'] = value['volume']
         } else {
-            let ratio = Math.round((value['simulatedVolume'] / value['volume'] - 1) * 100)
-            textDisplay.push({ text: `${props.data.long} -> ${key} ${ratio < 0 ? '' : '+'}${ratio}% `, ratio: ratio })
+            let ratio = Math.round((value['simulatedVolume'] / value['volume'] - 1) * 100);
+            let decomposedLiquidity = null;
+            // add tooltip on liquidity requirement only for MELD, platform = 5
+            if(PLATFORM_ID === '5' ) {
+                if(ratio < 0) {
+                    decomposedLiquidity = ['N/A'];
+                } else {
+                    if(props.data.long === 'ADA') {
+                        decomposedLiquidity = [`ADA->${key}: +${ratio}%`]
+                    } else if(key === 'ADA') {
+                        decomposedLiquidity = [`${props.data.long}->ADA: +${ratio}%`]
+                    }
+                    else {
+                        decomposedLiquidity = getSolvedLiquidity(ratio, props.data.long, key, liquidityData)
+                    }
+                }
+            }
+            textDisplay.push({ text: `${props.data.long} -> ${key} ${ratio < 0 ? '' : '+'}${ratio}% `, ratio: ratio, decomposedLiquidity: decomposedLiquidity })
             graphItem['value'] = value['simulatedVolume']
         }
         displayData.push(graphItem)
@@ -166,6 +208,7 @@ const LiquidityChanges = (props) => {
         secondBiggest = biggest
     }
     const dataMax = biggest.value
+
 
     return (
         <div
@@ -201,11 +244,31 @@ const LiquidityChanges = (props) => {
             >
                 <hgroup>
                     <p>Changes required:</p>
-                    <ul>
-                        {textDisplay.map((entry, key) => {
-                            return <li key={key}>{entry.text}</li>
-                        })}
-                    </ul>
+                    {PLATFORM_ID === '5' ? 
+                        <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>
+                            {textDisplay.map((entry, key) => {
+                                    return <AccordionItem>
+                                                <AccordionItemHeading>
+                                                    <AccordionItemButton style={accordionButtonStyle}>
+                                                        {entry.text}
+                                                    </AccordionItemButton>
+                                                </AccordionItemHeading>
+                                                <AccordionItemPanel>
+                                                    <article className='accordion-article'>
+                                                        <ul className='accordion-ul'>
+                                                            {entry.decomposedLiquidity.map((dl, keyDl) => {return <li key={keyDl}>{dl}</li>})}
+                                                        </ul>
+                                                    </article>
+                                                </AccordionItemPanel>
+                                            </AccordionItem>                                
+                            })}
+                        </Accordion> 
+                        :  
+                        <ul>
+                            {textDisplay.map((entry, key) => { return <li key={key}>{entry.text}</li>})}
+                            </ul>
+                    }
+                    
                 </hgroup>
             </div>
         </div>
@@ -250,3 +313,4 @@ class ReverseSolver extends Component {
 }
 
 export default observer(ReverseSolver)
+
