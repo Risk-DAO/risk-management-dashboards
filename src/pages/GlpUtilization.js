@@ -29,6 +29,9 @@ const columns = [
 class GlpUtilization extends Component {
   render() {
     const loading = mainStore["glp_data_loading"] 
+    if(loading) {
+      return null
+    }
     const {json_time} = mainStore["glp_data_data"]
     const {glp_data} = mainStore.clean(mainStore["glp_data_data"])
     const { 
