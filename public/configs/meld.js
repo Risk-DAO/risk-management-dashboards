@@ -10,7 +10,7 @@ window.APP_CONFIG = {
         loopingToggle: false,
         initSandBoxFromCurrentUtilization: false,
         computeReverseSandbox: true,
-        cardanoLtModifiers: false,
+        cardanoLtModifiers: true,
         defaultCollateralFactorCaps: -10
     },
     apiEndpoints: ['overview', 'risk_params', 'usd_volume_for_slippage', 'accounts',
