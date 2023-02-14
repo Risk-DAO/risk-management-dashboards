@@ -24,9 +24,9 @@ function SolveLiquidityIncrease(tokenA, liquidityAvsADA, tokenB, liquidityADAvsB
     const liquidityFactorRequired = increaseFactor;
     const targetSlippage = currentSlippage / liquidityFactorRequired;
 
-    console.log(`Increase required on ${tokenA}->${tokenB}: +${(liquidityFactorRequired-1)*100}%`);
-    console.log(`Finding liquidity increase for ${tokenA}->${tokenB}, meaning ${tokenA}->ADA and ADA->${tokenB}`);
-    console.log(`Target effective slippage: ${targetSlippage}%`);
+    // console.log(`Increase required on ${tokenA}->${tokenB}: +${(liquidityFactorRequired-1)*100}%`);
+    // console.log(`Finding liquidity increase for ${tokenA}->${tokenB}, meaning ${tokenA}->ADA and ADA->${tokenB}`);
+    // console.log(`Target effective slippage: ${targetSlippage}%`);
 
     // console.log(`Base liquidity ${tokenA}->ADA: $${baseLiquidityAvsADA}`);
     // console.log(`Base liquidity ADA->${tokenB}: $${baseLiquidityADAvsB}`);
@@ -46,8 +46,8 @@ function SolveLiquidityIncrease(tokenA, liquidityAvsADA, tokenB, liquidityADAvsB
     let simulatedLiquidityB = baseLiquidityADAvsB;
     
     const stepSize = 1 + 1 / 1000; // 1.001
-    console.log(`Base liquidities:\n   - ${tokenA}->ADA: $${roundTo(simulatedLiquidityA)}\n   - ADA->${tokenB}: $${roundTo(simulatedLiquidityB)}`);
-    console.log(`Slippage weights: \n   - ${tokenA}: ${roundTo(slippageWeightOfTokenA)} of the ${currentSlippage}% slippage\n   - ${tokenB}: ${roundTo(slippageWeightOfTokenB)} of the ${currentSlippage}% slippage`);
+    // console.log(`Base liquidities:\n   - ${tokenA}->ADA: $${roundTo(simulatedLiquidityA)}\n   - ADA->${tokenB}: $${roundTo(simulatedLiquidityB)}`);
+    // console.log(`Slippage weights: \n   - ${tokenA}: ${roundTo(slippageWeightOfTokenA)} of the ${currentSlippage}% slippage\n   - ${tokenB}: ${roundTo(slippageWeightOfTokenB)} of the ${currentSlippage}% slippage`);
     // console.log(`Current slippage: ${currentEffectiveSlippage}%`);
     while(currentEffectiveSlippage > targetSlippage) {
         if(simulatedLiquidityA === simulatedLiquidityB) {
@@ -90,7 +90,7 @@ function SolveLiquidityIncrease(tokenA, liquidityAvsADA, tokenB, liquidityADAvsB
     // console.log(`Increasing ${tokenA}->${tokenB} liquidity by ${(liquidityFactorRequired-1)*100}% requires:`);
     // console.log(`    - Increasing ${tokenA}->ADA liquidity by ${roundTo((increaseRatioOfLiquidityAvsADA-1)*100)}%`);
     // console.log(`    - Increasing ADA->${tokenB} liquidity by ${roundTo((increaseRatioOfLiquidityADAvsB-1)*100)}%`);
-    console.log(`Required Liquidities for a ${roundTo((liquidityFactorRequired-1)*100)}% increase:\n   - ${tokenA}->ADA: $${roundTo(simulatedLiquidityA)} (+${roundTo((increaseRatioOfLiquidityAvsADA-1)*100)}%)\n   - ADA->${tokenB}: $${roundTo(simulatedLiquidityB)} (+${roundTo((increaseRatioOfLiquidityADAvsB -1)*100)}%)`);
+    // console.log(`Required Liquidities for a ${roundTo((liquidityFactorRequired-1)*100)}% increase:\n   - ${tokenA}->ADA: $${roundTo(simulatedLiquidityA)} (+${roundTo((increaseRatioOfLiquidityAvsADA-1)*100)}%)\n   - ADA->${tokenB}: $${roundTo(simulatedLiquidityB)} (+${roundTo((increaseRatioOfLiquidityADAvsB -1)*100)}%)`);
     
     return {
         tokenAIncreaseRatio: increaseRatioOfLiquidityAvsADA,
