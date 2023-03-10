@@ -10,7 +10,8 @@ window.APP_CONFIG = {
         loopingToggle: false,
         initSandBoxFromCurrentUtilization: false,
         initDexLiquiditySandBoxFromCurrentUtilization: false,
-        computeReverseSandbox: true
+        computeReverseSandbox: true,
+        computeCurrentUsageLTAsMaxCapIfOverCap: true,
     },
     apiEndpoints: [
         'overview',
