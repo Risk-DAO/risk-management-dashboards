@@ -187,7 +187,7 @@ class AlertStore {
       {
         name: 'Cap Utilization',
         selector: row => row.cap,
-        format: row => <Ramzor red={row.cap > severThreshold} yellow={row.cap > alertThreshold}> {row.cap.toFixed(2)}%</Ramzor>,
+        format: row => <Ramzor red={row.cap > severThreshold} yellow={row.cap > alertThreshold}> {row.cap > 100 ? '>100' : row.cap.toFixed(2)}%</Ramzor>,
         sortable: true,
       }
     ]
