@@ -298,8 +298,29 @@ class RiskStore {
 
     if(dataSet.length){
       dataSet.forEach(row => {
-        mintCaps[row.asset] = this.findCap(row.asset, row.mint_cap, false)
-        borrowCaps[row.asset] = this.findCap(row.asset, row.borrow_cap, true)
+        let mintCapForAsset = row.mint_cap;
+        let borrowCapForAsset = row.borrow_cap;
+        
+        // if usage > cap (either borrow or supply), set the value to cap for solver calculations
+        // it can happen when the cap changes to 0 on the protocol but some users still
+        // have some supply/borrow. This will calculate recommended LT as if usage = cap
+        // but still display the usage in the table
+        if(window.APP_CONFIG.feature_flags.computeCurrentUsageLTAsMaxCapIfOverCap) {
+            const currentCapsForAsset = this.currentData.find(_ => _.asset === row.asset);
+
+            if(mintCapForAsset > currentCapsForAsset.mint_cap) {
+                console.log(`borrow utilization > cap for ${row.asset}, updating from ${mintCapForAsset} to ${currentCapsForAsset.mint_cap}`);
+                mintCapForAsset = currentCapsForAsset.mint_cap
+            } 
+
+            if(borrowCapForAsset > currentCapsForAsset.borrow_cap) {
+                console.log(`borrow utilization > cap for ${row.asset}, updating from ${borrowCapForAsset} to ${currentCapsForAsset.borrow_cap}`);
+                borrowCapForAsset = currentCapsForAsset.borrow_cap
+            }
+        }
+
+        mintCaps[row.asset] = this.findCap(row.asset, mintCapForAsset, false)
+        borrowCaps[row.asset] = this.findCap(row.asset, borrowCapForAsset, true)
         collateralFactorCaps[row.asset] = collateralFactorCap
       })
     }

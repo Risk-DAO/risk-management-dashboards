@@ -160,13 +160,17 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 
 function getSolvedLiquidity(ratio, tokenA, tokenB, liquidityData) {
+    const solvedData = getSolvedLiquidityValues(ratio, tokenA, tokenB, liquidityData)
+    return [`${tokenA}->ADA: +${roundTo((solvedData.tokenAIncreaseRatio - 1) * 100)}%`,
+            `ADA->${tokenB}: +${roundTo((solvedData.tokenBIncreaseRatio - 1) * 100)}%`]
+}
+
+function getSolvedLiquidityValues(ratio, tokenA, tokenB, liquidityData) {
     const increaseFactor = ratio / 100 + 1
     const slippageAvsADA = liquidityData[tokenA]['ADA'].llc - 1
     const slippageADAvsB = liquidityData['ADA'][tokenB].llc - 1
     const currentSlippage = Math.round(Math.max(slippageAvsADA, slippageADAvsB) * 100)
-    const requiredLiquidityValue = SolveLiquidityIncrease(tokenA, liquidityData[tokenA]['ADA'].volume, tokenB, liquidityData['ADA'][tokenB].volume, increaseFactor, currentSlippage)
-    return [`${tokenA}->ADA: +${roundTo((requiredLiquidityValue.tokenAIncreaseRatio - 1) * 100)}%`,
-            `ADA->${tokenB}: +${roundTo((requiredLiquidityValue.tokenBIncreaseRatio - 1) * 100)}%`]
+    return SolveLiquidityIncrease(tokenA, liquidityData[tokenA]['ADA'].volume, tokenB, liquidityData['ADA'][tokenB].volume, increaseFactor, currentSlippage)
 }
 
 const LiquidityChanges = (props) => {
@@ -174,6 +178,7 @@ const LiquidityChanges = (props) => {
     const textDisplay = []
     const displayData = []
     const liquidityData = Object.assign({}, mainStore['usd_volume_for_slippage_data'] || {})
+    console.log('LiquidityChanges liquidityData', JSON.stringify(liquidityData, null, 2));
     Object.entries(props.data.liquidity).forEach((entry) => {
         const [key, value] = entry
         let graphItem = { name: key }
@@ -275,6 +280,131 @@ const LiquidityChanges = (props) => {
     )
 }
 
+
+const LiquiditySummary = (props) => {
+    // console.log('data', JSON.stringify(props.data, null, 2));
+    const liquidityData = Object.assign({}, mainStore['usd_volume_for_slippage_data'] || {})
+    console.log('LiquiditySummary liquidityData', JSON.stringify(liquidityData, null, 2));
+
+    const maxRatios = {};
+    for(let i = 0; i < props.data.length; i++) {
+        const currentData = props.data[i];
+        const longKey = currentData.long;
+        for(const [shortKey, liquidityValue] of Object.entries(currentData.liquidity)) {
+            if(!liquidityValue.simulatedVolume) {
+                continue;
+            }
+
+            // console.log(longKey, '->', shortKey, liquidityValue.simulatedVolume);
+            
+            let ratio = Math.round((liquidityValue['simulatedVolume'] / liquidityValue['volume'] - 1) * 100);
+            if(ratio < 0) {
+                continue;
+            }
+
+            // if long or short is ADA, just use ratio directly
+            if(longKey === 'ADA' || shortKey === 'ADA') {
+                const otherToken = longKey === 'ADA' ? shortKey : longKey;
+                const increaseFactor = ratio / 100 + 1
+                if(!maxRatios[otherToken]) {
+                        maxRatios[otherToken] = increaseFactor;
+                    } else {
+                        maxRatios[otherToken] = Math.max(maxRatios[otherToken], increaseFactor);
+                    }
+            // else, it means we need to compute the decomposed ratio token0->ADA and token1->ADA
+            } else {
+                const decomposedLiquidity = getSolvedLiquidityValues(ratio, longKey, shortKey, liquidityData)
+                // console.log('decomposedLiquidity',decomposedLiquidity);
+                if(!maxRatios[longKey]) {
+                    maxRatios[longKey] = decomposedLiquidity.tokenAIncreaseRatio;
+                } else {
+                    maxRatios[longKey] = Math.max(maxRatios[longKey], decomposedLiquidity.tokenAIncreaseRatio);
+                }
+
+                if(!maxRatios[shortKey]) {
+                    maxRatios[shortKey] = decomposedLiquidity.tokenBIncreaseRatio;
+                } else {
+                    maxRatios[shortKey] = Math.max(maxRatios[shortKey], decomposedLiquidity.tokenBIncreaseRatio);
+                }
+            }
+        }
+    }
+
+    // here the max increase ratio ada->token are set
+    console.log('maxRatios',maxRatios);
+
+    const graphData = []
+    const textData = []
+
+    for(const [shortKey, volumeValue] of Object.entries(liquidityData['ADA'])) {
+        if(shortKey === 'key') {
+            continue;
+        }
+        console.log('liquidity ADA->', shortKey, volumeValue)
+        let ratioForShort = 1;
+        if(maxRatios[shortKey]) {
+            ratioForShort = maxRatios[shortKey];
+        }
+
+        graphData.push({ 
+            name: shortKey,
+            value: volumeValue.volume * ratioForShort,
+        });
+
+        if(ratioForShort !== 1) {
+            textData.push({
+                ratio: ratioForShort,
+                text: `ADA->${shortKey}: +${roundTo((ratioForShort-1)*100, 2)}%`
+            });
+        }
+    }
+    graphData.sort((a, b) => b.value - a.value)
+    textData.sort((a, b) => b.ratio - a.ratio)
+    console.log('graphData', graphData)
+    const dataMax = graphData[0].value;
+    return (
+    <div
+        style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            width: '100%',
+        }}
+    >  
+        <article style={expendedBoxStyle}>
+            <ResponsiveContainer>
+                <BarChart data={graphData}>                
+                    <XAxis dataKey="name" interval={0} />
+                    <YAxis
+                        type="number"
+                        domain={[0, dataMax]}
+                        tick={<WhaleFriendlyAxisTick />}
+                        allowDataOverflow={true}
+                    />
+                    <Tooltip content={CustomTooltip} />
+                    <Bar dataKey="value" fill={COLORS[0]} />
+                </BarChart>
+            </ResponsiveContainer>
+        </article>
+        
+        <div
+            className="box-space"
+            style={{
+                width: '50%',
+                display: 'flex',
+                justifyContent: 'space-between',
+                flexDirection: 'column',
+            }}
+        >
+            <hgroup>
+                <p>Liquidity changes:</p>
+                    <ul>
+                        {textData.map((entry, key) => { return <li key={key}>{entry.text}</li>})}
+                    </ul>
+            </hgroup>
+        </div>
+    </div>);
+}
+
 // const expandRowOnClick = (row) => {
 //     if (row['liquidityChange'] === 'N/A') {
 //         return false
@@ -305,6 +435,15 @@ class ReverseSolver extends Component {
                             columns={columns}
                             data={riskStore.reverseSolvedData}
                         />
+                    )}
+                    {!loading && PLATFORM_ID === '5' && (
+                        <div style={{
+                            width: '100%',
+                        }}>
+                            <article>ADA Liquidity Summary:
+                                <LiquiditySummary data={riskStore.reverseSolvedData}/>
+                            </article>
+                        </div>
                     )}
                 </Box>
             </div>
