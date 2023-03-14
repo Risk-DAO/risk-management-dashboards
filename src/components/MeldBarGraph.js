@@ -18,11 +18,9 @@ import { observer } from "mobx-react";
 
 class MeldDepthChart extends Component {
     render() {
-        const loading = mainStore['last_day_volume_loading']
         const rawData = mainStore['last_day_volume_data'] || {}
         const token = this.props.data[0].name;
         const price = this.props.adaPrice;
-        console.log('price', price)
         const data = [];
         if(token === 'HOSKY'){
             for (const [key, value] of Object.entries(rawData[token]['poolDepthInADA'])) {
