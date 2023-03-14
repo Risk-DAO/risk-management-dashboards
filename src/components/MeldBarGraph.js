@@ -21,8 +21,24 @@ class MeldDepthChart extends Component {
         const loading = mainStore['last_day_volume_loading']
         const rawData = mainStore['last_day_volume_data'] || {}
         const token = this.props.data[0].name;
-        const price = this.props.data[0].price;
+        const price = this.props.adaPrice;
+        console.log('price', price)
         const data = [];
+        if(token === 'HOSKY'){
+            for (const [key, value] of Object.entries(rawData[token]['poolDepthInADA'])) {
+                let date = moment(key * 1000).format('LT');
+                let depth = Number(value) * price;
+                let volume = Number(rawData[token]['tradingVolumeInADA'][key]) * price;
+
+                data.push(
+                    {
+                        x: date,
+                        depth: Number(depth).toFixed(2),
+                        volume: Number(volume.toFixed(2))
+                    });
+            }
+        }
+        else{
         for (const [key, value] of Object.entries(rawData[token]['poolDepthInADA'])) {
             let date = moment(key * 1000).format('LT');
             let depth = Number(value) * price;
@@ -31,9 +47,10 @@ class MeldDepthChart extends Component {
                 {
                     x: date,
                     depth: Number(depth).toFixed(2),
-                    volume: Number(volume)
+                    volume: Number(volume.toFixed(2))
                 });
         }
+    }
 
 
         return <div>
@@ -50,8 +67,8 @@ class MeldDepthChart extends Component {
             >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="x" />
-                <YAxis yAxisId="left" label={{ value: 'Pool Depth', angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: '-10' }} />
-                <YAxis yAxisId="right" orientation="right" label={{ value: '24h Volume', angle: -90, position: 'insideRight', textAnchor: 'middle' }} />
+                <YAxis yAxisId="left" label={{ value: 'Pool Depth ($)', angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: '-10' }} />
+                <YAxis yAxisId="right" orientation="right" label={{ value: '24h Volume ($)', angle: -90, position: 'insideRight', textAnchor: 'middle' }} />
                 <Tooltip />
                 <Legend />
                 <Line
@@ -76,11 +93,12 @@ class MeldDepthChart extends Component {
 class MeldBarGraph extends Component {
     render() {
         let barData = [this.props.data];
+        const adaPrice = this.props.adaPrice;
         return (
             <div style={{ display: 'flex', justifyContent: 'space-around', width: '100%' }}>
                 {barData[0].name === 'ADA' ? '' :
                     <article>
-                        <MeldDepthChart data={barData} />
+                        <MeldDepthChart data={barData} adaPrice={adaPrice} />
                     </article>}
                 <article>
                     <BarChart
@@ -98,8 +116,9 @@ class MeldBarGraph extends Component {
                         <XAxis dataKey="name" />
                         <YAxis />
                         <Tooltip />
-                        <Legend />
-                        <Bar dataKey="price" fill="#8884d8" name="Price"/>
+
+                        <Bar dataKey="price" fill="#8884d8" name="Price">
+                        <LabelList dataKey='priceLabel' /></Bar>
                         <Bar dataKey="liquidationThreshold" stackId="a" fill="#82ca9d" name="Liquidation Level">
                             <LabelList dataKey='liquidationRatio' /></Bar>
                         <Bar dataKey="ltv" fill="#ffc658"name="Minimum Collateral Ratio">
