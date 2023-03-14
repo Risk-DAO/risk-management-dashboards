@@ -15,8 +15,8 @@ class MeldGraphs extends Component {
             const datapoint = {};
             datapoint['name'] = name;
             datapoint['price'] = Number(rawData['prices'][name]);
-            datapoint['ltv'] = Number(rawData['ltv'][name]);
-            datapoint['liquidationThreshold'] = Number(rawData['collateral_factors'][name]);
+            datapoint['ltv'] = Number(rawData['ltv'][name]) * Number(rawData['prices'][name]);
+            datapoint['liquidationThreshold'] = Number(rawData['collateral_factors'][name]) * Number(rawData['prices'][name]);
             data.push(datapoint);
         }
         return (

@@ -39,8 +39,8 @@ class MeldBarGraph extends Component {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="price" stackId="a" fill="#8884d8" />
                 <Bar dataKey="liquidationThreshold" stackId="a" fill="#82ca9d" />
+                <Bar dataKey="price" stackId="a" fill="#8884d8" />
                 <Bar dataKey="ltv" fill="#ffc658" />
             </BarChart>
             </ResponsiveContainer>
