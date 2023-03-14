@@ -56,6 +56,11 @@ window.APP_CONFIG = {
             displayName: 'DEX Liquidity',
             defaultVisible: true,
         },
+        {
+            name: 'meldGraphs',
+            displayName: 'Meld Graphs',
+            defaultVisible: true,
+        },
     ],
     TEXTS: {
         COLLATERAL_FACTOR: 'Liquidation Threshold',
