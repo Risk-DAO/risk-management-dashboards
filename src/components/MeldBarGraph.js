@@ -2,6 +2,7 @@ import {
     Bar,
     BarChart,
     CartesianGrid,
+    LabelList,
     Legend,
     Line,
     LineChart,
@@ -76,7 +77,7 @@ class MeldBarGraph extends Component {
     render() {
         let barData = [this.props.data];
         return (
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-around', width: '100%' }}>
                 {barData[0].name === 'ADA' ? '' :
                     <article>
                         <MeldDepthChart data={barData} />
@@ -98,9 +99,11 @@ class MeldBarGraph extends Component {
                         <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Bar dataKey="price" fill="#8884d8" />
-                        <Bar dataKey="liquidationThreshold" stackId="a" fill="#82ca9d" />
-                        <Bar dataKey="ltv" fill="#ffc658" />
+                        <Bar dataKey="price" fill="#8884d8" name="Price"/>
+                        <Bar dataKey="liquidationThreshold" stackId="a" fill="#82ca9d" name="Liquidation Level">
+                            <LabelList dataKey='liquidationRatio' /></Bar>
+                        <Bar dataKey="ltv" fill="#ffc658"name="Minimum Collateral Ratio">
+                        <LabelList dataKey='ltvRatio' /></Bar>
                     </BarChart>
                 </article>
             </div>

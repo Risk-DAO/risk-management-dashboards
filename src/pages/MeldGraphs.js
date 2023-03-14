@@ -16,6 +16,8 @@ class MeldGraphs extends Component {
             datapoint['name'] = name;
             datapoint['price'] = Number(rawData['prices'][name]).toFixed(2);
             datapoint['ltv'] = Number(Number(rawData['ltv'][name]) * Number(rawData['prices'][name])).toFixed(2);
+            datapoint['ltvRatio'] = Number(rawData['ltv'][name] * 100).toFixed(2) + '%';
+            datapoint['liquidationRatio'] = Number(rawData['collateral_factors'][name] * 100).toFixed(2) + '%';
             datapoint['liquidationThreshold'] = Number(Number(rawData['collateral_factors'][name]) * Number(rawData['prices'][name])).toFixed(2);
             data.push(datapoint);
         }
