@@ -15,7 +15,7 @@ window.APP_CONFIG = {
     },
     apiEndpoints: ['overview', 'risk_params', 'usd_volume_for_slippage', 'accounts',
                    'lending_platform_current', 'whale_accounts', 'open_liquidations', 'oracles',
-                   'current_simulation_risk'],
+                   'current_simulation_risk', 'last_day_volume'],
     SECTIONS: [    
         {
             name: 'system-status',
@@ -54,6 +54,11 @@ window.APP_CONFIG = {
         {
             name: 'liquidity',
             displayName: 'DEX Liquidity',
+            defaultVisible: true,
+        },
+        {
+            name: 'meldGraphs',
+            displayName: 'Meld Graphs',
             defaultVisible: true,
         },
     ],
