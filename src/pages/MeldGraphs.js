@@ -11,7 +11,6 @@ class MeldGraphs extends Component {
         const rawData = mainStore['lending_platform_current_data'] || {}
         const { json_time } = rawData
         const data = [];
-        const adaPrice = Number(rawData['prices']['ADA']) || undefined;
         for (const name in rawData['names']) {
             if (name === 'HOSKY') {
                 const datapoint = {};
@@ -22,6 +21,8 @@ class MeldGraphs extends Component {
                 datapoint['ltvRatio'] = 'Minimum Collateral Ratio: ' + Number(rawData['ltv'][name] * 100).toFixed(2) + '%';
                 datapoint['liquidationRatio'] = 'Liquidation Level: ' + Number(rawData['collateral_factors'][name] * 100).toFixed(2) + '%';
                 datapoint['liquidationThreshold'] = Number(Number(rawData['collateral_factors'][name]) * 1e6 * Number(rawData['prices'][name])).toFixed(4);
+                datapoint['formulaParams'] = rawData['assetAdditionalRiskParams'][name];
+                datapoint['ADAPrice'] = Number(rawData['prices']['ADA']);
                 data.push(datapoint);
             }
             else {
@@ -33,6 +34,8 @@ class MeldGraphs extends Component {
                 datapoint['ltvRatio'] = 'Minimum Collateral Ratio: ' + Number(rawData['ltv'][name] * 100).toFixed(2) + '%';
                 datapoint['liquidationRatio'] = 'Liquidation Level: ' + Number(rawData['collateral_factors'][name] * 100).toFixed(2) + '%';
                 datapoint['liquidationThreshold'] = Number(Number(rawData['collateral_factors'][name]) * Number(rawData['prices'][name])).toFixed(4);
+                datapoint['formulaParams'] = rawData['assetAdditionalRiskParams'][name];
+                datapoint['ADAPrice'] = Number(rawData['prices']['ADA']);
                 data.push(datapoint);
             }
         }
@@ -44,7 +47,7 @@ class MeldGraphs extends Component {
                     {data.map((asset, i) => <details key={i} open>
                         <summary><Token value={asset.name} /></summary>
                         <div style={{ display: 'flex' }}>
-                            <MeldBarGraph data={asset} adaPrice = {adaPrice} i={i} />
+                            <MeldBarGraph data={asset} i={i} />
                         </div>
                         <div style={{ marginLeft: '30px' }}>
                         </div>
