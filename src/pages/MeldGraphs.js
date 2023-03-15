@@ -11,7 +11,7 @@ class MeldGraphs extends Component {
         const rawData = mainStore['lending_platform_current_data'] || {}
         const { json_time } = rawData
         const data = [];
-        const adaPrice = Number(rawData['prices']['ADA']);
+        const adaPrice = Number(rawData['prices']['ADA']) || undefined;
         for (const name in rawData['names']) {
             if (name === 'HOSKY') {
                 const datapoint = {};
