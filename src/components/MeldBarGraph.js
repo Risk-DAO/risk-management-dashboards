@@ -20,7 +20,7 @@ class MeldDepthChart extends Component {
     render() {
         const rawData = mainStore['last_day_volume_data'] || {}
         const token = this.props.data[0].name;
-        const price = this.props.data[0].adaPrice;
+        const price = this.props.data[0].ADAPrice;
         const data = [];
         if (token === 'HOSKY') {
             for (const [key, value] of Object.entries(rawData[token]['poolDepthInADA'])) {
@@ -37,7 +37,6 @@ class MeldDepthChart extends Component {
             }
         }
         else {
-            console.log('token', token)
             for (const [key, value] of Object.entries(rawData[token]['poolDepthInADA'])) {
                 let date = moment(key * 1000).format('LT');
                 let depth = Number(value) * price;
@@ -130,8 +129,7 @@ class MeldRateChart extends Component {
     >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="x" />
-        <YAxis yAxisId="left" label={{ value: 'Pool Depth ($)', angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: '-15' }} />
-        <YAxis yAxisId="right" orientation="right" label={{ value: '24h Volume ($)', angle: -90, position: 'insideRight', textAnchor: 'middle', offset: '-10' }} />
+        <YAxis yAxisId="left" label={{ value: 'Interest Rate (%)', angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: '-15' }} />
         <Tooltip />
         <Legend />
         <Line
@@ -139,6 +137,7 @@ class MeldRateChart extends Component {
             type="monotone"
             dataKey="y"
             stroke="#8884d8"
+            name="borrow rate"
 
         />
     </LineChart>
@@ -150,12 +149,17 @@ class MeldBarGraph extends Component {
     render() {
         let barData = [this.props.data];
         return (
-            <div style={{ display: 'flex', justifyContent: 'space-around', width: '100%' }}>
+            <div className="meldGraphs">
+                <div className="left">
                 {barData[0].name === 'ADA' ? '' :
                     <article>
                         <MeldDepthChart data={barData} />
                     </article>}
+                    <article  style={{margin:'0'}}>
                     <MeldRateChart data={barData} />
+                    </article>
+                    </div>
+                    <div className="right">
                 <article>
                     <BarChart
                         width={500}
@@ -181,6 +185,7 @@ class MeldBarGraph extends Component {
                             <LabelList dataKey='ltvRatio' /></Bar>
                     </BarChart>
                 </article>
+                </div>
             </div>
         );
     }

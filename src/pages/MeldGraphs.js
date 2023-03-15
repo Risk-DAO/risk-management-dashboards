@@ -7,10 +7,14 @@ import { observer } from "mobx-react";
 
 class MeldGraphs extends Component {
     render() {
-        const loading = mainStore['lending_platform_current_loading']
+        const loading = mainStore['last_day_volume_loading']
         const rawData = mainStore['lending_platform_current_data'] || {}
         const { json_time } = rawData
         const data = [];
+        if(loading){
+
+        }
+        else{
         for (const name in rawData['names']) {
             if (name === 'HOSKY') {
                 const datapoint = {};
@@ -38,9 +42,10 @@ class MeldGraphs extends Component {
                 datapoint['ADAPrice'] = Number(rawData['prices']['ADA']);
                 data.push(datapoint);
             }
-        }
+        }}
         return (
             <div>
+                {loading ? <article>Nothing to display</article> : 
                 <Box loading={loading} time={json_time}>
                     <p>
                     </p>
@@ -52,7 +57,7 @@ class MeldGraphs extends Component {
                         <div style={{ marginLeft: '30px' }}>
                         </div>
                     </details>)}
-                </Box>
+                </Box>}
             </div>
         )
     }

@@ -58,7 +58,7 @@ window.APP_CONFIG = {
         },
         {
             name: 'meldGraphs',
-            displayName: 'Meld Graphs',
+            displayName: 'Additional Info',
             defaultVisible: true,
         },
     ],

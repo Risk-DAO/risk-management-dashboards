@@ -69,6 +69,20 @@
   font-weight: 700;
 }
 
+.meldGraphs{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+}
+.meldGraphs .right{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  margin-left: 5%;
+}
+
 .staging-btn:hover{
   transition: all 0.3s ease-in-out;
   transition-delay: 3s;

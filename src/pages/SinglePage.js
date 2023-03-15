@@ -161,12 +161,11 @@ class SinglePage extends Component {
         <section id="meldGraphs">
           {mainStore.sectionShow("meldGraphs") && <div>
               <hgroup>
-                <h2>Meld Graphs</h2>
+                <h2>Additional Info</h2>
                 <p className="description">
-                  description goes here
+                  {/* description goes here */}
                 </p>
             </hgroup>
-            <img style={{width: '250px', display: 'block'}} src={`/images/${color}-powered-by-kyberswap.png`} alt=""/>
             <Suspense fallback={<article aria-busy="true"></article>}>
               <MeldGraphs/>
             </Suspense>
