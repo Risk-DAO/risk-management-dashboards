@@ -1,5 +1,6 @@
 import { Component, Suspense, lazy } from "react";
 
+import MeldGraphs from "./MeldGraphs";
 import ReverseSolver from './ReverseSolver';
 import ScrollSpy from "react-ui-scrollspy";
 import SimulationParameters from "./SimulationParameters";
@@ -154,6 +155,19 @@ class SinglePage extends Component {
             <img style={{width: '250px', display: 'block'}} src={`/images/${color}-powered-by-kyberswap.png`} alt=""/>
             <Suspense fallback={<article aria-busy="true"></article>}>
               <Liquidity/>
+            </Suspense>
+          </div>}
+        </section>
+        <section id="meldGraphs">
+          {mainStore.sectionShow("meldGraphs") && <div>
+              <hgroup>
+                <h2>Additional Info</h2>
+                <p className="description">
+                  {/* description goes here */}
+                </p>
+            </hgroup>
+            <Suspense fallback={<article aria-busy="true"></article>}>
+              <MeldGraphs/>
             </Suspense>
           </div>}
         </section>
