@@ -67,7 +67,7 @@ class MeldDepthChart extends Component {
                 <XAxis dataKey="x" />
                 <YAxis yAxisId="left" label={{ value: 'Pool Depth ($)', angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: '-15' }} />
                 <YAxis yAxisId="right" orientation="right" label={{ value: '24h Volume ($)', angle: -90, position: 'insideRight', textAnchor: 'middle', offset: '-10' }} />
-                <Tooltip />
+                <Tooltip formatter={(value)=> `$${value}`}/>
                 <Legend />
                 <Line
                     yAxisId="left"
@@ -130,7 +130,7 @@ class MeldRateChart extends Component {
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="x" />
         <YAxis yAxisId="left" label={{ value: 'Interest Rate (%)', angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: '-15' }} />
-        <Tooltip />
+        <Tooltip formatter={(value)=> `${value}%`} labelFormatter={(value)=> `utilization : ${value}%`}/>
         <Legend />
         <Line
             yAxisId="left"
@@ -175,7 +175,7 @@ class MeldBarGraph extends Component {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis />
-                        <Tooltip />
+                        <Tooltip formatter={(value)=> `$${value}`}/>
 
                         <Bar dataKey="price" fill="#8884d8" name="Price">
                             <LabelList dataKey='priceLabel' /></Bar>
