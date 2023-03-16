@@ -152,10 +152,10 @@ class MeldBarGraph extends Component {
             <div className="meldGraphs">
                 <div className="left">
                 {barData[0].name === 'ADA' ? '' :
-                    <article>
+                    <article style={{marginTop:0, marginBottom:0}}>
                         <MeldDepthChart data={barData} />
                     </article>}
-                    <article  style={{margin:'0'}}>
+                    <article  style={{marginTop:10, marginBottom:0}}>
                     <MeldRateChart data={barData} />
                     </article>
                     </div>
