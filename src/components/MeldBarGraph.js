@@ -17,9 +17,6 @@ import mainStore from '../stores/main.store';
 import moment from "moment/moment";
 import { observer } from "mobx-react";
 
-function depthXAxisFormatter(value){
-    return '12';
-}
 class MeldDepthChart extends Component {
     render() {
         const rawData = mainStore['last_day_volume_data'] || {}
