@@ -25,13 +25,13 @@ class MeldDepthChart extends Component {
         if (token === 'HOSKY') {
             for (const [key, value] of Object.entries(rawData[token]['poolDepthInADA'])) {
                 let date = moment(key * 1000).format('LT');
-                let depth = Number(value) * price;
-                let volume = Number(rawData[token]['tradingVolumeInADA'][key]) * price;
+                let depth = Number(value) * Number(price);
+                let volume = Number(rawData[token]['tradingVolumeInADA'][key]) * Number(price);
 
                 data.push(
                     {
                         x: date,
-                        depth: Number(depth).toFixed(2),
+                        depth: Number(depth.toFixed(2)),
                         volume: Number(volume.toFixed(2))
                     });
             }
@@ -44,7 +44,7 @@ class MeldDepthChart extends Component {
                 data.push(
                     {
                         x: date,
-                        depth: Number(depth).toFixed(2),
+                        depth: Number(depth.toFixed(2)),
                         volume: Number(volume.toFixed(2))
                     });
             }
@@ -53,7 +53,7 @@ class MeldDepthChart extends Component {
 
         return <div>
             <LineChart
-                width={600}
+                width={700}
                 height={300}
                 data={data}
                 margin={{
@@ -65,8 +65,8 @@ class MeldDepthChart extends Component {
             >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="x" />
-                <YAxis yAxisId="left" label={{ value: 'Pool Depth ($)', angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: '-15' }} />
-                <YAxis yAxisId="right" orientation="right" label={{ value: '24h Volume ($)', angle: -90, position: 'insideRight', textAnchor: 'middle', offset: '-10' }} />
+                <YAxis yAxisId="left" type="number" domain={[0, 'dataMax']} label={{ value: 'Pool Depth ($)', angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: '-15' }} />
+                <YAxis yAxisId="right" type="number" domain={[0, 'dataMax']} orientation="right" label={{ value: '24h Volume ($)', angle: -90, position: 'insideRight', textAnchor: 'middle', offset: '-10' }} />
                 <Tooltip formatter={(value)=> isNaN(value) ? 'unavailable' : `$${value}`}/>
                 <Legend />
                 <Line
@@ -105,19 +105,22 @@ class MeldRateChart extends Component {
 
         ///util <= target = base + util/target * slope1
         ///else (ase + slope1 + (Util - target) / (1 - target) * slope2
-        while(utilization <=100) {
+        while(utilization <=80) {
             const x = utilization
-            const y = utilization > 80 ? getInterestRateSupTarget(utilization / 100, base, target, slope1, slope2) : getInterestRateInfTarget(utilization / 100, base, target, slope1);
+            const borrowRate = utilization > 80 ? getInterestRateSupTarget(utilization / 100, base, target, slope1, slope2) : getInterestRateInfTarget(utilization / 100, base, target, slope1);
+            const supplyRate = borrowRate * utilization
+            //supply apy(utilization) = borrow apy(utilzation) * utilization
             graphData.push({
                 x: x,
-                y: Number(y * 100).toFixed(2),
-            })
+                borrow: Number(borrowRate * 100).toFixed(2),
+                supply: Number(supplyRate).toFixed(2),
+            })            
             utilization += 2;
         }
 
     return <div>
     <LineChart
-        width={600}
+        width={700}
         height={300}
         data={graphData}
         margin={{
@@ -135,10 +138,16 @@ class MeldRateChart extends Component {
         <Line
             yAxisId="left"
             type="monotone"
-            dataKey="y"
+            dataKey="borrow"
             stroke="#8884d8"
             name="borrow rate"
-
+        />
+        <Line
+            yAxisId="left"
+            type="monotone"
+            dataKey="supply"
+            stroke="#82ca9d"
+            name="supply rate"
         />
     </LineChart>
 </div>
