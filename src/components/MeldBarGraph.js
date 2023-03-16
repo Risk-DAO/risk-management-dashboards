@@ -10,12 +10,16 @@ import {
     XAxis,
     YAxis,
 } from "recharts";
+import { WhaleFriendlyAxisTick, whaleFriendlyFormater } from '../components/WhaleFriendly';
 
 import { Component } from "react";
 import mainStore from '../stores/main.store';
-import moment from "moment";
+import moment from "moment/moment";
 import { observer } from "mobx-react";
 
+function depthXAxisFormatter(value){
+    return '12';
+}
 class MeldDepthChart extends Component {
     render() {
         const rawData = mainStore['last_day_volume_data'] || {}
@@ -24,7 +28,7 @@ class MeldDepthChart extends Component {
         const data = [];
         if (token === 'HOSKY') {
             for (const [key, value] of Object.entries(rawData[token]['poolDepthInADA'])) {
-                let date = moment(key * 1000).format('LT');
+                let date = moment(key * 1000).format('l');
                 let depth = Number(value) * Number(price);
                 let volume = Number(rawData[token]['tradingVolumeInADA'][key]) * Number(price);
 
@@ -38,7 +42,7 @@ class MeldDepthChart extends Component {
         }
         else {
             for (const [key, value] of Object.entries(rawData[token]['poolDepthInADA'])) {
-                let date = moment(key * 1000).format('LT');
+                let date = moment(key * 1000).format('l');
                 let depth = Number(value) * price;
                 let volume = Number(rawData[token]['tradingVolumeInADA'][key]) * price;
                 data.push(
@@ -54,21 +58,21 @@ class MeldDepthChart extends Component {
         return <div>
             <LineChart
                 width={700}
-                height={300}
+                height={350}
                 data={data}
                 margin={{
-                    top: 5,
+                    top: 0,
                     right: 30,
                     left: 30,
-                    bottom: 5
+                    bottom: 35
                 }}
             >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="x" />
-                <YAxis yAxisId="left" type="number" domain={[0, 'dataMax']} label={{ value: 'Pool Depth ($)', angle: -90, position: 'insideBottomLeft', textAnchor: 'middle', offset: '-15'  }} />
-                <YAxis yAxisId="right" type="number" domain={[0, 'dataMax']} orientation="right" label={{ value: '24h Volume ($)', angle: -90, position: 'insideRight', textAnchor: 'middle', offset: '-10' }} />
-                <Tooltip formatter={(value)=> isNaN(value) ? 'unavailable' : `$${value}`}/>
-                <Legend />
+                <XAxis dataKey="x" angle={-45} textAnchor="end" />
+                <YAxis yAxisId="left" type="number" tick={<WhaleFriendlyAxisTick />} domain={[0, 'dataMax']} label={{ value: 'Pool Depth', angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: '-15'  }} />
+                <YAxis yAxisId="right" type="number" tick={<WhaleFriendlyAxisTick />} domain={[0, 'dataMax']} orientation="right" label={{ value: 'Volume', angle: -90, position: 'insideRight', textAnchor: 'middle', offset: '-10' }} />
+                <Tooltip formatter={(value)=> isNaN(value) ? 'unavailable' : `${whaleFriendlyFormater(value)}`}/>
+                <Legend verticalAlign="top"/>
                 <Line
                     yAxisId="left"
                     type="monotone"
@@ -112,8 +116,8 @@ class MeldRateChart extends Component {
             //supply apy(utilization) = borrow apy(utilzation) * utilization
             graphData.push({
                 x: x,
-                borrow: Number(borrowRate * 100).toFixed(2),
-                supply: Number(supplyRate).toFixed(2),
+                borrow: Number((borrowRate * 100).toFixed(2)),
+                supply: Number(supplyRate.toFixed(2)),
             })            
             utilization += 2;
         }
