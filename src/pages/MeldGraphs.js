@@ -12,9 +12,8 @@ class MeldGraphs extends Component {
         const { json_time } = rawData
         const data = [];
         if(loading){
-
+            return
         }
-        else{
         for (const name in rawData['names']) {
             if (name === 'HOSKY') {
                 const datapoint = {};
@@ -42,7 +41,7 @@ class MeldGraphs extends Component {
                 datapoint['ADAPrice'] = Number(rawData['prices']['ADA']);
                 data.push(datapoint);
             }
-        }}
+        }
         return (
             <div>
                 {loading ? <article>Nothing to display</article> : 
