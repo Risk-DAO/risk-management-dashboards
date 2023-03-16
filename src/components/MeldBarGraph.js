@@ -59,15 +59,15 @@ class MeldDepthChart extends Component {
                 data={data}
                 margin={{
                     top: 0,
-                    right: 30,
+                    right: 10,
                     left: 30,
                     bottom: 35
                 }}
             >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="x" angle={-45} textAnchor="end" />
+                <XAxis dataKey="x" angle={-45} textAnchor="end" offset='-5' />
                 <YAxis yAxisId="left" type="number" tick={<WhaleFriendlyAxisTick />} domain={[0, 'dataMax']} label={{ value: 'Pool Depth', angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: '-15'  }} />
-                <YAxis yAxisId="right" type="number" tick={<WhaleFriendlyAxisTick />} domain={[0, 'dataMax']} orientation="right" label={{ value: 'Volume', angle: -90, position: 'insideRight', textAnchor: 'middle', offset: '-10' }} />
+                <YAxis yAxisId="right" type="number" tick={<WhaleFriendlyAxisTick />} domain={[0, 'dataMax']} orientation="right" label={{ value: 'Volume', angle: -90, position: 'outsideRight', textAnchor: 'middle', offset: '0' }} />
                 <Tooltip formatter={(value)=> isNaN(value) ? 'unavailable' : `${whaleFriendlyFormater(value)}`}/>
                 <Legend verticalAlign="top"/>
                 <Line
@@ -122,20 +122,20 @@ class MeldRateChart extends Component {
     return <div>
     <LineChart
         width={700}
-        height={300}
+        height={350}
         data={graphData}
         margin={{
             top: 5,
             right: 30,
             left: 20,
-            bottom: 5
+            bottom: 15
         }}
     >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="x" />
-        <YAxis yAxisId="left" label={{ value: 'Interest Rate (%)', angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: '-15' }} />
+        <XAxis dataKey="x" unit='%' label={{value: 'utilization', position:'insideBottom', textAnchor: 'middle', offset:'-15'}}/>
+        <YAxis yAxisId="left" unit='%' label={{ value: 'Interest Rate', angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: '-15' }} />
         <Tooltip formatter={(value)=> `${value}%`} labelFormatter={(value)=> `utilization : ${value}%`}/>
-        <Legend />
+        <Legend verticalAlign='top' />
         <Line
             yAxisId="left"
             type="monotone"
