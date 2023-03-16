@@ -59,13 +59,13 @@ class MeldDepthChart extends Component {
                 margin={{
                     top: 5,
                     right: 30,
-                    left: 20,
+                    left: 30,
                     bottom: 5
                 }}
             >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="x" />
-                <YAxis yAxisId="left" type="number" domain={[0, 'dataMax']} label={{ value: 'Pool Depth ($)', angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: '-15' }} />
+                <YAxis yAxisId="left" type="number" domain={[0, 'dataMax']} label={{ value: 'Pool Depth ($)', angle: -90, position: 'insideBottomLeft', textAnchor: 'middle', offset: '-15'  }} />
                 <YAxis yAxisId="right" type="number" domain={[0, 'dataMax']} orientation="right" label={{ value: '24h Volume ($)', angle: -90, position: 'insideRight', textAnchor: 'middle', offset: '-10' }} />
                 <Tooltip formatter={(value)=> isNaN(value) ? 'unavailable' : `$${value}`}/>
                 <Legend />
