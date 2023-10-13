@@ -2,7 +2,7 @@
 export default class Solver {
   constructor(rawDataObj) {
       this.collaterals = []
-      this.stables = ["auUSDC", "auUSDT", "USDT.e", "USDC.e", "USDC", "WXDAI", "iUSD", "USDT"]
+      this.stables = ["auUSDC", "auUSDT", "USDT.e", "USDC.e", "USDC", "WXDAI", "iUSD", "USDT", "sDAI"]
       this.shortStableLfs = [1, 1.5, 2]
       this.longStableLfs = [0.25, 0.5, 1]
       this.otherLfs = [0.5, 1, 1.5]
